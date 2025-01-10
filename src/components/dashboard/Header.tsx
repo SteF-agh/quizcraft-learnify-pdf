@@ -15,15 +15,15 @@ export const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <img 
             src="/lovable-uploads/44addff5-511d-4fae-a8bc-f8ab538c69fc.png" 
             alt="Leeon Logo" 
-            className="h-10 w-10"
+            className="h-12 w-12 object-contain"
           />
           <Button 
             variant="ghost" 
-            className="text-2xl font-bold text-secondary hover:text-secondary/80"
+            className="text-2xl font-bold text-secondary hover:text-secondary/80 pl-2"
             onClick={() => navigate("/")}
           >
             LeeonQuiz
