@@ -59,7 +59,7 @@ const Index = () => {
             <p className="text-sm text-muted-foreground">{progress}% abgeschlossen</p>
             <div className="flex gap-2">
               <Badge variant="secondary">Level 5</Badge>
-              <Badge variant="primary">500 Punkte</Badge>
+              <Badge variant="default">500 Punkte</Badge>
             </div>
           </Card>
 
@@ -69,11 +69,11 @@ const Index = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span>Mathematik Quiz</span>
-                <Badge variant="accent">Neu</Badge>
+                <Badge variant="secondary">Neu</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span>Deutsch Quiz</span>
-                <Badge>In Bearbeitung</Badge>
+                <Badge variant="default">In Bearbeitung</Badge>
               </div>
             </div>
           </Card>
