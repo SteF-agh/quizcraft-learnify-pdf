@@ -2,11 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FileUpload } from "@/components/FileUpload";
 import { useToast } from "@/components/ui/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 
 const Index = () => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(65); // Example progress value
 
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
@@ -29,7 +32,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/50">
+      <header className="fixed top-0 left-0 right-0 border-b border-border/50 bg-white/80 backdrop-blur-sm z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -47,8 +50,67 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <main className="container mx-auto px-4 pt-24 pb-12">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Progress Section */}
+          <Card className="p-6 space-y-4">
+            <h2 className="text-xl font-semibold text-secondary">Dein Fortschritt</h2>
+            <Progress value={progress} className="h-2" />
+            <p className="text-sm text-muted-foreground">{progress}% abgeschlossen</p>
+            <div className="flex gap-2">
+              <Badge variant="secondary">Level 5</Badge>
+              <Badge variant="primary">500 Punkte</Badge>
+            </div>
+          </Card>
+
+          {/* Active Quizzes */}
+          <Card className="p-6 space-y-4">
+            <h2 className="text-xl font-semibold text-secondary">Aktive Quizze</h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span>Mathematik Quiz</span>
+                <Badge variant="accent">Neu</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Deutsch Quiz</span>
+                <Badge>In Bearbeitung</Badge>
+              </div>
+            </div>
+          </Card>
+
+          {/* Achievements */}
+          <Card className="p-6 space-y-4">
+            <h2 className="text-xl font-semibold text-secondary">Errungenschaften</h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-primary-20 flex items-center justify-center mb-2">
+                  <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-xs text-center">Erste Schritte</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-secondary-20 flex items-center justify-center mb-2">
+                  <svg className="w-6 h-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <span className="text-xs text-center">Schnell wie der Blitz</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-accent-20 flex items-center justify-center mb-2">
+                  <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <span className="text-xs text-center">Bücherwurm</span>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <div className="mt-12 grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <h2 className="text-5xl font-bold leading-tight">
               Willkommen bei LeeonQuiz –
@@ -66,51 +128,13 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="lg:block">
+          <div className="lg:block relative">
             <img
               src="/lovable-uploads/0c9c15e3-978d-4d58-95c3-d935f65127d1.png"
               alt="Leeon Mascot"
               className="w-full max-w-md mx-auto"
             />
           </div>
-        </div>
-
-        <div className="mt-24 grid md:grid-cols-3 gap-8">
-          <Card className="p-6 space-y-4 hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-primary-20 flex items-center justify-center">
-              <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-secondary">Upload PDFs</h3>
-            <p className="text-muted-foreground">
-              Simply upload your PDF documents and let our system process them.
-            </p>
-          </Card>
-
-          <Card className="p-6 space-y-4 hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-secondary-20 flex items-center justify-center">
-              <svg className="w-6 h-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-secondary">AI-Generated Questions</h3>
-            <p className="text-muted-foreground">
-              Our AI analyzes your content and creates relevant quiz questions.
-            </p>
-          </Card>
-
-          <Card className="p-6 space-y-4 hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-accent-20 flex items-center justify-center">
-              <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-secondary">Track Progress</h3>
-            <p className="text-muted-foreground">
-              Earn points, unlock badges, and compete on the leaderboard.
-            </p>
-          </Card>
         </div>
       </main>
     </div>
