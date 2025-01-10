@@ -1,6 +1,7 @@
 import { FileUpload } from "@/components/FileUpload";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export const WelcomeSection = () => {
   const { toast } = useToast();
@@ -9,12 +10,25 @@ export const WelcomeSection = () => {
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
     try {
-      // TODO: Implement file upload to Supabase
+      console.log("Starting file upload:", file.name);
+      
+      // Upload file to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('pdfs')
+        .upload(`${Date.now()}-${file.name}`, file);
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("File uploaded successfully:", data);
+
       toast({
         title: "File uploaded successfully",
         description: "Your PDF is being processed. Questions will be generated shortly.",
       });
     } catch (error) {
+      console.error("Error uploading file:", error);
       toast({
         title: "Error uploading file",
         description: "Please try again later.",
