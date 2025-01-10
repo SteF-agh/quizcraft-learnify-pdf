@@ -3,7 +3,7 @@ import { QuizHeader } from "@/components/quiz/QuizHeader";
 import { QuestionCard } from "@/components/quiz/QuestionCard";
 import { Mascot } from "@/components/quiz/Mascot";
 import { supabase } from "@/integrations/supabase/client";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Question {
@@ -52,6 +52,7 @@ const Quiz = () => {
   const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const initializeQuiz = async () => {
@@ -60,7 +61,8 @@ const Quiz = () => {
         const documentId = searchParams.get('documentId');
 
         if (!documentId) {
-          toast.error("Kein Dokument ausgewählt");
+          toast.error("Wähle eine Datei aus, für die ein Quiz erzeugt werden soll");
+          navigate('/');
           return;
         }
 
@@ -79,7 +81,7 @@ const Quiz = () => {
     };
 
     initializeQuiz();
-  }, [location.search]);
+  }, [location.search, navigate]);
 
   const handleAnswerSelect = (index: number) => {
     setSelectedAnswer(index);
