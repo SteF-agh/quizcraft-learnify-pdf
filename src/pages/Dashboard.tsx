@@ -48,7 +48,7 @@ const Dashboard = () => {
     }
 
     if (learningMode === "quiz") {
-      navigate("/quiz");
+      navigate(`/quiz?documentId=${selectedDocument}`);
     } else {
       // For future flashcards implementation
       toast.info("Flashcards feature coming soon!");
