@@ -11,14 +11,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
-      <main className="container mx-auto px-4 pt-24 pb-12">
+      <main className="container mx-auto px-4 pt-28 pb-16 space-y-12">
         <div className="grid lg:grid-cols-3 gap-8">
           <ProgressCard progress={progress} />
           <ActiveQuizzes />
           <Achievements />
         </div>
-
         <WelcomeSection />
       </main>
     </div>
