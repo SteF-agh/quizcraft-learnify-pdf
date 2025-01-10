@@ -21,7 +21,7 @@
     --secondary: 215 100% 26%; /* #003882 */
     --secondary-foreground: 210 40% 98%;
 
-    --accent: 328 100% 44%; /* #e2007a */
+    --accent: 328 85% 44%; /* #e2007a */
     --accent-foreground: 210 40% 98%;
 
     --muted: 199 54% 95%;
@@ -64,4 +64,21 @@
   .bg-accent-60 { @apply bg-accent/60; }
   .bg-accent-40 { @apply bg-accent/40; }
   .bg-accent-20 { @apply bg-accent/20; }
+
+  /* Animation utilities */
+  .animate-level-complete {
+    animation: level-complete 0.5s ease-in-out;
+  }
+}
+
+@keyframes level-complete {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

@@ -4,12 +4,21 @@ import { FileUpload } from "@/components/FileUpload";
 import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Index = () => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
-  const [progress, setProgress] = useState(65); // Example progress value
+  const [progress, setProgress] = useState(65);
+  const [showLevelAnimation, setShowLevelAnimation] = useState(false);
+
+  useEffect(() => {
+    // Trigger animation when progress reaches certain thresholds (e.g., every 20%)
+    if (progress > 0 && progress % 20 === 0) {
+      setShowLevelAnimation(true);
+      setTimeout(() => setShowLevelAnimation(false), 1000);
+    }
+  }, [progress]);
 
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
@@ -132,7 +141,9 @@ const Index = () => {
             <img
               src="/lovable-uploads/0c9c15e3-978d-4d58-95c3-d935f65127d1.png"
               alt="Leeon Mascot"
-              className="w-full max-w-md mx-auto"
+              className={`w-full max-w-md mx-auto transition-transform duration-500 ${
+                showLevelAnimation ? 'animate-level-complete' : ''
+              }`}
             />
           </div>
         </div>
