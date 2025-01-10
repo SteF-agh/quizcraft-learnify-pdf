@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useNavigate } from "react-router-dom";
 
 interface Question {
   id: number;
@@ -12,6 +13,7 @@ interface Question {
 }
 
 const Quiz = () => {
+  const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showMotivation, setShowMotivation] = useState(false);
@@ -54,7 +56,16 @@ const Quiz = () => {
       {/* Header with progress */}
       <div className="container mx-auto mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-secondary">LeeonQuiz</h1>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline"
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2"
+            >
+              ← Zurück zur Hauptseite
+            </Button>
+            <h1 className="text-3xl font-bold text-secondary">LeeonQuiz</h1>
+          </div>
           <Badge variant="default" className="bg-accent">
             Frage {currentQuestion + 1} von {questions.length}
           </Badge>
