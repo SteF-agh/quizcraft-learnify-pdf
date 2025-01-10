@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { toast } from '@/components/ui/use-toast';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -10,17 +11,32 @@ console.log('Supabase Configuration:', {
 });
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables:', {
+  console.warn('Missing Supabase environment variables:', {
     url: supabaseUrl,
     key: supabaseAnonKey ? '[HIDDEN]' : undefined
   });
-  throw new Error('Missing Supabase environment variables. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your environment.');
+  
+  toast({
+    title: "Supabase Connection Error",
+    description: "Please connect your Supabase project in the Lovable interface.",
+    variant: "destructive",
+  });
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create the Supabase client even if env vars are missing
+// This prevents the app from crashing, though Supabase features won't work
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder-url.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
 
 // Initialize storage bucket if it doesn't exist
 const initializeStorage = async () => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('Skipping storage initialization due to missing credentials');
+    return;
+  }
+
   try {
     const { data: buckets } = await supabase.storage.listBuckets();
     const pdfsBucketExists = buckets?.some(bucket => bucket.name === 'pdfs');
@@ -35,12 +51,22 @@ const initializeStorage = async () => {
       
       if (error) {
         console.error('Error creating bucket:', error);
+        toast({
+          title: "Storage Setup Error",
+          description: "Could not initialize storage bucket. Some features may be limited.",
+          variant: "destructive",
+        });
       } else {
         console.log('Bucket created successfully:', data);
       }
     }
   } catch (error) {
     console.error('Error initializing storage:', error);
+    toast({
+      title: "Storage Setup Error",
+      description: "Could not initialize storage bucket. Some features may be limited.",
+      variant: "destructive",
+    });
   }
 };
 
