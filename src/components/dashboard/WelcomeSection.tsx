@@ -4,41 +4,6 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export const WelcomeSection = () => {
-  const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
-
-  const handleFileUpload = async (file: File) => {
-    setIsUploading(true);
-    try {
-      console.log("Starting file upload:", file.name);
-      
-      // Upload file to Supabase storage
-      const { data, error } = await supabase.storage
-        .from('pdfs')
-        .upload(`${Date.now()}-${file.name}`, file);
-
-      if (error) {
-        throw error;
-      }
-
-      console.log("File uploaded successfully:", data);
-
-      toast({
-        title: "File uploaded successfully",
-        description: "Your PDF is being processed. Questions will be generated shortly.",
-      });
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      toast({
-        title: "Error uploading file",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   return (
     <div className="mt-8 grid lg:grid-cols-2 gap-16 items-center bg-white/50 rounded-2xl p-12 shadow-lg">
       <div className="space-y-8">
@@ -50,11 +15,7 @@ export const WelcomeSection = () => {
           Upload your PDF documents and let our AI generate engaging quiz questions to enhance your learning experience.
         </p>
         <div className="space-y-4">
-          <FileUpload
-            onUpload={handleFileUpload}
-            isUploading={isUploading}
-            accept=".pdf"
-          />
+          <FileUpload />
         </div>
       </div>
 
