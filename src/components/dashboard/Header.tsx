@@ -15,13 +15,20 @@ export const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Button 
-          variant="ghost" 
-          className="text-2xl font-bold text-secondary hover:text-secondary/80"
-          onClick={() => navigate("/")}
-        >
-          LeeonQuiz
-        </Button>
+        <div className="flex items-center gap-2">
+          <img 
+            src="/lovable-uploads/44addff5-511d-4fae-a8bc-f8ab538c69fc.png" 
+            alt="Leeon Logo" 
+            className="h-10 w-10"
+          />
+          <Button 
+            variant="ghost" 
+            className="text-2xl font-bold text-secondary hover:text-secondary/80"
+            onClick={() => navigate("/")}
+          >
+            LeeonQuiz
+          </Button>
+        </div>
 
         <NavigationMenu>
           <NavigationMenuList>
