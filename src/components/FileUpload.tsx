@@ -1,16 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-interface FileUploadProps {
-  onUpload: (file: File) => Promise<void>;
-  isUploading: boolean;
-  accept: string;
-}
-
-export const FileUpload = ({ onUpload, isUploading, accept }: FileUploadProps) => {
+export const FileUpload = () => {
   const [dragActive, setDragActive] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -22,6 +20,44 @@ export const FileUpload = ({ onUpload, isUploading, accept }: FileUploadProps) =
     }
   };
 
+  const handleUpload = async (file: File) => {
+    if (!file || !file.type.includes('pdf')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      console.log("Starting file upload:", file.name);
+      
+      const fileName = `${Date.now()}-${file.name}`;
+      const { data, error } = await supabase.storage
+        .from('pdfs')
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      console.log("File uploaded successfully:", data);
+      toast({
+        title: "Success!",
+        description: "Your PDF has been uploaded successfully.",
+      });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -29,14 +65,14 @@ export const FileUpload = ({ onUpload, isUploading, accept }: FileUploadProps) =
 
     const files = Array.from(e.dataTransfer.files);
     if (files?.[0]) {
-      await onUpload(files[0]);
+      await handleUpload(files[0]);
     }
   };
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files?.[0]) {
-      await onUpload(e.target.files[0]);
+      await handleUpload(e.target.files[0]);
     }
   };
 
@@ -55,7 +91,7 @@ export const FileUpload = ({ onUpload, isUploading, accept }: FileUploadProps) =
       <Input
         ref={inputRef}
         type="file"
-        accept={accept}
+        accept=".pdf"
         onChange={handleChange}
         disabled={isUploading}
         className="hidden"
