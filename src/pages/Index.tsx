@@ -34,13 +34,9 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <img
-                src="/Logo.png"
+                src="/lovable-uploads/44addff5-511d-4fae-a8bc-f8ab538c69fc.png"
                 alt="LeeonQuiz Logo"
                 className="h-10 w-auto"
-                onError={(e) => {
-                  console.log("Logo failed to load");
-                  e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='%23009ee0'/%3E%3C/svg%3E";
-                }}
               />
               <h1 className="text-2xl font-bold text-secondary">LeeonQuiz</h1>
             </div>
@@ -55,8 +51,8 @@ const Index = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <h2 className="text-5xl font-bold leading-tight">
-              Transform Your PDFs into
-              <span className="text-primary"> Interactive Quizzes</span>
+              Willkommen bei LeeonQuiz –
+              <span className="text-primary"> Lernen mit Spaß!</span>
             </h2>
             <p className="text-lg text-muted-foreground">
               Upload your PDF documents and let our AI generate engaging quiz questions to enhance your learning experience.
@@ -72,13 +68,9 @@ const Index = () => {
 
           <div className="lg:block">
             <img
-              src="/Leeon.png"
+              src="/lovable-uploads/0c9c15e3-978d-4d58-95c3-d935f65127d1.png"
               alt="Leeon Mascot"
               className="w-full max-w-md mx-auto"
-              onError={(e) => {
-                console.log("Mascot failed to load");
-                e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23e2007a' opacity='0.1'/%3E%3C/svg%3E";
-              }}
             />
           </div>
         </div>
