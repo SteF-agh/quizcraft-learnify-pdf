@@ -64,8 +64,12 @@ const Quiz = () => {
           return;
         }
 
+        // Simulate loading time for demonstration
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         // Later, we'll fetch AI-generated questions here
         console.log('Document ID for question generation:', documentId);
+        setQuestions(sampleQuestions);
         setLoading(false);
       } catch (error) {
         console.error('Error initializing quiz:', error);
