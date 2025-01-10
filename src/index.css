@@ -6,65 +6,35 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 199 54% 90%; /* #d7eaf4 */
+    --foreground: 215 66% 17%; /* #0e2849 */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 66% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 66% 17%;
 
-    --primary: 199 100% 44%;
+    --primary: 199 100% 44%; /* #009ee0 */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 215 100% 26%;
+    --secondary: 215 100% 26%; /* #003882 */
     --secondary-foreground: 210 40% 98%;
 
-    --accent: 328 100% 44%;
+    --accent: 328 100% 44%; /* #e2007a */
     --accent-foreground: 210 40% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 199 54% 95%;
+    --muted-foreground: 215 66% 45%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 199 54% 85%;
+    --input: 199 54% 85%;
+    --ring: 199 100% 44%;
 
     --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 199 100% 44%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 215 100% 26%;
-    --secondary-foreground: 210 40% 98%;
-
-    --accent: 328 100% 44%;
-    --accent-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
   }
 
   body {
@@ -74,5 +44,24 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Roboto', sans-serif;
+    @apply text-secondary;
   }
+}
+
+/* Color variations */
+@layer utilities {
+  .bg-primary-80 { @apply bg-primary/80; }
+  .bg-primary-60 { @apply bg-primary/60; }
+  .bg-primary-40 { @apply bg-primary/40; }
+  .bg-primary-20 { @apply bg-primary/20; }
+  
+  .bg-secondary-80 { @apply bg-secondary/80; }
+  .bg-secondary-60 { @apply bg-secondary/60; }
+  .bg-secondary-40 { @apply bg-secondary/40; }
+  .bg-secondary-20 { @apply bg-secondary/20; }
+  
+  .bg-accent-80 { @apply bg-accent/80; }
+  .bg-accent-60 { @apply bg-accent/60; }
+  .bg-accent-40 { @apply bg-accent/40; }
+  .bg-accent-20 { @apply bg-accent/20; }
 }
