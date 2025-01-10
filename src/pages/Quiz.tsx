@@ -15,7 +15,6 @@ const Quiz = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showMotivation, setShowMotivation] = useState(false);
 
-  // Sample questions - in a real app, these would come from an API
   const questions: Question[] = [
     {
       id: 1,
