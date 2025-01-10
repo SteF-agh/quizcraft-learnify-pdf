@@ -13,49 +13,68 @@ interface Question {
   correctAnswer: string | number | boolean;
 }
 
+// Temporary sample questions until we integrate with OpenAI
+const sampleQuestions: Question[] = [
+  {
+    type: 'multiple-choice',
+    text: 'Was ist die Hauptstadt von Deutschland?',
+    options: ['Berlin', 'Hamburg', 'München', 'Frankfurt'],
+    correctAnswer: 0
+  },
+  {
+    type: 'true-false',
+    text: 'Deutschland ist ein Mitglied der Europäischen Union.',
+    correctAnswer: true
+  },
+  {
+    type: 'open',
+    text: 'Erkläre kurz, was das Grundgesetz ist.',
+    correctAnswer: 'Das Grundgesetz ist die Verfassung Deutschlands'
+  },
+  {
+    type: 'matching',
+    text: 'Ordne die Bundesländer ihren Hauptstädten zu.',
+    options: ['Bayern - München', 'Hessen - Wiesbaden', 'Sachsen - Dresden'],
+    correctAnswer: 0
+  },
+  {
+    type: 'fill-in',
+    text: 'Die ____ ist das Parlament der Bundesrepublik Deutschland.',
+    options: ['Bundestag', 'Bundesrat', 'Bundesversammlung'],
+    correctAnswer: 0
+  }
+];
+
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showMotivation, setShowMotivation] = useState(false);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const initializeQuiz = async () => {
       try {
         const searchParams = new URLSearchParams(location.search);
         const documentId = searchParams.get('documentId');
 
         if (!documentId) {
-          toast.error("No document selected");
+          toast.error("Kein Dokument ausgewählt");
           return;
         }
 
-        const response = await fetch('/functions/v1/generate-questions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ documentId }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to generate questions');
-        }
-
-        const data = await response.json();
-        setQuestions(data.questions);
+        // Later, we'll fetch AI-generated questions here
+        console.log('Document ID for question generation:', documentId);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching questions:', error);
-        toast.error("Failed to generate questions");
-      } finally {
+        console.error('Error initializing quiz:', error);
+        toast.error("Fehler beim Laden des Quiz");
         setLoading(false);
       }
     };
 
-    fetchQuestions();
+    initializeQuiz();
   }, [location.search]);
 
   const handleAnswerSelect = (index: number) => {
@@ -63,7 +82,7 @@ const Quiz = () => {
     const currentQ = questions[currentQuestion];
     
     let isCorrect = false;
-    if (currentQ.type === 'multiple-choice') {
+    if (currentQ.type === 'multiple-choice' || currentQ.type === 'matching' || currentQ.type === 'fill-in') {
       isCorrect = index === currentQ.correctAnswer;
     } else if (currentQ.type === 'true-false') {
       isCorrect = index === (currentQ.correctAnswer ? 0 : 1);
@@ -71,7 +90,10 @@ const Quiz = () => {
     
     if (isCorrect) {
       setShowMotivation(true);
+      toast.success("Richtig!");
       setTimeout(() => setShowMotivation(false), 3000);
+    } else {
+      toast.error("Leider falsch. Versuche es noch einmal!");
     }
   };
 
@@ -85,7 +107,7 @@ const Quiz = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-8 flex items-center justify-center">
-        <div className="text-xl">Generating questions...</div>
+        <div className="text-xl">Quiz wird geladen...</div>
       </div>
     );
   }

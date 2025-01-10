@@ -72,6 +72,17 @@ export const QuestionCard = ({
         );
 
       case 'matching':
+        return question.options?.map((option, index) => (
+          <Button
+            key={index}
+            variant={selectedAnswer === index ? "secondary" : "outline"}
+            className="w-full text-left justify-start h-auto py-4"
+            onClick={() => onAnswerSelect(index)}
+          >
+            {option}
+          </Button>
+        ));
+
       case 'fill-in':
         return question.options?.map((option, index) => (
           <Button
