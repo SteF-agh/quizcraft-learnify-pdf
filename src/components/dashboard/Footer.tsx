@@ -5,15 +5,8 @@ export const Footer = () => {
     <footer className="bg-background border-t border-border mt-auto">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-8">
-            <img 
-              src="/lovable-uploads/44addff5-511d-4fae-a8bc-f8ab538c69fc.png" 
-              alt="Leeon Logo" 
-              className="h-16 w-auto object-contain"
-            />
-            <div className="text-sm text-muted-foreground">
-              © 2024 Leeon. All rights reserved.
-            </div>
+          <div className="text-sm text-muted-foreground">
+            © 2024 Leeon. All rights reserved.
           </div>
           <div className="flex items-center gap-8">
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground">
