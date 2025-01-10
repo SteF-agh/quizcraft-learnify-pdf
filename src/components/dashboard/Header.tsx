@@ -1,13 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -29,28 +21,15 @@ export const Header = () => {
             LeeonQuiz
           </Button>
         </div>
-
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Button 
-                variant="outline"
-                className="mr-2"
-                onClick={() => navigate("/")}
-              >
-                Dashboard
-              </Button>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Button 
-                variant="accent"
-                onClick={() => navigate("/quiz")}
-              >
-                Start Quiz
-              </Button>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/dashboard")}
+            className="text-secondary hover:text-secondary/80"
+          >
+            Dashboard
+          </Button>
+        </div>
       </div>
     </header>
   );
