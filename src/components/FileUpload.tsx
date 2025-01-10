@@ -3,12 +3,14 @@ import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export const FileUpload = () => {
   const [dragActive, setDragActive] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -35,17 +37,30 @@ export const FileUpload = () => {
       console.log("Starting file upload:", file.name);
       
       const fileName = `${Date.now()}-${file.name}`;
-      const { data, error } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('pdfs')
         .upload(fileName, file);
 
-      if (error) throw error;
+      if (uploadError) throw uploadError;
 
-      console.log("File uploaded successfully:", data);
+      // Store document information in the documents table
+      const { error: dbError } = await supabase
+        .from('documents')
+        .insert({
+          name: file.name,
+          file_path: fileName,
+        });
+
+      if (dbError) throw dbError;
+
+      console.log("File uploaded successfully:", uploadData);
       toast({
         title: "Success!",
         description: "Your PDF has been uploaded successfully.",
       });
+      
+      // Navigate to dashboard after successful upload
+      navigate('/dashboard');
     } catch (error) {
       console.error("Error uploading file:", error);
       toast({
