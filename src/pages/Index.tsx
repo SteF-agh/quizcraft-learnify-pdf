@@ -77,12 +77,14 @@ const Index = () => {
             <h2 className="text-xl font-semibold text-secondary">Aktive Quizze</h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span>Mathematik Quiz</span>
-                <Badge variant="secondary">Neu</Badge>
+                <Button variant="ghost" className="w-full justify-between" onClick={() => window.location.href = '/quiz'}>
+                  <span>Mathematik Quiz</span>
+                  <Badge variant="default">Neu</Badge>
+                </Button>
               </div>
               <div className="flex items-center justify-between">
                 <span>Deutsch Quiz</span>
-                <Badge variant="default">In Bearbeitung</Badge>
+                <Badge variant="secondary">In Bearbeitung</Badge>
               </div>
             </div>
           </Card>
