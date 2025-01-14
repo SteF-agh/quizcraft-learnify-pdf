@@ -17,13 +17,59 @@ export const HeroSection = () => {
               theme: ThemeMinimal,
               style: {
                 button: {
-                  background: 'rgb(var(--primary))',
+                  background: 'hsl(var(--primary))',
                   color: 'white',
                   borderRadius: '0.5rem',
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  width: '100%',
+                  marginTop: '1rem',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    background: 'hsl(var(--primary) / 0.9)',
+                    transform: 'translateY(-1px)'
+                  }
+                },
+                input: {
+                  background: 'white',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem 1rem',
+                  fontSize: '1rem',
+                  width: '100%',
+                  marginTop: '0.5rem',
+                  transition: 'border-color 0.2s ease-in-out',
+                  '&:focus': {
+                    outline: 'none',
+                    borderColor: 'hsl(var(--primary))',
+                    boxShadow: '0 0 0 2px hsl(var(--primary) / 0.1)'
+                  }
+                },
+                label: {
+                  color: 'hsl(var(--foreground))',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  marginBottom: '0.25rem'
+                },
+                message: {
+                  fontSize: '0.875rem',
+                  color: 'hsl(var(--muted-foreground))',
+                  marginTop: '0.5rem'
                 },
                 anchor: {
-                  color: 'rgb(var(--primary))',
+                  color: 'hsl(var(--primary))',
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                  '&:hover': {
+                    textDecoration: 'underline'
+                  }
                 },
+                container: {
+                  width: '100%',
+                  maxWidth: '400px',
+                  margin: '0 auto'
+                }
               },
             }}
             theme="light"
