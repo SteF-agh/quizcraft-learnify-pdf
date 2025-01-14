@@ -14,7 +14,6 @@ const Dashboard = () => {
   const [progress] = useState(65);
   const [documents, setDocuments] = useState<any[]>([]);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
-  const [learningMode, setLearningMode] = useState<"quiz" | "flashcards" | null>(null);
   const navigate = useNavigate();
 
   const fetchDocuments = useCallback(async () => {
@@ -43,16 +42,7 @@ const Dashboard = () => {
       toast.error("Please select a document first");
       return;
     }
-    if (!learningMode) {
-      toast.error("Please select a learning mode");
-      return;
-    }
-
-    if (learningMode === "quiz") {
-      navigate(`/quiz?documentId=${selectedDocument}`);
-    } else {
-      toast.info("Flashcards feature coming soon!");
-    }
+    navigate(`/quiz?documentId=${selectedDocument}`);
   };
 
   const handleDocumentDeleted = () => {
@@ -81,8 +71,6 @@ const Dashboard = () => {
                 <div className="pt-4">
                   <LearningModeSelector
                     selectedDocument={selectedDocument}
-                    learningMode={learningMode}
-                    onModeChange={setLearningMode}
                     onStartLearning={handleStartLearning}
                   />
                 </div>
