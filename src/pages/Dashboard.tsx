@@ -3,12 +3,10 @@ import { ActiveQuizzes } from "@/components/dashboard/ActiveQuizzes";
 import { Achievements } from "@/components/dashboard/Achievements";
 import { Header } from "@/components/dashboard/Header";
 import { WelcomeSection } from "@/components/dashboard/WelcomeSection";
+import { DocumentList } from "@/components/dashboard/DocumentList";
+import { LearningModeSelector } from "@/components/dashboard/LearningModeSelector";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -70,62 +68,19 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
           <h2 className="text-2xl font-bold mb-4">Your Documents</h2>
           
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Select</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Upload Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {documents.map((doc) => (
-                <TableRow 
-                  key={doc.id} 
-                  className={selectedDocument === doc.id ? "bg-primary/10" : ""}
-                  onClick={() => setSelectedDocument(doc.id)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <TableCell>
-                    <RadioGroup value={selectedDocument || ""}>
-                      <RadioGroupItem value={doc.id} id={doc.id} />
-                    </RadioGroup>
-                  </TableCell>
-                  <TableCell>{doc.name}</TableCell>
-                  <TableCell>
-                    {new Date(doc.created_at).toLocaleDateString()}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DocumentList
+            documents={documents}
+            selectedDocument={selectedDocument}
+            onSelectDocument={setSelectedDocument}
+          />
 
           {selectedDocument && (
-            <div className="mt-8 p-6 border rounded-lg bg-gray-50">
-              <h3 className="text-lg font-semibold mb-4">Choose Learning Mode</h3>
-              <RadioGroup
-                value={learningMode || ""}
-                onValueChange={(value) => setLearningMode(value as "quiz" | "flashcards")}
-                className="space-y-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="quiz" id="quiz" />
-                  <Label htmlFor="quiz">Quiz</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="flashcards" id="flashcards" />
-                  <Label htmlFor="flashcards">Lernkarten</Label>
-                </div>
-              </RadioGroup>
-
-              <Button
-                onClick={handleStartLearning}
-                className="mt-6"
-                disabled={!selectedDocument || !learningMode}
-              >
-                Start Learning
-              </Button>
-            </div>
+            <LearningModeSelector
+              selectedDocument={selectedDocument}
+              learningMode={learningMode}
+              onModeChange={setLearningMode}
+              onStartLearning={handleStartLearning}
+            />
           )}
         </div>
       </main>
