@@ -56,30 +56,44 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 pt-28 pb-16 space-y-12">
-        <UploadSection />
-        
-        <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
-          <h2 className="text-2xl font-bold text-secondary">Your Documents</h2>
-          <DocumentList
-            documents={documents}
-            selectedDocument={selectedDocument}
-            onSelectDocument={setSelectedDocument}
-          />
-          {documents.length > 0 && (
-            <LearningModeSelector
-              selectedDocument={selectedDocument}
-              learningMode={learningMode}
-              onModeChange={setLearningMode}
-              onStartLearning={handleStartLearning}
-            />
-          )}
-        </div>
+      <main className="container mx-auto px-4 pt-20 pb-16 space-y-8 animate-fade-in">
+        <div className="grid gap-8">
+          {/* Upload and Document Management Section */}
+          <div className="space-y-6">
+            <UploadSection />
+            
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg transition-all hover:shadow-xl p-6 space-y-6">
+              <h2 className="text-2xl font-bold text-secondary">Deine Dokumente</h2>
+              <DocumentList
+                documents={documents}
+                selectedDocument={selectedDocument}
+                onSelectDocument={setSelectedDocument}
+              />
+              {documents.length > 0 && (
+                <div className="pt-4">
+                  <LearningModeSelector
+                    selectedDocument={selectedDocument}
+                    learningMode={learningMode}
+                    onModeChange={setLearningMode}
+                    onStartLearning={handleStartLearning}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <ProgressCard progress={progress} />
-          <ActiveQuizzes />
-          <Achievements />
+          {/* Stats and Achievement Section */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="transform hover:scale-[1.02] transition-transform duration-300">
+              <ProgressCard progress={progress} />
+            </div>
+            <div className="transform hover:scale-[1.02] transition-transform duration-300">
+              <ActiveQuizzes />
+            </div>
+            <div className="transform hover:scale-[1.02] transition-transform duration-300">
+              <Achievements />
+            </div>
+          </div>
         </div>
       </main>
     </div>

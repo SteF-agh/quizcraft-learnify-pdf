@@ -1,18 +1,16 @@
 import { FileUpload } from "@/components/FileUpload";
 
-export const WelcomeSection = () => {
+export const UploadSection = () => {
   return (
-    <div className="mt-8 bg-white/50 rounded-2xl p-12 shadow-lg">
-      <div className="space-y-8">
-        <p className="text-xl text-muted-foreground leading-relaxed">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg transition-all hover:shadow-xl">
+      <div className="space-y-6">
+        <p className="text-lg text-muted-foreground leading-relaxed">
           Upload your PDF documents and let our AI generate engaging quiz questions to enhance your learning experience.
         </p>
-        <div className="space-y-4">
+        <div>
           <FileUpload />
         </div>
       </div>
     </div>
   );
 };
-
-export { WelcomeSection as UploadSection };

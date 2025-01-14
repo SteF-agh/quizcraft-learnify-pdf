@@ -16,29 +16,29 @@ export const LearningModeSelector = ({
   onStartLearning
 }: LearningSelectorProps) => {
   return (
-    <div className="mt-8 p-6 border rounded-lg bg-gray-50">
-      <h3 className="text-lg font-semibold mb-4">Choose Learning Mode</h3>
+    <div className="p-6 border rounded-xl bg-white/50 backdrop-blur-sm shadow-sm">
+      <h3 className="text-lg font-semibold mb-4 text-secondary">Lernmodus wählen</h3>
       <RadioGroup
         value={learningMode || ""}
         onValueChange={(value) => onModeChange(value as "quiz" | "flashcards")}
         className="space-y-4"
       >
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 hover:bg-primary/5 p-2 rounded-lg transition-colors">
           <RadioGroupItem value="quiz" id="quiz" />
-          <Label htmlFor="quiz">Quiz</Label>
+          <Label htmlFor="quiz" className="cursor-pointer">Quiz</Label>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 hover:bg-primary/5 p-2 rounded-lg transition-colors">
           <RadioGroupItem value="flashcards" id="flashcards" />
-          <Label htmlFor="flashcards">Lernkarten</Label>
+          <Label htmlFor="flashcards" className="cursor-pointer">Lernkarten</Label>
         </div>
       </RadioGroup>
 
       <Button
         onClick={onStartLearning}
-        className="mt-6"
+        className="mt-6 w-full transition-all hover:scale-[1.02]"
         disabled={!selectedDocument || !learningMode}
       >
-        Start Learning
+        Lernen starten
       </Button>
     </div>
   );
