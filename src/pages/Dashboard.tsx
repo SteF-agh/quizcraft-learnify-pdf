@@ -2,7 +2,7 @@ import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { ActiveQuizzes } from "@/components/dashboard/ActiveQuizzes";
 import { Achievements } from "@/components/dashboard/Achievements";
 import { Header } from "@/components/dashboard/Header";
-import { WelcomeSection } from "@/components/dashboard/WelcomeSection";
+import { UploadSection } from "@/components/dashboard/UploadSection";
 import { DocumentList } from "@/components/dashboard/DocumentList";
 import { LearningModeSelector } from "@/components/dashboard/LearningModeSelector";
 import { useState, useEffect } from "react";
@@ -57,7 +57,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 pt-28 pb-16 space-y-12">
-        <WelcomeSection />
+        <UploadSection />
         
         <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
           <h2 className="text-2xl font-bold text-secondary">Your Documents</h2>
