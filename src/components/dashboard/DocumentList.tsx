@@ -17,7 +17,7 @@ interface DocumentListProps {
 
 export const DocumentList = ({ documents, selectedDocument, onSelectDocument }: DocumentListProps) => {
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return 'N/A';
+    if (!bytes) return 'Größe nicht verfügbar';
     const units = ['B', 'KB', 'MB', 'GB'];
     let size = bytes;
     let unitIndex = 0;
