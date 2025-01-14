@@ -55,6 +55,11 @@ const Dashboard = () => {
     }
   };
 
+  const handleDocumentDeleted = () => {
+    setSelectedDocument(null);
+    fetchDocuments();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -70,6 +75,7 @@ const Dashboard = () => {
                 documents={documents}
                 selectedDocument={selectedDocument}
                 onSelectDocument={setSelectedDocument}
+                onDocumentDeleted={handleDocumentDeleted}
               />
               {documents.length > 0 && (
                 <div className="pt-4">
