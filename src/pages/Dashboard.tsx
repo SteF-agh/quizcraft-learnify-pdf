@@ -59,22 +59,14 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 pt-28 pb-16 space-y-12">
         <WelcomeSection />
         
-        <div className="grid lg:grid-cols-3 gap-8">
-          <ProgressCard progress={progress} />
-          <ActiveQuizzes />
-          <Achievements />
-        </div>
-
         <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
-          <h2 className="text-2xl font-bold mb-4">Your Documents</h2>
-          
+          <h2 className="text-2xl font-bold text-secondary">Your Documents</h2>
           <DocumentList
             documents={documents}
             selectedDocument={selectedDocument}
             onSelectDocument={setSelectedDocument}
           />
-
-          {selectedDocument && (
+          {documents.length > 0 && (
             <LearningModeSelector
               selectedDocument={selectedDocument}
               learningMode={learningMode}
@@ -82,6 +74,12 @@ const Dashboard = () => {
               onStartLearning={handleStartLearning}
             />
           )}
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          <ProgressCard progress={progress} />
+          <ActiveQuizzes />
+          <Achievements />
         </div>
       </main>
     </div>
