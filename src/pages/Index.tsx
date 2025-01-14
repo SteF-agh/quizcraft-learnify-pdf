@@ -4,9 +4,30 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { LucideBookOpen, LucideFlame, LucideTrophy } from "lucide-react";
+import { Auth } from '@supabase/auth-ui-react';
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        navigate('/dashboard');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const learningModes = [
     {
@@ -23,6 +44,10 @@ const Index = () => {
     }
   ];
 
+  if (session) {
+    return null; // Will redirect to dashboard
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -34,17 +59,25 @@ const Index = () => {
               Willkommen bei LeeonQuiz –
               <span className="text-primary block mt-2">Lernen mit Spaß!</span>
             </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              Upload your PDF documents and let our AI generate engaging quiz questions to enhance your learning experience.
-            </p>
-            <div className="space-y-4">
-              <Button 
-                size="lg" 
-                className="w-full sm:w-auto"
-                onClick={() => navigate('/dashboard')}
-              >
-                Zum Dashboard
-              </Button>
+            <div className="space-y-4 bg-white/80 p-8 rounded-lg shadow-md">
+              <Auth
+                supabaseClient={supabase}
+                appearance={{
+                  theme: 'light',
+                  style: {
+                    button: {
+                      background: 'rgb(var(--primary))',
+                      color: 'white',
+                      borderRadius: '0.5rem',
+                    },
+                    anchor: {
+                      color: 'rgb(var(--primary))',
+                    },
+                  },
+                }}
+                theme="light"
+                providers={[]}
+              />
             </div>
           </div>
 
