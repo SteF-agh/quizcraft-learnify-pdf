@@ -26,10 +26,8 @@ export const HeroSection = () => {
                   width: '100%',
                   marginTop: '1rem',
                   transition: 'all 0.2s ease-in-out',
-                  ':hover': {
-                    background: 'hsl(var(--primary) / 0.9)',
-                    transform: 'translateY(-1px)'
-                  }
+                  backgroundColor: 'hsl(var(--primary))',
+                  transform: 'translateY(0)',
                 },
                 input: {
                   background: 'white',
@@ -40,11 +38,7 @@ export const HeroSection = () => {
                   width: '100%',
                   marginTop: '0.5rem',
                   transition: 'border-color 0.2s ease-in-out',
-                  ':focus': {
-                    outline: 'none',
-                    borderColor: 'hsl(var(--primary))',
-                    boxShadow: '0 0 0 2px hsl(var(--primary) / 0.1)'
-                  }
+                  outline: 'none',
                 },
                 label: {
                   color: 'hsl(var(--foreground))',
@@ -61,9 +55,6 @@ export const HeroSection = () => {
                   color: 'hsl(var(--primary))',
                   textDecoration: 'none',
                   fontWeight: '500',
-                  ':hover': {
-                    textDecoration: 'underline'
-                  }
                 },
                 container: {
                   width: '100%',
@@ -71,6 +62,11 @@ export const HeroSection = () => {
                   margin: '0 auto'
                 }
               },
+              className: {
+                button: 'hover:bg-primary/90 hover:-translate-y-[1px]',
+                input: 'focus:border-primary focus:ring-2 focus:ring-primary/10',
+                anchor: 'hover:underline'
+              }
             }}
             theme="light"
             providers={[]}
