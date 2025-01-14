@@ -5,7 +5,7 @@ import { Header } from "@/components/dashboard/Header";
 import { UploadSection } from "@/components/dashboard/UploadSection";
 import { DocumentList } from "@/components/dashboard/DocumentList";
 import { LearningModeSelector } from "@/components/dashboard/LearningModeSelector";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -17,24 +17,26 @@ const Dashboard = () => {
   const [learningMode, setLearningMode] = useState<"quiz" | "flashcards" | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      const { data, error } = await supabase
-        .from('documents')
-        .select('*')
-        .order('created_at', { ascending: false });
+  const fetchDocuments = useCallback(async () => {
+    console.log("Fetching documents...");
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching documents:', error);
-        toast.error("Failed to load documents");
-        return;
-      }
+    if (error) {
+      console.error('Error fetching documents:', error);
+      toast.error("Failed to load documents");
+      return;
+    }
 
-      setDocuments(data || []);
-    };
-
-    fetchDocuments();
+    console.log("Documents fetched:", data);
+    setDocuments(data || []);
   }, []);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
 
   const handleStartLearning = () => {
     if (!selectedDocument) {
@@ -60,7 +62,7 @@ const Dashboard = () => {
         <div className="grid gap-8">
           {/* Upload and Document Management Section */}
           <div className="space-y-6">
-            <UploadSection />
+            <UploadSection onUploadSuccess={fetchDocuments} />
             
             <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg transition-all hover:shadow-xl p-6 space-y-6">
               <h2 className="text-2xl font-bold text-secondary">Deine Dokumente</h2>

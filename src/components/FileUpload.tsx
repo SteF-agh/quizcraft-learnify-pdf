@@ -1,14 +1,18 @@
 import { UploadZone } from "./upload/UploadZone";
 import { useFileUpload } from "@/hooks/useFileUpload";
 
-export const FileUpload = () => {
+interface FileUploadProps {
+  onUploadSuccess?: () => void;
+}
+
+export const FileUpload = ({ onUploadSuccess }: FileUploadProps) => {
   const {
     dragActive,
     isUploading,
     handleDrag,
     handleDrop,
     handleUpload
-  } = useFileUpload();
+  } = useFileUpload(onUploadSuccess);
 
   return (
     <UploadZone

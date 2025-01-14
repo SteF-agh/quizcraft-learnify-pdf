@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { uploadPdfToStorage, saveDocumentToDatabase } from "@/services/uploadService";
 
-export const useFileUpload = () => {
+export const useFileUpload = (onUploadSuccess?: () => void) => {
   const [dragActive, setDragActive] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
@@ -40,7 +40,9 @@ export const useFileUpload = () => {
         description: "Your PDF has been uploaded successfully.",
       });
       
-      navigate('/dashboard');
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
     } catch (error) {
       console.error("Error uploading file:", error);
       toast({
