@@ -14,7 +14,7 @@ export const HeroSection = () => {
           <Auth
             supabaseClient={supabase}
             appearance={{
-              theme: 'light',
+              theme: ThemeMinimal,
               style: {
                 button: {
                   background: 'rgb(var(--primary))',
