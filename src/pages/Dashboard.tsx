@@ -2,6 +2,7 @@ import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { ActiveQuizzes } from "@/components/dashboard/ActiveQuizzes";
 import { Achievements } from "@/components/dashboard/Achievements";
 import { Header } from "@/components/dashboard/Header";
+import { WelcomeSection } from "@/components/dashboard/WelcomeSection";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -50,7 +51,6 @@ const Dashboard = () => {
     if (learningMode === "quiz") {
       navigate(`/quiz?documentId=${selectedDocument}`);
     } else {
-      // For future flashcards implementation
       toast.info("Flashcards feature coming soon!");
     }
   };
@@ -59,6 +59,8 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 pt-28 pb-16 space-y-12">
+        <WelcomeSection />
+        
         <div className="grid lg:grid-cols-3 gap-8">
           <ProgressCard progress={progress} />
           <ActiveQuizzes />

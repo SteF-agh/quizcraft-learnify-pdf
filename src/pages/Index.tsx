@@ -1,8 +1,11 @@
 import { Header } from "@/components/dashboard/Header";
-import { FileUpload } from "@/components/FileUpload";
 import { Footer } from "@/components/dashboard/Footer";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -17,7 +20,13 @@ const Index = () => {
               Upload your PDF documents and let our AI generate engaging quiz questions to enhance your learning experience.
             </p>
             <div className="space-y-4">
-              <FileUpload />
+              <Button 
+                size="lg" 
+                className="w-full sm:w-auto"
+                onClick={() => navigate('/dashboard')}
+              >
+                Zum Dashboard
+              </Button>
             </div>
           </div>
 
