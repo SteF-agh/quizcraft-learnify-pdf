@@ -14,3 +14,5 @@ export const WelcomeSection = () => {
     </div>
   );
 };
+
+export { WelcomeSection as UploadSection };
