@@ -1,7 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
 const sanitizeFileName = (fileName: string): string => {
-  // Remove special characters and spaces, replace umlauts
   return fileName
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')  // Remove diacritics
@@ -32,12 +31,21 @@ export const uploadPdfToStorage = async (file: File) => {
   return { fileName, uploadData };
 };
 
-export const saveDocumentToDatabase = async (name: string, filePath: string) => {
+export const saveDocumentToDatabase = async (name: string, filePath: string, file: File) => {
+  console.log("Saving document metadata to database:", {
+    name,
+    filePath,
+    size: file.size,
+    type: file.type
+  });
+
   const { error: dbError } = await supabase
     .from('documents')
     .insert({
-      name: name,  // Keep original name for display
+      name: name,
       file_path: filePath,
+      file_size: file.size,
+      content_type: file.type
     });
 
   if (dbError) {

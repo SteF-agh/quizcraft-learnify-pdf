@@ -11,20 +11,26 @@ export type Database = {
     Tables: {
       documents: {
         Row: {
+          content_type: string | null
           created_at: string
           file_path: string
+          file_size: number | null
           id: string
           name: string
         }
         Insert: {
+          content_type?: string | null
           created_at?: string
           file_path: string
+          file_size?: number | null
           id?: string
           name: string
         }
         Update: {
+          content_type?: string | null
           created_at?: string
           file_path?: string
+          file_size?: number | null
           id?: string
           name?: string
         }

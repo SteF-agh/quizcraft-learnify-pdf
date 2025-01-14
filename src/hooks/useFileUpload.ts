@@ -32,7 +32,7 @@ export const useFileUpload = (onUploadSuccess?: () => void) => {
     setIsUploading(true);
     try {
       const { fileName, uploadData } = await uploadPdfToStorage(file);
-      await saveDocumentToDatabase(file.name, fileName);
+      await saveDocumentToDatabase(file.name, fileName, file);
 
       console.log("File uploaded successfully:", uploadData);
       toast({
