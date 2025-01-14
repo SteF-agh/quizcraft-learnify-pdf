@@ -26,7 +26,7 @@ export const HeroSection = () => {
                   width: '100%',
                   marginTop: '1rem',
                   transition: 'all 0.2s ease-in-out',
-                  '&:hover': {
+                  ':hover': {
                     background: 'hsl(var(--primary) / 0.9)',
                     transform: 'translateY(-1px)'
                   }
@@ -40,7 +40,7 @@ export const HeroSection = () => {
                   width: '100%',
                   marginTop: '0.5rem',
                   transition: 'border-color 0.2s ease-in-out',
-                  '&:focus': {
+                  ':focus': {
                     outline: 'none',
                     borderColor: 'hsl(var(--primary))',
                     boxShadow: '0 0 0 2px hsl(var(--primary) / 0.1)'
@@ -61,7 +61,7 @@ export const HeroSection = () => {
                   color: 'hsl(var(--primary))',
                   textDecoration: 'none',
                   fontWeight: '500',
-                  '&:hover': {
+                  ':hover': {
                     textDecoration: 'underline'
                   }
                 },
