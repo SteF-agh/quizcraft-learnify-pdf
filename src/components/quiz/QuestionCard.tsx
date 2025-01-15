@@ -67,7 +67,7 @@ export const QuestionCard = ({
         />
         
         <NextQuestionButton
-          show={(selectedAnswer !== null || question.type === 'open' || showCorrectAnswer)}
+          show={(selectedAnswer !== null || showCorrectAnswer)}
           onClick={onNextQuestion}
           isLastQuestion={isLastQuestion}
         />
