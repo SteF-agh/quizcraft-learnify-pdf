@@ -1,5 +1,4 @@
 import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { LeaderboardCard } from './LeaderboardCard';
 import { LeaderboardEntry } from '@/types/leaderboard';
@@ -72,13 +71,12 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
   const displayData = (data && data.length > 0) ? data : fallbackData;
   
   return (
-    <Tabs defaultValue="global" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 mb-6">
-        <TabsTrigger value="global">Globale Rangliste</TabsTrigger>
-        <TabsTrigger value="weekly">Wöchentliche Rangliste</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="global">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Global Leaderboard */}
+      <div>
+        <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          Globale Rangliste
+        </h2>
         <div className="grid gap-6">
           {isLoading ? (
             <Card className="p-6">
@@ -98,9 +96,13 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
             ))
           }
         </div>
-      </TabsContent>
+      </div>
 
-      <TabsContent value="weekly">
+      {/* Weekly Leaderboard */}
+      <div>
+        <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
+          Wöchentliche Rangliste
+        </h2>
         <div className="grid gap-6">
           {weeklyFallbackData.map((entry: LeaderboardEntry) => (
             <LeaderboardCard
@@ -112,7 +114,7 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
             />
           ))}
         </div>
-      </TabsContent>
-    </Tabs>
+      </div>
+    </div>
   );
 };
