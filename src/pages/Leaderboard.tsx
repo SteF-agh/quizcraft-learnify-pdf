@@ -85,7 +85,7 @@ const Leaderboard = () => {
               leaderboardData?.map((entry: LeaderboardEntry) => (
                 <Card 
                   key={entry.username} 
-                  className={`p-4 transform transition-all duration-200 hover:scale-102 hover:shadow-lg ${
+                  className={`p-4 transform transition-all duration-200 hover:scale-105 hover:shadow-lg ${
                     entry.rank === 1 ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200' :
                     entry.rank === 2 ? 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200' :
                     entry.rank === 3 ? 'bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200' :
