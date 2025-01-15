@@ -93,28 +93,38 @@ serve(async (req) => {
             content: `Generiere 5 ${questionType === 'all' ? 'verschiedene' : questionType} Fragen aus diesem Textinhalt: ${text.substring(0, 4000)}`
           }
         ]
-      }),
+      })
     });
 
     const gptResponse = await response.json();
     console.log('Received GPT response:', gptResponse);
 
     if (!gptResponse.choices?.[0]?.message?.content) {
+      console.error('Invalid GPT response structure:', gptResponse);
       throw new Error('Invalid response from GPT');
     }
 
     let questions: Question[];
     try {
-      const content = gptResponse.choices[0].message.content.trim();
+      // Clean up the response content
+      const content = gptResponse.choices[0].message.content.trim()
+        .replace(/```json\n?/g, '') // Remove JSON code block markers if present
+        .replace(/```\n?/g, '')     // Remove closing code block marker if present
+        .trim();                    // Remove any extra whitespace
+      
+      console.log('Cleaned GPT response content:', content);
+      
       questions = JSON.parse(content);
       
       if (!Array.isArray(questions)) {
+        console.error('Response is not an array:', questions);
         throw new Error('Response is not an array');
       }
       
       // Validate each question
       questions.forEach((q, index) => {
         if (!q.type || !q.text || (q.type === 'multiple-choice' && !Array.isArray(q.options))) {
+          console.error(`Invalid question format at index ${index}:`, q);
           throw new Error(`Invalid question format at index ${index}`);
         }
       });
