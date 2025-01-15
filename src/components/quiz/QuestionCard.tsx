@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState } from "react";
 import { MultipleChoiceQuestion } from "./question-types/MultipleChoiceQuestion";
 import { TrueFalseQuestion } from "./question-types/TrueFalseQuestion";
@@ -28,6 +29,40 @@ export const QuestionCard = ({
   isLastQuestion,
 }: QuestionCardProps) => {
   const [openAnswer, setOpenAnswer] = useState("");
+  const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
+
+  const handleAnswerSelect = (index: number) => {
+    onAnswerSelect(index);
+    
+    // Überprüfe, ob die Antwort falsch ist
+    let isCorrect = false;
+    if (question.type === 'multiple-choice' || question.type === 'matching' || question.type === 'fill-in') {
+      isCorrect = index === question.correctAnswer;
+    } else if (question.type === 'true-false') {
+      isCorrect = index === (question.correctAnswer ? 0 : 1);
+    }
+    
+    if (!isCorrect) {
+      setShowCorrectAnswer(true);
+    } else {
+      setShowCorrectAnswer(false);
+    }
+  };
+
+  const getCorrectAnswerText = () => {
+    switch (question.type) {
+      case 'multiple-choice':
+      case 'matching':
+      case 'fill-in':
+        return question.options?.[question.correctAnswer as number];
+      case 'true-false':
+        return question.correctAnswer ? "Wahr" : "Falsch";
+      case 'open':
+        return question.correctAnswer as string;
+      default:
+        return "";
+    }
+  };
 
   const renderQuestionContent = () => {
     switch (question.type) {
@@ -36,7 +71,7 @@ export const QuestionCard = ({
           <MultipleChoiceQuestion
             options={question.options || []}
             selectedAnswer={selectedAnswer}
-            onAnswerSelect={onAnswerSelect}
+            onAnswerSelect={handleAnswerSelect}
           />
         );
 
@@ -44,7 +79,7 @@ export const QuestionCard = ({
         return (
           <TrueFalseQuestion
             selectedAnswer={selectedAnswer}
-            onAnswerSelect={onAnswerSelect}
+            onAnswerSelect={handleAnswerSelect}
           />
         );
 
@@ -62,7 +97,7 @@ export const QuestionCard = ({
           <MultipleChoiceQuestion
             options={question.options || []}
             selectedAnswer={selectedAnswer}
-            onAnswerSelect={onAnswerSelect}
+            onAnswerSelect={handleAnswerSelect}
           />
         );
 
@@ -80,6 +115,14 @@ export const QuestionCard = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {renderQuestionContent()}
+        
+        {showCorrectAnswer && (
+          <Alert className="mt-4 border-2 border-secondary/50 bg-secondary/10">
+            <AlertDescription className="text-secondary-foreground">
+              Die richtige Antwort ist: <span className="font-semibold">{getCorrectAnswerText()}</span>
+            </AlertDescription>
+          </Alert>
+        )}
         
         {(selectedAnswer !== null || question.type === 'open') && (
           <Button
