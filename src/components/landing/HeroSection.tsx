@@ -20,11 +20,11 @@ export const HeroSection = () => {
 
         <div className="relative flex justify-center lg:justify-end">
           <div className="w-full h-auto max-w-md relative">
-            {/* Crown image positioned above the mascot */}
+            {/* Crown image with adjusted positioning and size */}
             <img
               src="/lovable-uploads/44addff5-511d-4fae-a8bc-f8ab538c69fc.png"
               alt="Golden Crown"
-              className="absolute top-[-40px] left-1/2 transform -translate-x-1/2 w-32 h-auto z-10"
+              className="absolute top-[-60px] left-1/2 transform -translate-x-1/2 w-40 h-auto z-10"
             />
             {/* Mascot image */}
             <img
