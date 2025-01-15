@@ -15,10 +15,12 @@ export const Header = () => {
           />
           <Button 
             variant="ghost" 
-            className="text-2xl font-bold text-secondary hover:text-secondary/80"
+            className="text-2xl font-bold hover:scale-105 transition-transform duration-200"
             onClick={() => navigate("/")}
           >
-            LeeonQuiz
+            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
+              LeeonQuiz
+            </span>
           </Button>
         </div>
         <div className="flex items-center gap-4">
