@@ -71,29 +71,29 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a professional educator who creates diverse quiz questions based on provided text content. 
+            content: `Du bist ein professioneller Pädagoge, der vielfältige Quizfragen basierend auf bereitgestellten Textinhalten erstellt. Erstelle alle Fragen und Antworten auf Deutsch.
             ${questionType === 'all' 
-              ? 'Create a mix of different question types'
-              : `Create only ${questionType} questions`}.
+              ? 'Erstelle eine Mischung aus verschiedenen Fragetypen'
+              : `Erstelle nur ${questionType} Fragen`}.
             
-            Return ONLY a JSON array of questions, where each question object has this exact structure:
+            Gib NUR ein JSON-Array mit Fragen zurück, wobei jedes Fragenobjekt diese exakte Struktur hat:
             {
               "type": "multiple-choice" | "true-false" | "open" | "matching" | "fill-in",
-              "text": "question text here",
-              "options": ["array", "of", "options"] (only for multiple-choice, matching),
-              "correctAnswer": number (index for multiple-choice/matching) | boolean (for true-false) | string (for open/fill-in)
+              "text": "Fragetext hier",
+              "options": ["Array", "von", "Optionen"] (nur für multiple-choice, matching),
+              "correctAnswer": number (Index für multiple-choice/matching) | boolean (für true-false) | string (für open/fill-in)
             }
             
-            Make sure all questions are directly related to the content provided and use specific details from the text.
-            Do not include any markdown formatting, just the raw JSON array.
-            Ensure questions test understanding of key concepts from the text.`
+            Stelle sicher, dass sich alle Fragen direkt auf den bereitgestellten Inhalt beziehen und spezifische Details aus dem Text verwenden.
+            Verwende keine Markdown-Formatierung, nur das reine JSON-Array.
+            Stelle sicher, dass die Fragen das Verständnis der Schlüsselkonzepte aus dem Text testen.`
           },
           {
             role: "user",
-            content: `Generate 5 ${questionType === 'all' ? 'diverse' : questionType} questions from this text content: ${text.substring(0, 4000)}`
+            content: `Generiere 5 ${questionType === 'all' ? 'verschiedene' : questionType} Fragen aus diesem Textinhalt: ${text.substring(0, 4000)}`
           }
         ]
-      })
+      }),
     });
 
     const gptResponse = await response.json();
