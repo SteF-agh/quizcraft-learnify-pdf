@@ -1,11 +1,7 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { decode } from 'https://deno.land/std@0.177.0/encoding/base64.ts';
 
 interface Question {
   type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
@@ -14,9 +10,14 @@ interface Question {
   correctAnswer: string | number | boolean;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -53,8 +54,10 @@ serve(async (req) => {
     }
 
     // Convert PDF to text
-    const text = await fileData.text();
-    console.log('Successfully extracted text from PDF');
+    const arrayBuffer = await fileData.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    const text = new TextDecoder().decode(bytes);
+    console.log('Successfully extracted text from PDF, length:', text.length);
 
     // Generate questions using GPT-4
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -68,7 +71,7 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a professional educator who creates diverse quiz questions. 
+            content: `You are a professional educator who creates diverse quiz questions based on provided text content. 
             ${questionType === 'all' 
               ? 'Create a mix of different question types'
               : `Create only ${questionType} questions`}.
@@ -81,11 +84,13 @@ serve(async (req) => {
               "correctAnswer": number (index for multiple-choice/matching) | boolean (for true-false) | string (for open/fill-in)
             }
             
-            Do not include any markdown formatting, just the raw JSON array.`
+            Make sure all questions are directly related to the content provided and use specific details from the text.
+            Do not include any markdown formatting, just the raw JSON array.
+            Ensure questions test understanding of key concepts from the text.`
           },
           {
             role: "user",
-            content: `Generate 5 ${questionType === 'all' ? 'diverse' : questionType} questions from this text: ${text.substring(0, 4000)}`
+            content: `Generate 5 ${questionType === 'all' ? 'diverse' : questionType} questions from this text content: ${text.substring(0, 4000)}`
           }
         ]
       })
@@ -113,6 +118,8 @@ serve(async (req) => {
           throw new Error(`Invalid question format at index ${index}`);
         }
       });
+
+      console.log('Successfully validated questions format');
     } catch (error) {
       console.error('Error parsing GPT response:', error);
       throw new Error('Failed to parse questions from GPT response');
