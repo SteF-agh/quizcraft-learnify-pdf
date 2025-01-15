@@ -18,9 +18,9 @@ export const QuizHeader = ({
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto px-4 mb-12">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-6">
+    <div className="container mx-auto px-4 mb-16">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-8">
           <Button 
             variant="outline"
             onClick={() => navigate("/learning-mode")}
@@ -35,14 +35,14 @@ export const QuizHeader = ({
         </div>
         <Badge 
           variant="secondary" 
-          className="px-4 py-2 text-lg bg-gradient-to-r from-secondary to-primary text-white"
+          className="px-6 py-3 text-lg bg-gradient-to-r from-secondary to-primary text-white"
         >
           Frage {currentQuestion + 1} von {totalQuestions}
         </Badge>
       </div>
       <Progress 
         value={progress} 
-        className="h-3 bg-secondary/20"
+        className="h-4 bg-secondary/20 rounded-lg"
       />
     </div>
   );

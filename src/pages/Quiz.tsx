@@ -124,10 +124,10 @@ const Quiz = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-background to-primary/5 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-background to-primary/5 py-12">
         {questions.length === 0 ? (
-          <div className="container mx-auto max-w-4xl px-4">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+          <div className="container mx-auto max-w-3xl px-4 mt-8">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg border border-primary/10">
               <QuestionTypeSelector
                 selectedType={questionType}
                 onTypeSelect={setQuestionType}
@@ -135,7 +135,7 @@ const Quiz = () => {
               <button
                 onClick={generateQuestions}
                 disabled={isGenerating}
-                className="mt-6 w-full bg-gradient-to-r from-primary to-secondary text-white rounded-lg py-3 font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="mt-8 w-full bg-gradient-to-r from-primary to-secondary text-white rounded-lg py-4 font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 text-lg"
               >
                 {isGenerating ? "Generiere Fragen..." : "Quiz generieren"}
               </button>
@@ -149,7 +149,7 @@ const Quiz = () => {
               progress={progress}
             />
 
-            <div className="container mx-auto max-w-4xl px-4">
+            <div className="container mx-auto max-w-3xl px-4">
               <QuestionCard
                 question={questions[currentQuestion]}
                 selectedAnswer={selectedAnswer}
