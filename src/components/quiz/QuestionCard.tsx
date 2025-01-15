@@ -5,6 +5,7 @@ import { QuestionContent } from "./content/QuestionContent";
 import { AnswerFeedback } from "./feedback/AnswerFeedback";
 import { NextQuestionButton } from "./navigation/NextQuestionButton";
 import { checkAnswer, getCorrectAnswerText } from "./utils/answerUtils";
+import { Button } from "@/components/ui/button";
 
 interface QuestionCardProps {
   question: Question;
@@ -30,6 +31,10 @@ export const QuestionCard = ({
     setShowCorrectAnswer(!isCorrect);
   };
 
+  const handleShowSolution = () => {
+    setShowCorrectAnswer(true);
+  };
+
   return (
     <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-white to-primary/5">
       <CardHeader className="space-y-4">
@@ -46,13 +51,23 @@ export const QuestionCard = ({
           setOpenAnswer={setOpenAnswer}
         />
         
+        {!showCorrectAnswer && selectedAnswer === null && (
+          <Button
+            onClick={handleShowSolution}
+            variant="outline"
+            className="w-full mt-4 border-accent text-accent hover:bg-accent hover:text-white transition-colors"
+          >
+            Auflösung anzeigen
+          </Button>
+        )}
+        
         <AnswerFeedback 
           showCorrectAnswer={showCorrectAnswer}
           correctAnswer={getCorrectAnswerText(question)}
         />
         
         <NextQuestionButton
-          show={selectedAnswer !== null || question.type === 'open'}
+          show={(selectedAnswer !== null || question.type === 'open' || showCorrectAnswer)}
           onClick={onNextQuestion}
           isLastQuestion={isLastQuestion}
         />
