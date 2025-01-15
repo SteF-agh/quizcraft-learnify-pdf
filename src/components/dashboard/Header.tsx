@@ -29,6 +29,13 @@ export const Header = () => {
           >
             Dashboard
           </Button>
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/leaderboard")}
+            className="text-secondary hover:text-secondary/80"
+          >
+            Leaderboard
+          </Button>
         </div>
       </div>
     </header>
