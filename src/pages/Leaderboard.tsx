@@ -83,25 +83,53 @@ const Leaderboard = () => {
               <Card className="p-4">Laden...</Card>
             ) : (
               leaderboardData?.map((entry: LeaderboardEntry) => (
-                <Card key={entry.username} className="p-4">
+                <Card 
+                  key={entry.username} 
+                  className={`p-4 transform transition-all duration-200 hover:scale-102 hover:shadow-lg ${
+                    entry.rank === 1 ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200' :
+                    entry.rank === 2 ? 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200' :
+                    entry.rank === 3 ? 'bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200' :
+                    'hover:bg-gray-50'
+                  }`}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      {entry.rank === 1 && <Trophy className="h-6 w-6 text-yellow-500" />}
-                      {entry.rank === 2 && <Medal className="h-6 w-6 text-gray-400" />}
-                      {entry.rank === 3 && <Medal className="h-6 w-6 text-amber-600" />}
-                      {entry.rank > 3 && <Star className="h-6 w-6 text-blue-500" />}
-                      <span className="font-bold">{entry.rank}.</span>
-                      <span>{entry.username}</span>
+                      {entry.rank === 1 && (
+                        <Trophy className="h-6 w-6 text-yellow-500 animate-bounce" />
+                      )}
+                      {entry.rank === 2 && (
+                        <Medal className="h-6 w-6 text-gray-400" />
+                      )}
+                      {entry.rank === 3 && (
+                        <Medal className="h-6 w-6 text-amber-600" />
+                      )}
+                      {entry.rank > 3 && (
+                        <Star className="h-6 w-6 text-blue-500" />
+                      )}
+                      <span className={`font-bold ${
+                        entry.rank === 1 ? 'text-yellow-700' :
+                        entry.rank === 2 ? 'text-gray-700' :
+                        entry.rank === 3 ? 'text-amber-700' :
+                        'text-gray-600'
+                      }`}>
+                        {entry.rank}.
+                      </span>
+                      <span className="font-semibold">{entry.username}</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="flex gap-1">
                         {entry.achievements.map((badge, index) => (
-                          <span key={index} className="text-lg">
+                          <span 
+                            key={index} 
+                            className="text-lg transform hover:scale-110 transition-transform"
+                          >
                             {badge}
                           </span>
                         ))}
                       </div>
-                      <span className="font-bold">{entry.total_points} Punkte</span>
+                      <span className="font-bold text-primary">
+                        {entry.total_points} Punkte
+                      </span>
                     </div>
                   </div>
                 </Card>
