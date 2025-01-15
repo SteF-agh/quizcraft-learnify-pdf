@@ -71,26 +71,36 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Du bist ein professioneller Pädagoge, der vielfältige Quizfragen basierend auf bereitgestellten Textinhalten erstellt. Erstelle alle Fragen und Antworten auf Deutsch.
-            ${questionType === 'all' 
-              ? 'Erstelle eine Mischung aus verschiedenen Fragetypen'
-              : `Erstelle nur ${questionType} Fragen`}.
-            
-            Gib NUR ein JSON-Array mit Fragen zurück, wobei jedes Fragenobjekt diese exakte Struktur hat:
-            {
-              "type": "multiple-choice" | "true-false" | "open" | "matching" | "fill-in",
-              "text": "Fragetext hier",
-              "options": ["Array", "von", "Optionen"] (nur für multiple-choice, matching),
-              "correctAnswer": number (Index für multiple-choice/matching) | boolean (für true-false) | string (für open/fill-in)
-            }
-            
-            Stelle sicher, dass sich alle Fragen direkt auf den bereitgestellten Inhalt beziehen und spezifische Details aus dem Text verwenden.
-            Verwende keine Markdown-Formatierung, nur das reine JSON-Array.
-            Stelle sicher, dass die Fragen das Verständnis der Schlüsselkonzepte aus dem Text testen.`
+            content: `Du bist ein erfahrener Pädagoge und Experte für die Erstellung von Lernmaterialien. Deine Aufgabe ist es, hochwertige Quizfragen zu erstellen, die das Verständnis des Lernenden für den bereitgestellten Text testen.
+
+Wichtige Richtlinien für die Fragenerstellung:
+1. Erstelle NUR Fragen, die sich DIREKT auf spezifische Informationen aus dem Text beziehen.
+2. Vermeide allgemeine oder oberflächliche Fragen.
+3. Formuliere die Fragen klar und präzise auf Deutsch.
+4. Bei Multiple-Choice-Fragen:
+   - Stelle sicher, dass alle Antwortoptionen plausibel sind
+   - Vermeide offensichtlich falsche Antworten
+   - Verwende 3-4 Antwortoptionen
+5. Bei Wahr/Falsch-Fragen:
+   - Beziehe dich auf konkrete Fakten aus dem Text
+   - Vermeide mehrdeutige Aussagen
+6. Bei offenen Fragen:
+   - Frage nach spezifischen Konzepten oder Definitionen
+   - Die Antwort sollte direkt aus dem Text ableitbar sein
+
+Gib die Fragen als JSON-Array zurück, mit genau dieser Struktur:
+{
+  "type": "multiple-choice" | "true-false" | "open" | "matching" | "fill-in",
+  "text": "Fragetext",
+  "options": ["Array", "von", "Optionen"] (nur für multiple-choice, matching),
+  "correctAnswer": number (Index für multiple-choice/matching) | boolean (für true-false) | string (für open/fill-in)
+}`
           },
           {
             role: "user",
-            content: `Generiere 5 ${questionType === 'all' ? 'verschiedene' : questionType} Fragen aus diesem Textinhalt: ${text.substring(0, 4000)}`
+            content: `Generiere 5 ${questionType === 'all' ? 'verschiedene' : questionType} Fragen zu diesem Text. Beachte dabei die oben genannten Richtlinien und beziehe dich ausschließlich auf den folgenden Inhalt: 
+
+${text.substring(0, 4000)}`
           }
         ]
       })
