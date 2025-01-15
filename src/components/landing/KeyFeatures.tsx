@@ -30,7 +30,7 @@ export const KeyFeatures = () => {
   ];
 
   return (
-    <div className="mt-24">
+    <div className="mt-12">
       <h2 className="text-3xl font-bold text-center mb-4">Entdecken Sie, wie einfach und motivierend Lernen sein kann</h2>
       <div className="grid md:grid-cols-2 gap-8 mt-12">
         {features.map((feature, index) => (
