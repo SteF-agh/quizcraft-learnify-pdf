@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { MultipleChoiceQuestion } from "./question-types/MultipleChoiceQuestion";
+import { TrueFalseQuestion } from "./question-types/TrueFalseQuestion";
+import { OpenQuestion } from "./question-types/OpenQuestion";
 
 interface Question {
   type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
@@ -30,90 +32,39 @@ export const QuestionCard = ({
   const renderQuestionContent = () => {
     switch (question.type) {
       case 'multiple-choice':
-        return question.options?.map((option, index) => (
-          <Button
-            key={index}
-            variant={selectedAnswer === index ? "secondary" : "outline"}
-            className={`w-full text-left justify-start h-auto py-4 px-6 mb-3 transition-all duration-300 ${
-              selectedAnswer === index 
-                ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
-                : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
-            }`}
-            onClick={() => onAnswerSelect(index)}
-          >
-            {option}
-          </Button>
-        ));
+        return (
+          <MultipleChoiceQuestion
+            options={question.options || []}
+            selectedAnswer={selectedAnswer}
+            onAnswerSelect={onAnswerSelect}
+          />
+        );
 
       case 'true-false':
         return (
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              variant={selectedAnswer === 0 ? "secondary" : "outline"}
-              className={`h-auto py-4 transition-all duration-300 ${
-                selectedAnswer === 0 
-                  ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
-                  : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
-              }`}
-              onClick={() => onAnswerSelect(0)}
-            >
-              Wahr
-            </Button>
-            <Button
-              variant={selectedAnswer === 1 ? "secondary" : "outline"}
-              className={`h-auto py-4 transition-all duration-300 ${
-                selectedAnswer === 1 
-                  ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
-                  : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
-              }`}
-              onClick={() => onAnswerSelect(1)}
-            >
-              Falsch
-            </Button>
-          </div>
+          <TrueFalseQuestion
+            selectedAnswer={selectedAnswer}
+            onAnswerSelect={onAnswerSelect}
+          />
         );
 
       case 'open':
         return (
-          <Input
+          <OpenQuestion
             value={openAnswer}
-            onChange={(e) => setOpenAnswer(e.target.value)}
-            placeholder="Deine Antwort..."
-            className="w-full p-4 text-lg border-2 focus:border-secondary"
+            onChange={setOpenAnswer}
           />
         );
 
       case 'matching':
-        return question.options?.map((option, index) => (
-          <Button
-            key={index}
-            variant={selectedAnswer === index ? "secondary" : "outline"}
-            className={`w-full text-left justify-start h-auto py-4 px-6 mb-3 transition-all duration-300 ${
-              selectedAnswer === index 
-                ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
-                : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
-            }`}
-            onClick={() => onAnswerSelect(index)}
-          >
-            {option}
-          </Button>
-        ));
-
       case 'fill-in':
-        return question.options?.map((option, index) => (
-          <Button
-            key={index}
-            variant={selectedAnswer === index ? "secondary" : "outline"}
-            className={`w-full text-left justify-start h-auto py-4 px-6 mb-3 transition-all duration-300 ${
-              selectedAnswer === index 
-                ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
-                : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
-            }`}
-            onClick={() => onAnswerSelect(index)}
-          >
-            {option}
-          </Button>
-        ));
+        return (
+          <MultipleChoiceQuestion
+            options={question.options || []}
+            selectedAnswer={selectedAnswer}
+            onAnswerSelect={onAnswerSelect}
+          />
+        );
 
       default:
         return null;

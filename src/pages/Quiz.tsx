@@ -48,41 +48,45 @@ const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showMotivation, setShowMotivation] = useState(false);
-  const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const initializeQuiz = async () => {
-      try {
-        const searchParams = new URLSearchParams(location.search);
-        const documentId = searchParams.get('documentId');
-
-        if (!documentId) {
-          toast.error("Wähle eine Datei aus, für die ein Quiz erzeugt werden soll");
-          navigate('/learning-mode');
-          return;
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setQuestions(sampleQuestions);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error initializing quiz:', error);
-        toast.error("Fehler beim Laden des Quiz");
-        setLoading(false);
-      }
-    };
-
     initializeQuiz();
   }, [location.search, navigate]);
 
+  const initializeQuiz = async () => {
+    try {
+      const searchParams = new URLSearchParams(location.search);
+      const documentId = searchParams.get('documentId');
+
+      if (!documentId) {
+        toast.error("Wähle eine Datei aus, für die ein Quiz erzeugt werden soll");
+        navigate('/learning-mode');
+        return;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setQuestions(sampleQuestions);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error initializing quiz:', error);
+      toast.error("Fehler beim Laden des Quiz");
+      setLoading(false);
+    }
+  };
+
   const handleAnswerSelect = (index: number) => {
     setSelectedAnswer(index);
+    checkAnswer(index);
+  };
+
+  const checkAnswer = (index: number) => {
     const currentQ = questions[currentQuestion];
-    
     let isCorrect = false;
+
     if (currentQ.type === 'multiple-choice' || currentQ.type === 'matching' || currentQ.type === 'fill-in') {
       isCorrect = index === currentQ.correctAnswer;
     } else if (currentQ.type === 'true-false') {
@@ -90,12 +94,20 @@ const Quiz = () => {
     }
     
     if (isCorrect) {
-      setShowMotivation(true);
-      toast.success("Richtig! Weiter so!");
-      setTimeout(() => setShowMotivation(false), 3000);
+      showCorrectAnswerFeedback();
     } else {
-      toast.error("Leider falsch. Versuche es noch einmal!");
+      showIncorrectAnswerFeedback();
     }
+  };
+
+  const showCorrectAnswerFeedback = () => {
+    setShowMotivation(true);
+    toast.success("Richtig! Weiter so!");
+    setTimeout(() => setShowMotivation(false), 3000);
+  };
+
+  const showIncorrectAnswerFeedback = () => {
+    toast.error("Leider falsch. Versuche es noch einmal!");
   };
 
   const handleNextQuestion = () => {

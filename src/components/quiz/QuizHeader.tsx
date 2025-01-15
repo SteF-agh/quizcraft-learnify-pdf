@@ -10,7 +10,11 @@ interface QuizHeaderProps {
   progress: number;
 }
 
-export const QuizHeader = ({ currentQuestion, totalQuestions, progress }: QuizHeaderProps) => {
+export const QuizHeader = ({ 
+  currentQuestion, 
+  totalQuestions, 
+  progress 
+}: QuizHeaderProps) => {
   const navigate = useNavigate();
 
   return (
