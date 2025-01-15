@@ -125,10 +125,19 @@ const Quiz = () => {
         const searchParams = new URLSearchParams(location.search);
         const documentId = searchParams.get('documentId');
         
-        // Save quiz results
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          toast.error("Benutzer nicht eingeloggt");
+          return;
+        }
+
+        // Save quiz results with user_id
         const { error: quizError } = await supabase
           .from('quiz_results')
           .insert({
+            user_id: user.id,
             total_points: quizStats.totalPoints,
             correct_answers: quizStats.correctAnswers,
             total_questions: questions.length,
@@ -141,6 +150,7 @@ const Quiz = () => {
         const { error: statsError } = await supabase
           .from('user_stats')
           .upsert({
+            user_id: user.id,
             quiz_points: quizStats.totalPoints
           }, {
             onConflict: 'user_id'
