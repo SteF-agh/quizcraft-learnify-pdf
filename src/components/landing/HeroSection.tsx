@@ -9,21 +9,9 @@ export const HeroSection = () => {
         <div className="space-y-4 max-w-2xl mx-auto text-center lg:text-left">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
             Willkommen beim LeeonQuiz
-            <div className="flex items-center gap-4 mt-4">
-              <span className="text-primary">
-                Lernen mit Spaß!
-              </span>
-              <div className="flex items-center gap-2">
-                <img
-                  src="/lovable-uploads/60caa0e3-5b9f-443e-b211-5be575e4e3f7.png"
-                  alt="Golden Crown"
-                  className="w-16 h-auto"
-                />
-                <p className="text-xl text-primary font-semibold">
-                  Hol dir die Krone!
-                </p>
-              </div>
-            </div>
+            <span className="text-primary block mt-2">
+              Lernen mit Spaß!
+            </span>
           </h1>
         </div>
 
