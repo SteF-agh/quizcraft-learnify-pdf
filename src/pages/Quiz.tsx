@@ -114,8 +114,10 @@ const Quiz = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center">
-          <div className="text-xl">Quiz wird geladen...</div>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-primary/5">
+          <div className="text-2xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent animate-pulse">
+            Quiz wird geladen...
+          </div>
         </div>
       </Layout>
     );
@@ -125,25 +127,27 @@ const Quiz = () => {
 
   return (
     <Layout>
-      <QuizHeader 
-        currentQuestion={currentQuestion}
-        totalQuestions={questions.length}
-        progress={progress}
-      />
+      <div className="min-h-screen bg-gradient-to-br from-background to-primary/5 py-8">
+        <QuizHeader 
+          currentQuestion={currentQuestion}
+          totalQuestions={questions.length}
+          progress={progress}
+        />
 
-      <div className="container mx-auto max-w-4xl">
-        {questions.length > 0 && (
-          <QuestionCard
-            question={questions[currentQuestion]}
-            selectedAnswer={selectedAnswer}
-            onAnswerSelect={handleAnswerSelect}
-            onNextQuestion={handleNextQuestion}
-            isLastQuestion={currentQuestion >= questions.length - 1}
-          />
-        )}
+        <div className="container mx-auto max-w-4xl px-4">
+          {questions.length > 0 && (
+            <QuestionCard
+              question={questions[currentQuestion]}
+              selectedAnswer={selectedAnswer}
+              onAnswerSelect={handleAnswerSelect}
+              onNextQuestion={handleNextQuestion}
+              isLastQuestion={currentQuestion >= questions.length - 1}
+            />
+          )}
+        </div>
+
+        <Mascot showMotivation={showMotivation} />
       </div>
-
-      <Mascot showMotivation={showMotivation} />
     </Layout>
   );
 };

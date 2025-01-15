@@ -34,7 +34,11 @@ export const QuestionCard = ({
           <Button
             key={index}
             variant={selectedAnswer === index ? "secondary" : "outline"}
-            className="w-full text-left justify-start h-auto py-4 hover:bg-accent hover:text-accent-foreground"
+            className={`w-full text-left justify-start h-auto py-4 px-6 mb-3 transition-all duration-300 ${
+              selectedAnswer === index 
+                ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
+                : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
+            }`}
             onClick={() => onAnswerSelect(index)}
           >
             {option}
@@ -43,22 +47,30 @@ export const QuestionCard = ({
 
       case 'true-false':
         return (
-          <>
+          <div className="grid grid-cols-2 gap-4">
             <Button
               variant={selectedAnswer === 0 ? "secondary" : "outline"}
-              className="w-full text-left justify-start h-auto py-4 mb-2"
+              className={`h-auto py-4 transition-all duration-300 ${
+                selectedAnswer === 0 
+                  ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
+                  : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
+              }`}
               onClick={() => onAnswerSelect(0)}
             >
               Wahr
             </Button>
             <Button
               variant={selectedAnswer === 1 ? "secondary" : "outline"}
-              className="w-full text-left justify-start h-auto py-4"
+              className={`h-auto py-4 transition-all duration-300 ${
+                selectedAnswer === 1 
+                  ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
+                  : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
+              }`}
               onClick={() => onAnswerSelect(1)}
             >
               Falsch
             </Button>
-          </>
+          </div>
         );
 
       case 'open':
@@ -67,7 +79,7 @@ export const QuestionCard = ({
             value={openAnswer}
             onChange={(e) => setOpenAnswer(e.target.value)}
             placeholder="Deine Antwort..."
-            className="w-full p-4"
+            className="w-full p-4 text-lg border-2 focus:border-secondary"
           />
         );
 
@@ -76,7 +88,11 @@ export const QuestionCard = ({
           <Button
             key={index}
             variant={selectedAnswer === index ? "secondary" : "outline"}
-            className="w-full text-left justify-start h-auto py-4"
+            className={`w-full text-left justify-start h-auto py-4 px-6 mb-3 transition-all duration-300 ${
+              selectedAnswer === index 
+                ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
+                : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
+            }`}
             onClick={() => onAnswerSelect(index)}
           >
             {option}
@@ -88,7 +104,11 @@ export const QuestionCard = ({
           <Button
             key={index}
             variant={selectedAnswer === index ? "secondary" : "outline"}
-            className="w-full text-left justify-start h-auto py-4"
+            className={`w-full text-left justify-start h-auto py-4 px-6 mb-3 transition-all duration-300 ${
+              selectedAnswer === index 
+                ? 'bg-gradient-to-r from-secondary to-secondary/80 text-white transform scale-102'
+                : 'hover:bg-accent hover:text-accent-foreground hover:-translate-y-1'
+            }`}
             onClick={() => onAnswerSelect(index)}
           >
             {option}
@@ -101,9 +121,9 @@ export const QuestionCard = ({
   };
 
   return (
-    <Card className="border-primary/80 shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-secondary text-2xl">
+    <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-white to-primary/5">
+      <CardHeader className="space-y-4">
+        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
           {question.text}
         </CardTitle>
       </CardHeader>
@@ -113,7 +133,7 @@ export const QuestionCard = ({
         {(selectedAnswer !== null || question.type === 'open') && (
           <Button
             onClick={onNextQuestion}
-            className="w-full mt-6 bg-accent hover:bg-accent/80"
+            className="w-full mt-6 bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 text-white font-semibold py-6 text-lg transition-all duration-300 hover:-translate-y-1"
             disabled={isLastQuestion}
           >
             Nächste Frage
