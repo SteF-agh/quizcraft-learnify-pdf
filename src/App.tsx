@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Quiz from "./pages/Quiz";
 import Dashboard from "./pages/Dashboard";
 import Leaderboard from "./pages/Leaderboard";
+import LearningMode from "./pages/LearningMode";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/learning-mode" element={<LearningMode />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
