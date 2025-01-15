@@ -1,5 +1,4 @@
-import { Header } from "@/components/dashboard/Header";
-import { Footer } from "@/components/dashboard/Footer";
+import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -33,15 +32,11 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
-      <main className="container mx-auto px-4 pt-16 pb-16 flex-grow">
-        <HeroSection />
-        <KeyFeatures />
-        <LoginSection />
-      </main>
-      <Footer />
-    </div>
+    <Layout>
+      <HeroSection />
+      <KeyFeatures />
+      <LoginSection />
+    </Layout>
   );
 };
 

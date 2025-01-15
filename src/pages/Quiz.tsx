@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Layout } from "@/components/layout/Layout";
 import { QuizHeader } from "@/components/quiz/QuizHeader";
 import { QuestionCard } from "@/components/quiz/QuestionCard";
 import { Mascot } from "@/components/quiz/Mascot";
@@ -112,16 +113,18 @@ const Quiz = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
-        <div className="text-xl">Quiz wird geladen...</div>
-      </div>
+      <Layout>
+        <div className="flex items-center justify-center">
+          <div className="text-xl">Quiz wird geladen...</div>
+        </div>
+      </Layout>
     );
   }
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <Layout>
       <QuizHeader 
         currentQuestion={currentQuestion}
         totalQuestions={questions.length}
@@ -141,7 +144,7 @@ const Quiz = () => {
       </div>
 
       <Mascot showMotivation={showMotivation} />
-    </div>
+    </Layout>
   );
 };
 

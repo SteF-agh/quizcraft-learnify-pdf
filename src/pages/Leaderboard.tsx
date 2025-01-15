@@ -1,4 +1,5 @@
 import React from 'react';
+import { Layout } from "@/components/layout/Layout";
 import { LeaderboardTabs } from "@/components/leaderboard/LeaderboardTabs";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { Card } from "@/components/ui/card";
@@ -11,7 +12,7 @@ const Leaderboard = () => {
   console.log('Error State:', error); // Debug log
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Layout>
       <h1 className="text-4xl font-bold mb-8 text-center">Rangliste</h1>
       
       {error ? (
@@ -24,7 +25,7 @@ const Leaderboard = () => {
       ) : (
         <LeaderboardTabs data={leaderboardData} isLoading={isLoading} />
       )}
-    </div>
+    </Layout>
   );
 };
 

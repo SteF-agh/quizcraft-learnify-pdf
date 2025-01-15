@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Header } from "@/components/dashboard/Header";
-import { Footer } from "@/components/dashboard/Footer";
+import { Layout } from "@/components/layout/Layout";
 import { DocumentSection } from "@/components/dashboard/DocumentSection";
 import { StatsSection } from "@/components/dashboard/StatsSection";
 import { useDocuments } from "@/hooks/useDocuments";
@@ -27,23 +26,19 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-32">
-        <h1 className="text-3xl font-bold mb-8">Willkommen zurück, Steffi!</h1>
-        <div className="grid md:grid-cols-2 gap-8">
-          <DocumentSection
-            documents={documents}
-            selectedDocument={selectedDocument}
-            onSelectDocument={setSelectedDocument}
-            onDocumentDeleted={handleDocumentDeleted}
-            onStartLearning={handleStartLearning}
-          />
-          <StatsSection progress={progress} />
-        </div>
-      </main>
-      <Footer />
-    </div>
+    <Layout>
+      <h1 className="text-3xl font-bold mb-8">Willkommen zurück, Steffi!</h1>
+      <div className="grid md:grid-cols-2 gap-8">
+        <DocumentSection
+          documents={documents}
+          selectedDocument={selectedDocument}
+          onSelectDocument={setSelectedDocument}
+          onDocumentDeleted={handleDocumentDeleted}
+          onStartLearning={handleStartLearning}
+        />
+        <StatsSection progress={progress} />
+      </div>
+    </Layout>
   );
 };
 
