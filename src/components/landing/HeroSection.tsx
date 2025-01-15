@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 export const HeroSection = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mascotUrl, setMascotUrl] = useState<string>("/lovable-uploads/0c9c15e3-978d-4d58-95c3-d935f65127d1.png");
 
   const generateNewMascot = async () => {
     try {
@@ -18,8 +19,7 @@ export const HeroSection = () => {
       if (error) throw error;
       
       console.log('Generated image URL:', data.imageUrl);
-      // Here you can handle the new image URL as needed
-      // For example, save it to Supabase storage or update your UI
+      setMascotUrl(data.imageUrl);
       
     } catch (err) {
       console.error('Error generating mascot:', err);
@@ -52,7 +52,7 @@ export const HeroSection = () => {
         <div className="relative flex justify-center lg:justify-end">
           <div className="relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64">
             <img
-              src="/lovable-uploads/0c9c15e3-978d-4d58-95c3-d935f65127d1.png"
+              src={mascotUrl}
               alt="Leeon Mascot"
               className="w-full h-full object-contain transition-all duration-500 hover:scale-105 transform-gpu"
             />
