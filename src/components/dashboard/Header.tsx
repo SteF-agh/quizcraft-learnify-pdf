@@ -7,11 +7,11 @@ export const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
       <div className="container mx-auto px-4 h-24 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-12">
           <img 
             src="/lovable-uploads/44addff5-511d-4fae-a8bc-f8ab538c69fc.png" 
             alt="Leeon Logo" 
-            className="h-20 w-auto object-contain"
+            className="h-16 w-auto object-contain"
           />
           <Button 
             variant="ghost" 
@@ -23,7 +23,7 @@ export const Header = () => {
             </span>
           </Button>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-8">
           <Button
             variant="ghost"
             onClick={() => navigate("/dashboard")}
