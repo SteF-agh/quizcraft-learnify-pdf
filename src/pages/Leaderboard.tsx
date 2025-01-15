@@ -15,11 +15,12 @@ const Leaderboard = () => {
   const { data: leaderboardData, isLoading } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: async () => {
+      // First, get all user stats with their user IDs
       const { data: stats, error } = await supabase
         .from("user_stats")
         .select(`
           total_points,
-          profiles:profiles(username),
+          user_id,
           user_achievements(
             achievements(name, badge_icon)
           )
@@ -28,9 +29,22 @@ const Leaderboard = () => {
 
       if (error) throw error;
 
+      // Then, get the usernames for these users
+      const userIds = stats.map((stat: any) => stat.user_id).filter(Boolean);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .in("id", userIds);
+
+      // Create a map of user IDs to usernames
+      const usernameMap = new Map(
+        profiles?.map((profile: any) => [profile.id, profile.username])
+      );
+
+      // Combine the data
       return stats.map((entry: any, index: number) => ({
-        username: entry.profiles?.username || "Anonymous User",
-        total_points: entry.total_points,
+        username: usernameMap.get(entry.user_id) || "Anonymous User",
+        total_points: entry.total_points || 0,
         rank: index + 1,
         achievements: entry.user_achievements?.map((ua: any) => ua.achievements.badge_icon) || []
       }));
