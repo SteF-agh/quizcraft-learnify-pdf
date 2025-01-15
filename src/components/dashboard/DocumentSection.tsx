@@ -24,12 +24,20 @@ export const DocumentSection = ({
           <UploadSection onUploadSuccess={onDocumentDeleted} />
         </div>
         <div className="md:col-span-2">
-          <DocumentList
-            documents={documents}
-            selectedDocument={selectedDocument}
-            onSelectDocument={onSelectDocument}
-            onDocumentDeleted={onDocumentDeleted}
-          />
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Deine bereits hochgeladenen Skripte</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Wähle das Skript aus, mit dem du jetzt lernen möchtest und gehe auf Lernen starten
+              </p>
+            </div>
+            <DocumentList
+              documents={documents}
+              selectedDocument={selectedDocument}
+              onSelectDocument={onSelectDocument}
+              onDocumentDeleted={onDocumentDeleted}
+            />
+          </div>
         </div>
       </div>
       <div className="pt-4">
