@@ -9,8 +9,39 @@ interface LeaderboardTabsProps {
   isLoading: boolean;
 }
 
+// Fallback data for testing the UI
+const fallbackData: LeaderboardEntry[] = [
+  {
+    username: "MaxMustermann",
+    rank: 1,
+    total_points: 1000,
+    achievements: ["👑", "🏆", "🌟"]
+  },
+  {
+    username: "ErikaExample",
+    rank: 2,
+    total_points: 850,
+    achievements: ["🏆", "🌟"]
+  },
+  {
+    username: "TestUser",
+    rank: 3,
+    total_points: 700,
+    achievements: ["🌟"]
+  },
+  {
+    username: "LearningHero",
+    rank: 4,
+    total_points: 500,
+    achievements: ["🎯"]
+  }
+];
+
 export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
   console.log('LeaderboardTabs Data:', data); // Debug log
+  
+  // Use fallback data if no real data is available
+  const displayData = (data && data.length > 0) ? data : fallbackData;
   
   return (
     <Tabs defaultValue="global" className="w-full">
@@ -28,8 +59,7 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
                 <span className="text-lg text-muted-foreground">Laden...</span>
               </div>
             </Card>
-          ) : data && data.length > 0 ? (
-            data.map((entry: LeaderboardEntry) => (
+          ) : displayData.map((entry: LeaderboardEntry) => (
               <LeaderboardCard
                 key={entry.username}
                 username={entry.username}
@@ -38,13 +68,7 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
                 achievements={entry.achievements}
               />
             ))
-          ) : (
-            <Card className="p-6">
-              <p className="text-center text-lg text-muted-foreground">
-                Keine Einträge in der Rangliste gefunden.
-              </p>
-            </Card>
-          )}
+          }
         </div>
       </TabsContent>
 
