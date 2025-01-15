@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState } from "react";
 import { MultipleChoiceQuestion } from "./question-types/MultipleChoiceQuestion";
 import { TrueFalseQuestion } from "./question-types/TrueFalseQuestion";
 import { OpenQuestion } from "./question-types/OpenQuestion";
+import { AnswerFeedback } from "./feedback/AnswerFeedback";
+import { NextQuestionButton } from "./navigation/NextQuestionButton";
 
 interface Question {
   type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
@@ -34,7 +34,6 @@ export const QuestionCard = ({
   const handleAnswerSelect = (index: number) => {
     onAnswerSelect(index);
     
-    // Überprüfe, ob die Antwort falsch ist
     let isCorrect = false;
     if (question.type === 'multiple-choice' || question.type === 'matching' || question.type === 'fill-in') {
       isCorrect = index === question.correctAnswer;
@@ -112,23 +111,16 @@ export const QuestionCard = ({
       <CardContent className="space-y-4">
         {renderQuestionContent()}
         
-        {showCorrectAnswer && (
-          <Alert className="mt-4 border-2 border-accent bg-white shadow-md">
-            <AlertDescription className="text-foreground font-medium">
-              Die richtige Antwort ist: <span className="font-bold text-accent">{getCorrectAnswerText()}</span>
-            </AlertDescription>
-          </Alert>
-        )}
+        <AnswerFeedback 
+          showCorrectAnswer={showCorrectAnswer}
+          correctAnswer={getCorrectAnswerText()}
+        />
         
-        {(selectedAnswer !== null || question.type === 'open') && (
-          <Button
-            onClick={onNextQuestion}
-            className="w-full mt-6 bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 text-white font-semibold py-6 text-lg transition-all duration-300 hover:-translate-y-1"
-            disabled={isLastQuestion}
-          >
-            Nächste Frage
-          </Button>
-        )}
+        <NextQuestionButton
+          show={selectedAnswer !== null || question.type === 'open'}
+          onClick={onNextQuestion}
+          isLastQuestion={isLastQuestion}
+        />
       </CardContent>
     </Card>
   );
