@@ -18,7 +18,7 @@ export const Header = () => {
             className="text-2xl font-bold hover:scale-105 transition-transform duration-200"
             onClick={() => navigate("/")}
           >
-            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
+            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
               LeeonQuiz
             </span>
           </Button>
