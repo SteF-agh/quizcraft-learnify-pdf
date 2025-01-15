@@ -8,6 +8,7 @@ import Quiz from "./pages/Quiz";
 import Dashboard from "./pages/Dashboard";
 import Leaderboard from "./pages/Leaderboard";
 import LearningMode from "./pages/LearningMode";
+import Flashcards from "./pages/Flashcards";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/learning-mode" element={<LearningMode />} />
+          <Route path="/flashcards" element={<Flashcards />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
