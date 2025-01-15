@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { KeyFeatures } from "@/components/landing/KeyFeatures";
 import { LoginSection } from "@/components/landing/LoginSection";
-import { LeaderboardPreview } from "@/components/landing/LeaderboardPreview";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -40,7 +39,6 @@ const Index = () => {
         <HeroSection />
         <KeyFeatures />
         <LoginSection />
-        <LeaderboardPreview />
       </main>
       <Footer />
     </div>
