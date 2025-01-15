@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export const HeroSection = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mascotUrl, setMascotUrl] = useState<string>("/lovable-uploads/0c9c15e3-978d-4d58-95c3-d935f65127d1.png");
+  const [mascotUrl, setMascotUrl] = useState<string>("/lovable-uploads/d05759ae-b6eb-4697-ad9f-1cf22010408c.png");
 
   const generateNewMascot = async () => {
     try {
