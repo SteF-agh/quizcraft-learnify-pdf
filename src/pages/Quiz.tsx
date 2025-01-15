@@ -65,7 +65,6 @@ const Quiz = () => {
           return;
         }
 
-        // Simulate loading time for demonstration
         await new Promise(resolve => setTimeout(resolve, 1000));
         setQuestions(sampleQuestions);
         setLoading(false);
