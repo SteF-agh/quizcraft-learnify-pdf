@@ -20,7 +20,7 @@ serve(async (req) => {
   }
 
   try {
-    const { documentId } = await req.json();
+    const { documentId, questionType } = await req.json();
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -65,16 +65,13 @@ serve(async (req) => {
           {
             role: "system",
             content: `You are a professional educator who creates diverse quiz questions. 
-            Create a mix of different question types from the provided text:
-            - Multiple choice questions
-            - True/False questions
-            - Open questions
-            - Matching questions
-            - Fill-in-the-blank questions
+            ${questionType === 'all' 
+              ? 'Create a mix of different question types'
+              : `Create only ${questionType} questions`} from the provided text.
             
             Format your response as a JSON array of questions, where each question has:
             {
-              type: "multiple-choice" | "true-false" | "open" | "matching" | "fill-in",
+              type: "${questionType === 'all' ? 'multiple-choice | true-false | open | matching | fill-in' : questionType}",
               text: string,
               options?: string[],
               correctAnswer: string | number | boolean
@@ -82,7 +79,7 @@ serve(async (req) => {
           },
           {
             role: "user",
-            content: `Generate 5 diverse questions from this text: ${text.substring(0, 4000)}` // Limit text length
+            content: `Generate 5 ${questionType === 'all' ? 'diverse' : questionType} questions from this text: ${text.substring(0, 4000)}` // Limit text length
           }
         ]
       })

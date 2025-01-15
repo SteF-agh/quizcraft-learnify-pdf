@@ -5,6 +5,8 @@ import { QuestionCard } from "@/components/quiz/QuestionCard";
 import { Mascot } from "@/components/quiz/Mascot";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { QuestionTypeSelector, QuestionType } from "@/components/quiz/QuestionTypeSelector";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Question {
   type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
@@ -13,68 +15,57 @@ interface Question {
   correctAnswer: string | number | boolean;
 }
 
-const sampleQuestions: Question[] = [
-  {
-    type: 'multiple-choice',
-    text: 'Was ist die Hauptstadt von Deutschland?',
-    options: ['Berlin', 'Hamburg', 'München', 'Frankfurt'],
-    correctAnswer: 0
-  },
-  {
-    type: 'true-false',
-    text: 'Deutschland ist ein Mitglied der Europäischen Union.',
-    correctAnswer: true
-  },
-  {
-    type: 'open',
-    text: 'Erkläre kurz, was das Grundgesetz ist.',
-    correctAnswer: 'Das Grundgesetz ist die Verfassung Deutschlands'
-  },
-  {
-    type: 'matching',
-    text: 'Ordne die Bundesländer ihren Hauptstädten zu.',
-    options: ['Bayern - München', 'Hessen - Wiesbaden', 'Sachsen - Dresden'],
-    correctAnswer: 0
-  },
-  {
-    type: 'fill-in',
-    text: 'Die ____ ist das Parlament der Bundesrepublik Deutschland.',
-    options: ['Bundestag', 'Bundesrat', 'Bundesversammlung'],
-    correctAnswer: 0
-  }
-];
-
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showMotivation, setShowMotivation] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
+  const [questionType, setQuestionType] = useState<QuestionType>('all');
+  const [isGenerating, setIsGenerating] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    initializeQuiz();
+    checkDocumentId();
   }, [location.search, navigate]);
 
-  const initializeQuiz = async () => {
+  const checkDocumentId = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const documentId = searchParams.get('documentId');
+
+    if (!documentId) {
+      toast.error("Wähle eine Datei aus, für die ein Quiz erzeugt werden soll");
+      navigate('/learning-mode');
+    }
+    setLoading(false);
+  };
+
+  const generateQuestions = async () => {
     try {
+      setIsGenerating(true);
       const searchParams = new URLSearchParams(location.search);
       const documentId = searchParams.get('documentId');
 
       if (!documentId) {
-        toast.error("Wähle eine Datei aus, für die ein Quiz erzeugt werden soll");
-        navigate('/learning-mode');
-        return;
+        throw new Error("Keine Datei ausgewählt");
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setQuestions(sampleQuestions);
-      setLoading(false);
+      const { data, error } = await supabase.functions.invoke('generate-questions', {
+        body: { documentId, questionType }
+      });
+
+      if (error) throw error;
+
+      setQuestions(data.questions);
+      setCurrentQuestion(0);
+      setSelectedAnswer(null);
+      toast.success("Fragen wurden erfolgreich generiert!");
     } catch (error) {
-      console.error('Error initializing quiz:', error);
-      toast.error("Fehler beim Laden des Quiz");
-      setLoading(false);
+      console.error('Error generating questions:', error);
+      toast.error("Fehler beim Generieren der Fragen");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -129,30 +120,48 @@ const Quiz = () => {
     );
   }
 
-  const progress = ((currentQuestion + 1) / questions.length) * 100;
+  const progress = questions.length > 0 ? ((currentQuestion + 1) / questions.length) * 100 : 0;
 
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-background to-primary/5 py-8">
-        <QuizHeader 
-          currentQuestion={currentQuestion}
-          totalQuestions={questions.length}
-          progress={progress}
-        />
-
-        <div className="container mx-auto max-w-4xl px-4">
-          {questions.length > 0 && (
-            <QuestionCard
-              question={questions[currentQuestion]}
-              selectedAnswer={selectedAnswer}
-              onAnswerSelect={handleAnswerSelect}
-              onNextQuestion={handleNextQuestion}
-              isLastQuestion={currentQuestion >= questions.length - 1}
+        {questions.length === 0 ? (
+          <div className="container mx-auto max-w-4xl px-4">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+              <QuestionTypeSelector
+                selectedType={questionType}
+                onTypeSelect={setQuestionType}
+              />
+              <button
+                onClick={generateQuestions}
+                disabled={isGenerating}
+                className="mt-6 w-full bg-gradient-to-r from-primary to-secondary text-white rounded-lg py-3 font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {isGenerating ? "Generiere Fragen..." : "Quiz generieren"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <QuizHeader 
+              currentQuestion={currentQuestion}
+              totalQuestions={questions.length}
+              progress={progress}
             />
-          )}
-        </div>
 
-        <Mascot showMotivation={showMotivation} />
+            <div className="container mx-auto max-w-4xl px-4">
+              <QuestionCard
+                question={questions[currentQuestion]}
+                selectedAnswer={selectedAnswer}
+                onAnswerSelect={handleAnswerSelect}
+                onNextQuestion={handleNextQuestion}
+                isLastQuestion={currentQuestion >= questions.length - 1}
+              />
+            </div>
+
+            <Mascot showMotivation={showMotivation} />
+          </>
+        )}
       </div>
     </Layout>
   );
