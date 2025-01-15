@@ -10,6 +10,8 @@ interface LeaderboardTabsProps {
 }
 
 export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
+  console.log('LeaderboardTabs Data:', data); // Debug log
+  
   return (
     <Tabs defaultValue="global" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
@@ -20,9 +22,14 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
       <TabsContent value="global">
         <div className="grid gap-4">
           {isLoading ? (
-            <Card className="p-4">Laden...</Card>
-          ) : (
-            data?.map((entry: LeaderboardEntry) => (
+            <Card className="p-4">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></div>
+                <span>Laden...</span>
+              </div>
+            </Card>
+          ) : data && data.length > 0 ? (
+            data.map((entry: LeaderboardEntry) => (
               <LeaderboardCard
                 key={entry.username}
                 username={entry.username}
@@ -31,6 +38,12 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
                 achievements={entry.achievements}
               />
             ))
+          ) : (
+            <Card className="p-4">
+              <p className="text-center text-muted-foreground">
+                Keine Einträge in der Rangliste gefunden.
+              </p>
+            </Card>
           )}
         </div>
       </TabsContent>
