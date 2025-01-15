@@ -42,11 +42,7 @@ export const QuestionCard = ({
       isCorrect = index === (question.correctAnswer ? 0 : 1);
     }
     
-    if (!isCorrect) {
-      setShowCorrectAnswer(true);
-    } else {
-      setShowCorrectAnswer(false);
-    }
+    setShowCorrectAnswer(!isCorrect);
   };
 
   const getCorrectAnswerText = () => {
@@ -116,7 +112,7 @@ export const QuestionCard = ({
       <CardContent className="space-y-4">
         {renderQuestionContent()}
         
-        {showCorrectAnswer && (
+        {showCorrectAnswer && selectedAnswer !== null && (
           <Alert className="mt-4 border-2 border-accent bg-white shadow-md">
             <AlertDescription className="text-foreground font-medium">
               Die richtige Antwort ist: <span className="font-bold text-accent">{getCorrectAnswerText()}</span>
