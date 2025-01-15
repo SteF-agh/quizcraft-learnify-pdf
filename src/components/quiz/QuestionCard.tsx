@@ -117,9 +117,9 @@ export const QuestionCard = ({
         {renderQuestionContent()}
         
         {showCorrectAnswer && (
-          <Alert className="mt-4 border-2 border-secondary/50 bg-secondary/10">
-            <AlertDescription className="text-secondary-foreground">
-              Die richtige Antwort ist: <span className="font-semibold">{getCorrectAnswerText()}</span>
+          <Alert className="mt-4 border-2 border-accent bg-white shadow-md">
+            <AlertDescription className="text-foreground font-medium">
+              Die richtige Antwort ist: <span className="font-bold text-accent">{getCorrectAnswerText()}</span>
             </AlertDescription>
           </Alert>
         )}
