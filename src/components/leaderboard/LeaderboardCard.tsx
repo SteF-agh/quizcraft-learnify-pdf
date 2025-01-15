@@ -13,11 +13,11 @@ export const LeaderboardCard = ({ username, rank, totalPoints, achievements }: L
   const getRankIcon = () => {
     switch (rank) {
       case 1:
-        return <Trophy className="h-6 w-6 text-yellow-500 animate-bounce" />;
+        return <Trophy className="h-8 w-8 text-yellow-500 animate-bounce" strokeWidth={2.5} />;
       case 2:
-        return <Medal className="h-6 w-6 text-gray-400" />;
+        return <Medal className="h-8 w-8 text-gray-400" strokeWidth={2.5} />;
       case 3:
-        return <Medal className="h-6 w-6 text-amber-600" />;
+        return <Medal className="h-8 w-8 text-amber-600" strokeWidth={2.5} />;
       default:
         return <Star className="h-6 w-6 text-blue-500" />;
     }
@@ -26,55 +26,67 @@ export const LeaderboardCard = ({ username, rank, totalPoints, achievements }: L
   const getCardStyle = () => {
     switch (rank) {
       case 1:
-        return 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200';
+        return 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-300 shadow-yellow-100';
       case 2:
-        return 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200';
+        return 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300 shadow-gray-100';
       case 3:
-        return 'bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200';
+        return 'bg-gradient-to-r from-amber-50 to-amber-100 border-amber-300 shadow-amber-100';
       default:
-        return 'hover:bg-gray-50';
+        return 'bg-white hover:bg-gray-50';
     }
   };
 
   const getRankTextStyle = () => {
     switch (rank) {
       case 1:
-        return 'text-yellow-700';
+        return 'text-yellow-700 font-bold text-lg';
       case 2:
-        return 'text-gray-700';
+        return 'text-gray-700 font-bold text-lg';
       case 3:
-        return 'text-amber-700';
+        return 'text-amber-700 font-bold text-lg';
       default:
-        return 'text-gray-600';
+        return 'text-gray-600 font-semibold';
     }
   };
 
   return (
     <Card 
-      className={`p-4 transform transition-all duration-200 hover:scale-105 hover:shadow-lg ${getCardStyle()}`}
+      className={`p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-lg ${getCardStyle()} border-2`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {getRankIcon()}
-          <span className={`font-bold ${getRankTextStyle()}`}>
-            {rank}.
-          </span>
-          <span className="font-semibold">{username}</span>
+          <div className="transform transition-transform duration-300 hover:scale-110">
+            {getRankIcon()}
+          </div>
+          <div className="flex flex-col">
+            <span className={getRankTextStyle()}>
+              {rank}. Platz
+            </span>
+            <span className="font-semibold text-lg text-secondary">
+              {username}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex gap-1">
+        <div className="flex items-center gap-6">
+          <div className="flex gap-2">
             {achievements.map((badge, index) => (
               <span 
                 key={index} 
-                className="text-lg transform hover:scale-110 transition-transform"
+                className="text-2xl transform hover:scale-125 transition-transform duration-300 cursor-pointer"
+                title="Achievement Badge"
               >
                 {badge}
               </span>
             ))}
           </div>
-          <span className="font-bold text-primary">
-            {totalPoints} Punkte
-          </span>
+          <div className="flex flex-col items-end">
+            <span className="font-bold text-lg text-primary">
+              {totalPoints}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              Punkte
+            </span>
+          </div>
         </div>
       </div>
     </Card>

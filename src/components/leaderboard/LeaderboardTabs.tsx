@@ -14,18 +14,18 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
   
   return (
     <Tabs defaultValue="global" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="global">Global Rangliste</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-2 mb-6">
+        <TabsTrigger value="global">Globale Rangliste</TabsTrigger>
         <TabsTrigger value="weekly">Wöchentliche Rangliste</TabsTrigger>
       </TabsList>
 
       <TabsContent value="global">
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {isLoading ? (
-            <Card className="p-4">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></div>
-                <span>Laden...</span>
+            <Card className="p-6">
+              <div className="flex items-center justify-center space-x-3">
+                <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-primary"></div>
+                <span className="text-lg text-muted-foreground">Laden...</span>
               </div>
             </Card>
           ) : data && data.length > 0 ? (
@@ -39,8 +39,8 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
               />
             ))
           ) : (
-            <Card className="p-4">
-              <p className="text-center text-muted-foreground">
+            <Card className="p-6">
+              <p className="text-center text-lg text-muted-foreground">
                 Keine Einträge in der Rangliste gefunden.
               </p>
             </Card>
@@ -49,8 +49,8 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
       </TabsContent>
 
       <TabsContent value="weekly">
-        <Card className="p-4">
-          <p className="text-center text-muted-foreground">
+        <Card className="p-6">
+          <p className="text-center text-lg text-muted-foreground">
             Wöchentliche Rangliste wird bald verfügbar sein!
           </p>
         </Card>
