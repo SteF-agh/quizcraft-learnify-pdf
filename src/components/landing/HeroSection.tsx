@@ -13,19 +13,21 @@ export const HeroSection = () => {
               Lernen mit Spaß!
             </span>
           </h1>
-          <p className="text-2xl text-primary font-semibold mt-4">
-            Hol dir die Krone!
-          </p>
         </div>
 
         <div className="relative flex justify-center lg:justify-end">
           <div className="w-full h-auto max-w-md relative">
-            {/* Crown image with adjusted positioning and size */}
-            <img
-              src="/lovable-uploads/44addff5-511d-4fae-a8bc-f8ab538c69fc.png"
-              alt="Golden Crown"
-              className="absolute top-[-60px] left-1/2 transform -translate-x-1/2 w-40 h-auto z-10"
-            />
+            {/* Crown image and text positioned above the mascot */}
+            <div className="absolute top-[-120px] left-1/2 transform -translate-x-1/2 text-center z-20">
+              <img
+                src="/lovable-uploads/44addff5-511d-4fae-a8bc-f8ab538c69fc.png"
+                alt="Golden Crown"
+                className="w-40 h-auto mb-2"
+              />
+              <p className="text-2xl text-primary font-semibold">
+                Hol dir die Krone!
+              </p>
+            </div>
             {/* Mascot image */}
             <img
               src="/lovable-uploads/4743755b-3e90-43bb-8c20-de2796e864cf.png"
