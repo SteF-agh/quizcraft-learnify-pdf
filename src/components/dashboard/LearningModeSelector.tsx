@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface LearningSelectorProps {
   selectedDocument: string | null;
@@ -15,6 +16,8 @@ export const LearningModeSelector = ({
   const handleStartLearning = () => {
     if (selectedDocument) {
       navigate(`/learning-mode?documentId=${selectedDocument}`);
+    } else {
+      toast.error("Bitte wähle zuerst ein Dokument aus");
     }
   };
 
