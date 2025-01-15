@@ -4,7 +4,7 @@ import { ThemeMinimal } from '@supabase/auth-ui-shared';
 
 export const HeroSection = () => {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-24">
       <div className="grid lg:grid-cols-2 gap-8 items-center">
         <div className="space-y-6 max-w-2xl mx-auto text-center lg:text-left">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
