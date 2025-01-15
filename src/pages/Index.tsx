@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HeroSection } from "@/components/landing/HeroSection";
-import { LearningModes } from "@/components/landing/LearningModes";
+import { KeyFeatures } from "@/components/landing/KeyFeatures";
+import { LoginSection } from "@/components/landing/LoginSection";
 import { LeaderboardPreview } from "@/components/landing/LeaderboardPreview";
 
 const Index = () => {
@@ -37,7 +38,8 @@ const Index = () => {
       <Header />
       <main className="container mx-auto px-4 pt-16 pb-16 flex-grow">
         <HeroSection />
-        <LearningModes />
+        <KeyFeatures />
+        <LoginSection />
         <LeaderboardPreview />
       </main>
       <Footer />
