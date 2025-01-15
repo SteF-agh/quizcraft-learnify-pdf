@@ -37,6 +37,34 @@ const fallbackData: LeaderboardEntry[] = [
   }
 ];
 
+// Weekly fallback data
+const weeklyFallbackData: LeaderboardEntry[] = [
+  {
+    username: "LernKönig",
+    rank: 1,
+    total_points: 450,
+    achievements: ["🎓", "⭐"]
+  },
+  {
+    username: "WissenHeld",
+    rank: 2,
+    total_points: 380,
+    achievements: ["📚"]
+  },
+  {
+    username: "QuizMaster",
+    rank: 3,
+    total_points: 320,
+    achievements: ["🎯"]
+  },
+  {
+    username: "FlexiLerner",
+    rank: 4,
+    total_points: 280,
+    achievements: ["💫"]
+  }
+];
+
 export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
   console.log('LeaderboardTabs Data:', data); // Debug log
   
@@ -73,11 +101,17 @@ export const LeaderboardTabs = ({ data, isLoading }: LeaderboardTabsProps) => {
       </TabsContent>
 
       <TabsContent value="weekly">
-        <Card className="p-6">
-          <p className="text-center text-lg text-muted-foreground">
-            Wöchentliche Rangliste wird bald verfügbar sein!
-          </p>
-        </Card>
+        <div className="grid gap-6">
+          {weeklyFallbackData.map((entry: LeaderboardEntry) => (
+            <LeaderboardCard
+              key={entry.username}
+              username={entry.username}
+              rank={entry.rank}
+              totalPoints={entry.total_points}
+              achievements={entry.achievements}
+            />
+          ))}
+        </div>
       </TabsContent>
     </Tabs>
   );
