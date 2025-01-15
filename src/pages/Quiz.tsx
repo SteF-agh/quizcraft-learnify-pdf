@@ -3,7 +3,6 @@ import { Layout } from "@/components/layout/Layout";
 import { QuizHeader } from "@/components/quiz/QuizHeader";
 import { QuestionCard } from "@/components/quiz/QuestionCard";
 import { Mascot } from "@/components/quiz/Mascot";
-import { supabase } from "@/integrations/supabase/client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -14,7 +13,6 @@ interface Question {
   correctAnswer: string | number | boolean;
 }
 
-// Temporary sample questions until we integrate with OpenAI
 const sampleQuestions: Question[] = [
   {
     type: 'multiple-choice',
@@ -63,15 +61,12 @@ const Quiz = () => {
 
         if (!documentId) {
           toast.error("Wähle eine Datei aus, für die ein Quiz erzeugt werden soll");
-          navigate('/');
+          navigate('/learning-mode');
           return;
         }
 
         // Simulate loading time for demonstration
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Later, we'll fetch AI-generated questions here
-        console.log('Document ID for question generation:', documentId);
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setQuestions(sampleQuestions);
         setLoading(false);
       } catch (error) {
@@ -97,7 +92,7 @@ const Quiz = () => {
     
     if (isCorrect) {
       setShowMotivation(true);
-      toast.success("Richtig!");
+      toast.success("Richtig! Weiter so!");
       setTimeout(() => setShowMotivation(false), 3000);
     } else {
       toast.error("Leider falsch. Versuche es noch einmal!");

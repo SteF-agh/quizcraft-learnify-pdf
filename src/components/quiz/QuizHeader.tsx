@@ -14,12 +14,12 @@ export const QuizHeader = ({ currentQuestion, totalQuestions, progress }: QuizHe
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto mb-12">
+    <div className="container mx-auto px-4 mb-12">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-6">
           <Button 
             variant="outline"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/learning-mode")}
             className="flex items-center gap-2 hover:-translate-x-1 transition-transform duration-300"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -29,14 +29,16 @@ export const QuizHeader = ({ currentQuestion, totalQuestions, progress }: QuizHe
             LeeonQuiz
           </h1>
         </div>
-        <Badge variant="secondary" className="px-4 py-2 text-lg bg-gradient-to-r from-secondary to-primary text-white">
+        <Badge 
+          variant="secondary" 
+          className="px-4 py-2 text-lg bg-gradient-to-r from-secondary to-primary text-white"
+        >
           Frage {currentQuestion + 1} von {totalQuestions}
         </Badge>
       </div>
       <Progress 
         value={progress} 
-        className="h-3 bg-secondary/20" 
-        indicatorClassName="bg-gradient-to-r from-secondary via-primary to-accent"
+        className="h-3 bg-secondary/20"
       />
     </div>
   );
