@@ -1,8 +1,34 @@
 import { Auth } from '@supabase/auth-ui-react';
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeMinimal } from '@supabase/auth-ui-shared';
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
 
 export const HeroSection = () => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const generateNewMascot = async () => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+      
+      const { data, error } = await supabase.functions.invoke('generate-mascot');
+      
+      if (error) throw error;
+      
+      console.log('Generated image URL:', data.imageUrl);
+      // Here you can handle the new image URL as needed
+      // For example, save it to Supabase storage or update your UI
+      
+    } catch (err) {
+      console.error('Error generating mascot:', err);
+      setError('Fehler beim Generieren des neuen Maskottchens');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-24">
       <div className="grid lg:grid-cols-2 gap-8 items-center">
@@ -13,6 +39,14 @@ export const HeroSection = () => {
               Lernen mit Spaß!
             </span>
           </h1>
+          <Button 
+            onClick={generateNewMascot}
+            disabled={isGenerating}
+            className="mt-4"
+          >
+            {isGenerating ? 'Generiere Maskottchen...' : 'Neues Maskottchen generieren'}
+          </Button>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
 
         <div className="relative flex justify-center lg:justify-end">
