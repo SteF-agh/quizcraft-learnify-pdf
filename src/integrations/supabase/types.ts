@@ -111,6 +111,44 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_results: {
+        Row: {
+          completed_at: string | null
+          correct_answers: number | null
+          document_id: string | null
+          id: string
+          total_points: number | null
+          total_questions: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          document_id?: string | null
+          id?: string
+          total_points?: number | null
+          total_questions?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          document_id?: string | null
+          id?: string
+          total_points?: number | null
+          total_questions?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_results_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_achievements: {
         Row: {
           achievement_id: string | null
@@ -146,6 +184,7 @@ export type Database = {
           created_at: string | null
           id: string
           learning_time_minutes: number | null
+          quiz_points: number | null
           total_points: number | null
           updated_at: string | null
           user_id: string | null
@@ -155,6 +194,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           learning_time_minutes?: number | null
+          quiz_points?: number | null
           total_points?: number | null
           updated_at?: string | null
           user_id?: string | null
@@ -164,6 +204,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           learning_time_minutes?: number | null
+          quiz_points?: number | null
           total_points?: number | null
           updated_at?: string | null
           user_id?: string | null

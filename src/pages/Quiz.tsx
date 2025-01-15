@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { QuestionTypeSelector, QuestionType } from "@/components/quiz/QuestionTypeSelector";
 import { supabase } from "@/integrations/supabase/client";
+import { QuizCompletionModal } from "@/components/quiz/completion/QuizCompletionModal";
 
 interface Question {
   type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
@@ -14,6 +15,8 @@ interface Question {
   options?: string[];
   correctAnswer: string | number | boolean;
 }
+
+const POINTS_PER_CORRECT_ANSWER = 10;
 
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -23,6 +26,12 @@ const Quiz = () => {
   const [loading, setLoading] = useState(true);
   const [questionType, setQuestionType] = useState<QuestionType>('all');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [quizStats, setQuizStats] = useState({
+    correctAnswers: 0,
+    totalPoints: 0,
+  });
+  
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -60,6 +69,7 @@ const Quiz = () => {
       setQuestions(data.questions);
       setCurrentQuestion(0);
       setSelectedAnswer(null);
+      setQuizStats({ correctAnswers: 0, totalPoints: 0 });
       toast.success("Fragen wurden erfolgreich generiert!");
     } catch (error) {
       console.error('Error generating questions:', error);
@@ -85,6 +95,10 @@ const Quiz = () => {
     }
     
     if (isCorrect) {
+      setQuizStats(prev => ({
+        correctAnswers: prev.correctAnswers + 1,
+        totalPoints: prev.totalPoints + POINTS_PER_CORRECT_ANSWER
+      }));
       showCorrectAnswerFeedback();
     } else {
       showIncorrectAnswerFeedback();
@@ -101,11 +115,50 @@ const Quiz = () => {
     toast.error("Leider falsch. Versuche es noch einmal!");
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
       setSelectedAnswer(null);
+    } else {
+      // Quiz completed
+      try {
+        const searchParams = new URLSearchParams(location.search);
+        const documentId = searchParams.get('documentId');
+        
+        // Save quiz results
+        const { error: quizError } = await supabase
+          .from('quiz_results')
+          .insert({
+            total_points: quizStats.totalPoints,
+            correct_answers: quizStats.correctAnswers,
+            total_questions: questions.length,
+            document_id: documentId
+          });
+
+        if (quizError) throw quizError;
+
+        // Update user stats
+        const { error: statsError } = await supabase
+          .from('user_stats')
+          .upsert({
+            quiz_points: quizStats.totalPoints
+          }, {
+            onConflict: 'user_id'
+          });
+
+        if (statsError) throw statsError;
+
+        setShowCompletionModal(true);
+      } catch (error) {
+        console.error('Error saving quiz results:', error);
+        toast.error("Fehler beim Speichern der Ergebnisse");
+      }
     }
+  };
+
+  const handleContinueQuiz = () => {
+    setShowCompletionModal(false);
+    generateQuestions();
   };
 
   if (loading) {
@@ -160,6 +213,15 @@ const Quiz = () => {
             </div>
 
             <Mascot showMotivation={showMotivation} />
+
+            <QuizCompletionModal
+              isOpen={showCompletionModal}
+              onClose={() => setShowCompletionModal(false)}
+              points={quizStats.totalPoints}
+              correctAnswers={quizStats.correctAnswers}
+              totalQuestions={questions.length}
+              onContinue={handleContinueQuiz}
+            />
           </>
         )}
       </div>
