@@ -11,7 +11,7 @@ import {
   Palette,
   Crown,
   Glasses,
-  Beard,
+  Scissors,
 } from "lucide-react";
 
 interface AvatarOption {
@@ -92,7 +92,7 @@ const AvatarCreator = () => {
                   <Glasses className="w-4 h-4" />
                 </TabsTrigger>
                 <TabsTrigger value="facial">
-                  <Beard className="w-4 h-4" />
+                  <Scissors className="w-4 h-4" />
                 </TabsTrigger>
               </TabsList>
 

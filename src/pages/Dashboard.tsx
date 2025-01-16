@@ -2,11 +2,14 @@ import { Layout } from "@/components/layout/Layout";
 import { DocumentSection } from "@/components/dashboard/DocumentSection";
 import { StatsSection } from "@/components/dashboard/StatsSection";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Trophy, Coins, Settings } from "lucide-react";
+import { Trophy, Coins } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
+  // Mock data for testing
+  const progress = 65;
+  const mockDocuments = [];
+  
   return (
     <Layout>
       <div className="space-y-8">
@@ -34,8 +37,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <StatsSection />
-        <DocumentSection />
+        <StatsSection progress={progress} />
+        <DocumentSection 
+          documents={mockDocuments}
+          selectedDocument={null}
+          onSelectDocument={() => {}}
+          onDocumentDeleted={() => {}}
+          onStartLearning={() => {}}
+        />
       </div>
     </Layout>
   );
