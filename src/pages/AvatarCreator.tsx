@@ -6,9 +6,21 @@ import { OptionsList } from "@/components/avatar-creator/OptionsList";
 import { CategoryTabs } from "@/components/avatar-creator/CategoryTabs";
 
 const avatarTypes = [
-  { id: "human", name: "Mensch" },
-  { id: "robot", name: "Roboter" },
-  { id: "hybrid", name: "Hybrid (Mensch/Roboter)" },
+  { 
+    id: "human", 
+    name: "Mensch",
+    preview: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=200&fit=crop"
+  },
+  { 
+    id: "robot", 
+    name: "Roboter",
+    preview: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop"
+  },
+  { 
+    id: "hybrid", 
+    name: "Hybrid (Mensch/Roboter)",
+    preview: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop"
+  },
 ];
 
 const avatarOptions = {
