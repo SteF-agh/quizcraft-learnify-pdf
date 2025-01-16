@@ -21,7 +21,6 @@ export const FlashcardsDeck = ({ documentId }: FlashcardsDeckProps) => {
     queryFn: async () => {
       console.log('Fetching flashcards for document:', documentId);
       
-      // First, check if flashcards exist
       const { data: existingCards, error: fetchError } = await supabase
         .from('flashcards')
         .select('*')
@@ -37,7 +36,6 @@ export const FlashcardsDeck = ({ documentId }: FlashcardsDeckProps) => {
         return existingCards;
       }
 
-      // If no flashcards exist, generate them
       console.log('No existing flashcards found, generating new ones...');
       const { data, error } = await supabase.functions.invoke('generate-flashcards', {
         body: { documentId },
@@ -133,6 +131,7 @@ export const FlashcardsDeck = ({ documentId }: FlashcardsDeckProps) => {
           back={flashcards[currentCardIndex].back}
           isFlipped={isFlipped}
           onFlip={() => setIsFlipped(!isFlipped)}
+          onCorrectAnswer={handleNext}
         />
       </div>
 
