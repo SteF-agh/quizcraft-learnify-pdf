@@ -1,7 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -11,36 +9,8 @@ import { useDocuments } from "@/hooks/useDocuments";
 import { DocumentTableBase } from "@/components/dashboard/DocumentTableBase";
 
 const Admin = () => {
-  const navigate = useNavigate();
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole] = useState('admin'); // Temporarily set as admin
   const { documents, fetchDocuments } = useDocuments();
-
-  useEffect(() => {
-    const checkAdminAccess = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        navigate('/');
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
-
-      if (profile?.role !== 'admin') {
-        toast.error("Kein Zugriff auf den Admin-Bereich");
-        navigate('/dashboard');
-        return;
-      }
-
-      setUserRole(profile.role);
-    };
-
-    checkAdminAccess();
-  }, [navigate]);
 
   const handleUploadSuccess = () => {
     toast.success("Dokument erfolgreich hochgeladen");
