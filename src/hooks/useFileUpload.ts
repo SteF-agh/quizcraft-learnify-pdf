@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { uploadPdfToStorage, saveDocumentToDatabase } from "@/services/uploadService";
+import { uploadImageToStorage, saveImageToDatabase } from "@/services/uploadService";
 
 export const useFileUpload = (onUploadSuccess?: () => void) => {
   const [dragActive, setDragActive] = useState(false);
@@ -20,10 +20,19 @@ export const useFileUpload = (onUploadSuccess?: () => void) => {
   };
 
   const handleUpload = async (file: File) => {
-    if (!file || !file.type.includes('pdf')) {
+    if (!file || !file.type.includes('image')) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a PDF file",
+        description: "Please upload an image file (PNG, JPG, or GIF)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB",
         variant: "destructive",
       });
       return;
@@ -31,13 +40,13 @@ export const useFileUpload = (onUploadSuccess?: () => void) => {
 
     setIsUploading(true);
     try {
-      const { fileName, uploadData } = await uploadPdfToStorage(file);
-      await saveDocumentToDatabase(file.name, fileName, file);
+      const { fileName, uploadData } = await uploadImageToStorage(file);
+      await saveImageToDatabase(file.name, fileName, file);
 
-      console.log("File uploaded successfully:", uploadData);
+      console.log("Image uploaded successfully:", uploadData);
       toast({
         title: "Success!",
-        description: "Your PDF has been uploaded successfully.",
+        description: "Your avatar image has been uploaded successfully.",
       });
       
       if (onUploadSuccess) {
@@ -47,7 +56,7 @@ export const useFileUpload = (onUploadSuccess?: () => void) => {
       console.error("Error uploading file:", error);
       toast({
         title: "Upload failed",
-        description: "There was an error uploading your file. Please try again.",
+        description: "There was an error uploading your image. Please try again.",
         variant: "destructive",
       });
     } finally {
