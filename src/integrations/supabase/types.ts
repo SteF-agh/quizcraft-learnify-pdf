@@ -35,28 +35,37 @@ export type Database = {
       }
       documents: {
         Row: {
+          assigned_to: string[] | null
           content_type: string | null
           created_at: string
           file_path: string
           file_size: number | null
           id: string
+          is_public: boolean | null
           name: string
+          uploaded_by: string | null
         }
         Insert: {
+          assigned_to?: string[] | null
           content_type?: string | null
           created_at?: string
           file_path: string
           file_size?: number | null
           id?: string
+          is_public?: boolean | null
           name: string
+          uploaded_by?: string | null
         }
         Update: {
+          assigned_to?: string[] | null
           content_type?: string | null
           created_at?: string
           file_path?: string
           file_size?: number | null
           id?: string
+          is_public?: boolean | null
           name?: string
+          uploaded_by?: string | null
         }
         Relationships: []
       }

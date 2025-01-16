@@ -1,6 +1,7 @@
 import { DocumentList } from "./DocumentList";
 import { UploadSection } from "./UploadSection";
 import { LearningModeSelector } from "./LearningModeSelector";
+import { PublicDocumentList } from "./PublicDocumentList";
 
 interface DocumentSectionProps {
   documents: any[];
@@ -24,19 +25,29 @@ export const DocumentSection = ({
           <UploadSection onUploadSuccess={onDocumentDeleted} />
         </div>
         <div className="md:col-span-2">
-          <div className="space-y-4">
+          <div className="space-y-8">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Deine bereits hochgeladenen Skripte</h2>
+              <h2 className="text-xl font-semibold mb-2">Verfügbare Skripte</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Hier findest du alle von deinen Trainern bereitgestellten Skripte
+              </p>
+              <PublicDocumentList
+                onDocumentAssigned={onDocumentDeleted}
+              />
+            </div>
+            
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Deine Skripte</h2>
               <p className="text-sm text-muted-foreground mb-4">
                 Wähle das Skript aus, mit dem du jetzt lernen möchtest und gehe auf Lernen starten
               </p>
+              <DocumentList
+                documents={documents}
+                selectedDocument={selectedDocument}
+                onSelectDocument={onSelectDocument}
+                onDocumentDeleted={onDocumentDeleted}
+              />
             </div>
-            <DocumentList
-              documents={documents}
-              selectedDocument={selectedDocument}
-              onSelectDocument={onSelectDocument}
-              onDocumentDeleted={onDocumentDeleted}
-            />
           </div>
         </div>
       </div>

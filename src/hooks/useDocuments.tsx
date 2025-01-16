@@ -8,9 +8,13 @@ export const useDocuments = () => {
 
   const fetchDocuments = useCallback(async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('documents')
         .select('*')
+        .or(`uploaded_by.eq.${user.id},assigned_to.cs.{${user.id}}`)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -27,7 +31,6 @@ export const useDocuments = () => {
     }
   }, []);
 
-  // Fetch documents when the component mounts
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
