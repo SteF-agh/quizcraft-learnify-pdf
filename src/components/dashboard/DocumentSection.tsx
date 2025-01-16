@@ -1,5 +1,4 @@
 import { DocumentList } from "./DocumentList";
-import { UploadSection } from "./UploadSection";
 import { LearningModeSelector } from "./LearningModeSelector";
 import { PublicDocumentList } from "./PublicDocumentList";
 import { 
@@ -46,22 +45,16 @@ export const DocumentSection = ({
             Deine Skripte
           </AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-6">
-              <div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Wähle das Skript aus, mit dem du jetzt lernen möchtest und gehe auf Lernen starten
-                </p>
-                <DocumentList
-                  documents={documents}
-                  selectedDocument={selectedDocument}
-                  onSelectDocument={onSelectDocument}
-                  onDocumentDeleted={onDocumentDeleted}
-                />
-              </div>
-              
-              <div className="w-full max-w-xl">
-                <UploadSection onUploadSuccess={onDocumentDeleted} />
-              </div>
+            <div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Wähle das Skript aus, mit dem du jetzt lernen möchtest und gehe auf Lernen starten
+              </p>
+              <DocumentList
+                documents={documents}
+                selectedDocument={selectedDocument}
+                onSelectDocument={onSelectDocument}
+                onDocumentDeleted={onDocumentDeleted}
+              />
             </div>
           </AccordionContent>
         </AccordionItem>
