@@ -6,10 +6,11 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileUpload } from "@/components/FileUpload";
 import { DocumentTableBase } from "@/components/dashboard/DocumentTableBase";
-import { Search, Users, FileText, BarChart3 } from "lucide-react";
+import { Search, Users, FileText, BarChart3, Globe } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
 
 const Admin = () => {
   const [userRole] = useState('admin');
@@ -38,7 +39,24 @@ const Admin = () => {
 
   const handleUploadSuccess = () => {
     toast.success("Dokument erfolgreich hochgeladen");
-    refetch(); // Refresh the documents list after upload
+    refetch();
+  };
+
+  const handleTogglePublic = async (documentId: string, currentState: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('documents')
+        .update({ is_public: !currentState })
+        .eq('id', documentId);
+
+      if (error) throw error;
+
+      toast.success(`Dokument ist jetzt ${!currentState ? 'öffentlich' : 'privat'}`);
+      refetch();
+    } catch (error) {
+      console.error('Error toggling document visibility:', error);
+      toast.error('Fehler beim Ändern der Sichtbarkeit');
+    }
   };
 
   const filteredDocuments = documents?.filter(doc => 
@@ -128,11 +146,54 @@ const Admin = () => {
               <Card className="p-6 md:col-span-2">
                 <h2 className="text-xl font-semibold mb-4">Vorhandene Skripte</h2>
                 <div className="overflow-x-auto">
-                  <DocumentTableBase
-                    documents={filteredDocuments}
-                    showActions={true}
-                    onDocumentDeleted={refetch}
-                  />
+                  <div className="w-full">
+                    <div className="rounded-md border">
+                      <table className="w-full caption-bottom text-sm">
+                        <thead className="border-b">
+                          <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                            <th className="h-12 px-4 text-left align-middle font-medium">Name</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Größe</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Datum</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Öffentlich</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Aktionen</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredDocuments.map((doc) => (
+                            <tr key={doc.id} className="border-b transition-colors hover:bg-muted/50">
+                              <td className="p-4 align-middle">{doc.name}</td>
+                              <td className="p-4 align-middle">
+                                {doc.file_size ? `${Math.round(doc.file_size / 1024)} KB` : 'N/A'}
+                              </td>
+                              <td className="p-4 align-middle">
+                                {new Date(doc.created_at).toLocaleDateString()}
+                              </td>
+                              <td className="p-4 align-middle">
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    checked={doc.is_public}
+                                    onCheckedChange={() => handleTogglePublic(doc.id, doc.is_public)}
+                                  />
+                                  <Globe className={`h-4 w-4 ${doc.is_public ? 'text-primary' : 'text-muted-foreground'}`} />
+                                </div>
+                              </td>
+                              <td className="p-4 align-middle">
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => {
+                                    // Handle delete
+                                  }}
+                                >
+                                  Löschen
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </Card>
             </div>
