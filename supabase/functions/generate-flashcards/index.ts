@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.1.0';
+import OpenAI from 'https://esm.sh/openai@4.20.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -52,10 +52,9 @@ serve(async (req) => {
     console.log('Successfully extracted text from PDF, length:', text.length);
 
     // Initialize OpenAI
-    const configuration = new Configuration({
+    const openai = new OpenAI({
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     });
-    const openai = new OpenAIApi(configuration);
 
     // Generate flashcards using OpenAI
     const prompt = `Create 10 flashcards from the following text. Each flashcard should have a question on the front and the answer on the back. Format the output as a JSON array of objects with 'front' and 'back' properties. The questions should test understanding of key concepts.
@@ -71,12 +70,21 @@ Example format:
   }
 ]`;
 
-    const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful assistant that creates flashcards from educational content."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
     });
 
-    const flashcardsContent = completion.data.choices[0].message?.content || '[]';
+    const flashcardsContent = completion.choices[0].message.content || '[]';
     const flashcards = JSON.parse(flashcardsContent);
     console.log('Generated flashcards:', flashcards);
 
