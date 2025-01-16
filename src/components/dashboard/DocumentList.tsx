@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { DocumentTableBase } from "./DocumentTableBase";
-import { formatFileSize } from "@/utils/formatters";
+import { Table, TableBody, TableHead, TableHeader } from "@/components/ui/table";
 
 interface Document {
   id: string;
@@ -65,39 +64,51 @@ export const DocumentList = ({
   };
 
   return (
-    <DocumentTableBase 
-      headers={['Select', 'Name', 'Size', 'Upload Date', 'Actions']}
-      emptyMessage="Keine eigenen Dokumente verfügbar"
-    >
-      {documents.map((doc) => (
-        <TableRow 
-          key={doc.id} 
-          className={selectedDocument === doc.id ? "bg-primary/10" : ""}
-          onClick={() => onSelectDocument(doc.id)}
-          style={{ cursor: 'pointer' }}
-        >
-          <TableCell>
-            <RadioGroup value={selectedDocument || ""}>
-              <RadioGroupItem value={doc.id} id={doc.id} />
-            </RadioGroup>
-          </TableCell>
-          <TableCell>{doc.name}</TableCell>
-          <TableCell>{formatFileSize(doc.file_size)}</TableCell>
-          <TableCell>
-            {new Date(doc.created_at).toLocaleDateString()}
-          </TableCell>
-          <TableCell>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => handleDelete(doc, e)}
-              className="text-destructive hover:text-destructive/90"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </TableCell>
-        </TableRow>
-      ))}
-    </DocumentTableBase>
+    <div className="w-full">
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Select</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Size</TableHead>
+              <TableHead>Upload Date</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {documents.map((doc) => (
+              <TableRow 
+                key={doc.id} 
+                className={selectedDocument === doc.id ? "bg-primary/10" : ""}
+                onClick={() => onSelectDocument(doc.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <TableCell>
+                  <RadioGroup value={selectedDocument || ""}>
+                    <RadioGroupItem value={doc.id} id={doc.id} />
+                  </RadioGroup>
+                </TableCell>
+                <TableCell>{doc.name}</TableCell>
+                <TableCell>{doc.file_size ? `${Math.round(doc.file_size / 1024)} KB` : 'N/A'}</TableCell>
+                <TableCell>
+                  {new Date(doc.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => handleDelete(doc, e)}
+                    className="text-destructive hover:text-destructive/90"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 };

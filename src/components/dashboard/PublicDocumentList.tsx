@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { DocumentTableBase } from "./DocumentTableBase";
+import { Table, TableBody, TableHead, TableHeader } from "@/components/ui/table";
 
 interface PublicDocumentListProps {
   onDocumentAssigned: () => void;
@@ -98,36 +98,47 @@ export const PublicDocumentList = ({ onDocumentAssigned }: PublicDocumentListPro
 
   return (
     <div className="space-y-4">
-      <DocumentTableBase 
-        headers={['Auswählen', 'Name', 'Upload Date', 'Actions']}
-        emptyMessage="Keine öffentlichen Dokumente verfügbar"
-      >
-        {publicDocuments.map((doc) => (
-          <TableRow key={doc.id}>
-            <TableCell>
-              <Checkbox
-                checked={selectedDocuments.includes(doc.id)}
-                onCheckedChange={() => toggleDocument(doc.id)}
-              />
-            </TableCell>
-            <TableCell>{doc.name}</TableCell>
-            <TableCell>
-              {new Date(doc.created_at).toLocaleDateString()}
-            </TableCell>
-            <TableCell>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => toggleDocument(doc.id)}
-                className="gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                {selectedDocuments.includes(doc.id) ? 'Ausgewählt' : 'Auswählen'}
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </DocumentTableBase>
+      <div className="w-full">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Auswählen</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Upload Date</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {publicDocuments.map((doc) => (
+                <TableRow key={doc.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedDocuments.includes(doc.id)}
+                      onCheckedChange={() => toggleDocument(doc.id)}
+                    />
+                  </TableCell>
+                  <TableCell>{doc.name}</TableCell>
+                  <TableCell>
+                    {new Date(doc.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleDocument(doc.id)}
+                      className="gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      {selectedDocuments.includes(doc.id) ? 'Ausgewählt' : 'Auswählen'}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
       
       {selectedDocuments.length > 0 && (
         <div className="flex justify-end">
