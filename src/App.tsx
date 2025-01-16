@@ -10,6 +10,7 @@ import Leaderboard from "./pages/Leaderboard";
 import LearningMode from "./pages/LearningMode";
 import Flashcards from "./pages/Flashcards";
 import Admin from "./pages/Admin";
+import AvatarCreator from "./pages/AvatarCreator";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/learning-mode" element={<LearningMode />} />
           <Route path="/flashcards" element={<Flashcards />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/avatar-creator" element={<AvatarCreator />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
