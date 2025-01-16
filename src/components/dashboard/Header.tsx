@@ -1,38 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Header = () => {
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log("Current session:", session);
-      
-      if (session) {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        
-        console.log("Profile data:", profile);
-        console.log("Profile error:", error);
-        
-        if (profile) {
-          console.log("User role:", profile.role);
-          setIsAdmin(profile.role === 'admin');
-        }
-      }
-    };
-
-    checkAdminStatus();
-  }, []);
-
-  console.log("Is admin state:", isAdmin);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
@@ -68,15 +38,13 @@ export const Header = () => {
           >
             Leaderboard
           </Button>
-          {isAdmin && (
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/admin")}
-              className="text-secondary hover:text-secondary/80"
-            >
-              Admin
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/admin")}
+            className="text-secondary hover:text-secondary/80"
+          >
+            Admin
+          </Button>
         </div>
       </div>
     </header>
