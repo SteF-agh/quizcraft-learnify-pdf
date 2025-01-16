@@ -1,50 +1,8 @@
 import { Auth } from '@supabase/auth-ui-react';
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { toast } from "sonner";
-import { useEffect } from 'react';
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export const LoginSection = () => {
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-      console.log('Auth event:', event); // Debug log to track auth events
-      console.log('Session:', session); // Debug log to track session state
-      
-      switch (event) {
-        case 'USER_DELETED':
-          toast.error('User was deleted');
-          break;
-        case 'PASSWORD_RECOVERY':
-          toast.info('Password recovery requested');
-          break;
-        case 'SIGNED_OUT':
-          toast.info('Signed out successfully');
-          break;
-        case 'SIGNED_IN':
-          toast.success('Signed in successfully');
-          break;
-        case 'USER_UPDATED':
-          toast.info('User information updated');
-          break;
-        case 'INITIAL_SESSION':
-          if (session) {
-            toast.success('Welcome back!');
-          }
-          break;
-        case 'TOKEN_REFRESHED':
-          console.log('Session token refreshed');
-          break;
-        default:
-          console.log('Unhandled auth event:', event);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   return (
     <div className="mt-12 bg-white/50 rounded-2xl p-8 shadow-lg max-w-md mx-auto">
       <div className="space-y-4">
