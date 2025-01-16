@@ -11,9 +11,8 @@ export const AvatarPreview = ({ selectedOptions }: AvatarPreviewProps) => {
   const getAvatarTypeLabel = (type: string) => {
     const types: { [key: string]: string } = {
       human: "Mensch",
-      fantasy: "Fantasy-Wesen",
-      monster: "Monster",
-      robot: "Roboter"
+      robot: "Roboter",
+      hybrid: "Hybrid (Mensch/Roboter)"
     };
     return types[type] || type;
   };

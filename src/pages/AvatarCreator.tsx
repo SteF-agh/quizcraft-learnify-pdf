@@ -7,9 +7,8 @@ import { CategoryTabs } from "@/components/avatar-creator/CategoryTabs";
 
 const avatarTypes = [
   { id: "human", name: "Mensch" },
-  { id: "fantasy", name: "Fantasy-Wesen" },
-  { id: "monster", name: "Monster" },
   { id: "robot", name: "Roboter" },
+  { id: "hybrid", name: "Hybrid (Mensch/Roboter)" },
 ];
 
 const avatarOptions = {
