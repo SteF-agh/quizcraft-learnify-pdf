@@ -1,157 +1,155 @@
-import { useState } from "react";
-import { TableCell, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
-import { Table, TableBody, TableHead, TableHeader } from "@/components/ui/table";
+
+interface Document {
+  id: string;
+  name: string;
+  created_at: string;
+  file_size?: number;
+  content_type?: string;
+  is_public: boolean;
+  assigned_to: string[];
+}
 
 interface PublicDocumentListProps {
-  onDocumentAssigned: () => void;
+  onDocumentAssigned?: () => void;
 }
 
 export const PublicDocumentList = ({ onDocumentAssigned }: PublicDocumentListProps) => {
-  const [isAssigning, setIsAssigning] = useState(false);
-  const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const { data: publicDocuments = [], isLoading } = useQuery({
-    queryKey: ['publicDocuments'],
-    queryFn: async () => {
-      const { data, error } = await supabase
+  const fetchPublicDocuments = async () => {
+    try {
+      console.log('Fetching public documents...');
+      const { data: documents, error } = await supabase
         .from('documents')
         .select('*')
         .eq('is_public', true);
 
       if (error) {
-        console.error('Error fetching public documents:', error);
-        toast.error('Fehler beim Laden der öffentlichen Dokumente');
-        return [];
-      }
-
-      return data || [];
-    }
-  });
-
-  const handleAssignDocuments = async () => {
-    if (selectedDocuments.length === 0) {
-      toast.error('Bitte wähle mindestens ein Dokument aus');
-      return;
-    }
-
-    setIsAssigning(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error('Du musst eingeloggt sein, um Dokumente hinzuzufügen');
+        console.error('Error fetching documents:', error);
+        toast.error('Fehler beim Laden der Dokumente');
         return;
       }
 
-      for (const documentId of selectedDocuments) {
-        const { data: document, error: fetchError } = await supabase
-          .from('documents')
-          .select('assigned_to')
-          .eq('id', documentId)
-          .single();
-
-        if (fetchError) {
-          console.error('Error fetching document:', fetchError);
-          continue;
-        }
-
-        const newAssignedTo = [...(document.assigned_to || []), user.id];
-
-        const { error: updateError } = await supabase
-          .from('documents')
-          .update({ assigned_to: newAssignedTo })
-          .eq('id', documentId);
-
-        if (updateError) {
-          console.error('Error updating document:', updateError);
-          continue;
-        }
-      }
-
-      toast.success('Dokumente erfolgreich hinzugefügt');
-      setSelectedDocuments([]);
-      onDocumentAssigned();
+      console.log('Fetched public documents:', documents);
+      setDocuments(documents || []);
     } catch (error) {
-      console.error('Error assigning documents:', error);
-      toast.error('Fehler beim Hinzufügen der Dokumente');
+      console.error('Error in fetchPublicDocuments:', error);
+      toast.error('Fehler beim Laden der Dokumente');
     } finally {
-      setIsAssigning(false);
+      setLoading(false);
     }
   };
 
-  const toggleDocument = (documentId: string) => {
-    setSelectedDocuments(prev => 
-      prev.includes(documentId)
-        ? prev.filter(id => id !== documentId)
-        : [...prev, documentId]
-    );
+  const handleAssignDocument = async (documentId: string) => {
+    try {
+      console.log('Assigning document:', documentId);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('No user found');
+        toast.error('Bitte melde dich an');
+        return;
+      }
+
+      // First, get the current assigned_to array
+      const { data: currentDoc } = await supabase
+        .from('documents')
+        .select('assigned_to')
+        .eq('id', documentId)
+        .single();
+
+      if (!currentDoc) {
+        console.error('Document not found');
+        toast.error('Dokument nicht gefunden');
+        return;
+      }
+
+      // Create a new array with the current user's ID added
+      const newAssignedTo = [...(currentDoc.assigned_to || []), user.id];
+
+      // Update the document with the new assigned_to array
+      const { error: updateError } = await supabase
+        .from('documents')
+        .update({ assigned_to: newAssignedTo })
+        .eq('id', documentId);
+
+      if (updateError) {
+        console.error('Error updating document:', updateError);
+        toast.error('Fehler beim Zuweisen des Dokuments');
+        return;
+      }
+
+      console.log('Document assigned successfully');
+      toast.success('Dokument erfolgreich zugewiesen');
+      onDocumentAssigned?.();
+    } catch (error) {
+      console.error('Error in handleAssignDocument:', error);
+      toast.error('Fehler beim Zuweisen des Dokuments');
+    }
   };
 
-  if (isLoading) {
+  useEffect(() => {
+    fetchPublicDocuments();
+  }, []);
+
+  if (loading) {
     return <div>Lade Dokumente...</div>;
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="w-full">
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Auswählen</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Upload Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {publicDocuments.map((doc) => (
-                <TableRow key={doc.id}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedDocuments.includes(doc.id)}
-                      onCheckedChange={() => toggleDocument(doc.id)}
-                    />
-                  </TableCell>
-                  <TableCell>{doc.name}</TableCell>
-                  <TableCell>
-                    {new Date(doc.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleDocument(doc.id)}
-                      className="gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      {selectedDocuments.includes(doc.id) ? 'Ausgewählt' : 'Auswählen'}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+  if (!documents.length) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Keine öffentlichen Dokumente verfügbar</p>
       </div>
-      
-      {selectedDocuments.length > 0 && (
-        <div className="flex justify-end">
-          <Button
-            onClick={handleAssignDocuments}
-            disabled={isAssigning}
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            {selectedDocuments.length} {selectedDocuments.length === 1 ? 'Dokument' : 'Dokumente'} hinzufügen
-          </Button>
-        </div>
-      )}
+    );
+  }
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <div className="rounded-md border min-w-[800px]">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[300px]">Name</TableHead>
+              <TableHead className="w-[100px]">Größe</TableHead>
+              <TableHead className="w-[150px]">Upload Datum</TableHead>
+              <TableHead className="w-[170px]">Aktionen</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {documents.map((doc) => (
+              <TableRow key={doc.id}>
+                <TableCell className="font-medium">{doc.name}</TableCell>
+                <TableCell>
+                  {doc.file_size ? `${Math.round(doc.file_size / 1024)} KB` : 'N/A'}
+                </TableCell>
+                <TableCell>
+                  {new Date(doc.created_at).toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleAssignDocument(doc.id)}
+                  >
+                    Hinzufügen
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };
