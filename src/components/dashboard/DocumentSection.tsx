@@ -32,8 +32,8 @@ export const DocumentSection = ({
         </div>
         
         <div>
-          <div className="flex justify-between items-start gap-6">
-            <div className="flex-1">
+          <div className="space-y-6">
+            <div>
               <h2 className="text-xl font-semibold mb-2">Deine Skripte</h2>
               <p className="text-sm text-muted-foreground mb-4">
                 Wähle das Skript aus, mit dem du jetzt lernen möchtest und gehe auf Lernen starten
@@ -45,7 +45,8 @@ export const DocumentSection = ({
                 onDocumentDeleted={onDocumentDeleted}
               />
             </div>
-            <div className="w-72">
+            
+            <div className="w-full max-w-xl">
               <UploadSection onUploadSuccess={onDocumentDeleted} />
             </div>
           </div>
