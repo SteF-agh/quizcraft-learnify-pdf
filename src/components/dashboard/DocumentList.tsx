@@ -1,4 +1,4 @@
-import { Table, TableBody, TableHead, TableHeader } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmptyDocumentState } from "./document-list/EmptyDocumentState";
 import { DocumentRow } from "./document-list/DocumentRow";
 import { useDeleteHandler } from "./document-list/DeleteHandler";
