@@ -33,7 +33,7 @@ export const DocumentRow = ({
     try {
       const { data } = await supabase.storage
         .from('pdfs')
-        .createSignedUrl(document.file_path, 60); // URL valid for 60 seconds
+        .createSignedUrl(document.file_path, 60);
 
       if (data?.signedUrl) {
         console.log('Opening signed URL:', data.signedUrl);
@@ -46,13 +46,16 @@ export const DocumentRow = ({
 
   return (
     <TableRow 
-      className={isSelected ? "bg-primary/10" : ""}
+      className={`cursor-pointer transition-colors ${isSelected ? "bg-primary/10" : "hover:bg-muted/50"}`}
       onClick={onSelect}
-      style={{ cursor: 'pointer' }}
     >
       <TableCell>
-        <RadioGroup value={isSelected ? document.id : ""}>
-          <RadioGroupItem value={document.id} id={document.id} />
+        <RadioGroup value={isSelected ? document.id : undefined}>
+          <RadioGroupItem 
+            value={document.id} 
+            id={document.id}
+            checked={isSelected}
+          />
         </RadioGroup>
       </TableCell>
       <TableCell className="font-medium">{document.name}</TableCell>
