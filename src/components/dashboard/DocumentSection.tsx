@@ -7,6 +7,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DocumentSectionProps {
   documents: any[];
@@ -23,6 +25,29 @@ export const DocumentSection = ({
   onDocumentDeleted,
   onStartLearning
 }: DocumentSectionProps) => {
+  const fetchAssignedDocuments = async () => {
+    try {
+      console.log('Fetching assigned documents...');
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*')
+        .contains('assigned_to', ['00000000-0000-0000-0000-000000000000']);
+
+      if (error) {
+        console.error('Error fetching assigned documents:', error);
+        return;
+      }
+
+      console.log('Fetched assigned documents:', data);
+    } catch (error) {
+      console.error('Error in fetchAssignedDocuments:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignedDocuments();
+  }, []);
+
   return (
     <div className="space-y-6">
       <Accordion type="single" collapsible className="space-y-8">

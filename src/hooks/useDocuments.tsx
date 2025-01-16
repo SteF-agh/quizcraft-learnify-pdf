@@ -8,14 +8,11 @@ export const useDocuments = () => {
 
   const fetchDocuments = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
+      console.log('Fetching assigned documents in useDocuments...');
       const { data, error } = await supabase
         .from('documents')
         .select('*')
-        .or(`uploaded_by.eq.${user.id},assigned_to.cs.{${user.id}}`)
-        .order('created_at', { ascending: false });
+        .contains('assigned_to', ['00000000-0000-0000-0000-000000000000']);
 
       if (error) {
         console.error('Error fetching documents:', error);
@@ -23,7 +20,7 @@ export const useDocuments = () => {
         return;
       }
 
-      console.log('Fetched documents:', data);
+      console.log('Fetched documents in useDocuments:', data);
       setDocuments(data || []);
     } catch (error) {
       console.error('Error in fetchDocuments:', error);
