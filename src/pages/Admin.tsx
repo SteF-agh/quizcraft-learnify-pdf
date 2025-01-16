@@ -5,19 +5,40 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileUpload } from "@/components/FileUpload";
-import { useDocuments } from "@/hooks/useDocuments";
 import { DocumentTableBase } from "@/components/dashboard/DocumentTableBase";
 import { Search, Users, FileText, BarChart3 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Admin = () => {
   const [userRole] = useState('admin');
-  const { documents, fetchDocuments } = useDocuments();
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch documents using React Query
+  const { data: documents = [], refetch } = useQuery({
+    queryKey: ['admin-documents'],
+    queryFn: async () => {
+      console.log('Fetching documents for admin view...');
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching documents:', error);
+        toast.error('Fehler beim Laden der Dokumente');
+        return [];
+      }
+
+      console.log('Fetched documents:', data);
+      return data || [];
+    }
+  });
 
   const handleUploadSuccess = () => {
     toast.success("Dokument erfolgreich hochgeladen");
-    fetchDocuments();
+    refetch(); // Refresh the documents list after upload
   };
 
   const filteredDocuments = documents?.filter(doc => 
@@ -110,7 +131,7 @@ const Admin = () => {
                   <DocumentTableBase
                     documents={filteredDocuments}
                     showActions={true}
-                    onDocumentDeleted={fetchDocuments}
+                    onDocumentDeleted={refetch}
                   />
                 </div>
               </Card>
