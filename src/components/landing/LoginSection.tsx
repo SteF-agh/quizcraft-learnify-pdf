@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { toast } from "sonner";
 import { useEffect } from 'react';
-import { AuthChangeEvent } from '@supabase/supabase-js';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export const LoginSection = () => {
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       console.log('Auth event:', event); // Debug log to track auth events
+      console.log('Session:', session); // Debug log to track session state
       
       switch (event) {
         case 'USER_DELETED':
@@ -25,6 +26,14 @@ export const LoginSection = () => {
           break;
         case 'USER_UPDATED':
           toast.info('User information updated');
+          break;
+        case 'INITIAL_SESSION':
+          if (session) {
+            toast.success('Welcome back!');
+          }
+          break;
+        case 'TOKEN_REFRESHED':
+          console.log('Session token refreshed');
           break;
         default:
           console.log('Unhandled auth event:', event);
