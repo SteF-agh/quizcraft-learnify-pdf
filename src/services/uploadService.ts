@@ -31,6 +31,13 @@ export const uploadImageToStorage = async (file: File) => {
   return { fileName, uploadData };
 };
 
+type AvatarImage = {
+  name: string;
+  file_path: string;
+  file_size: number;
+  content_type: string;
+};
+
 export const saveImageToDatabase = async (name: string, filePath: string, file: File) => {
   console.log("Saving image metadata to database:", {
     name,
@@ -41,7 +48,7 @@ export const saveImageToDatabase = async (name: string, filePath: string, file: 
 
   const { error: dbError } = await supabase
     .from('avatar_images')
-    .insert({
+    .insert<AvatarImage>({
       name: name,
       file_path: filePath,
       file_size: file.size,

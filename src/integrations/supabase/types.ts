@@ -33,6 +33,36 @@ export type Database = {
         }
         Relationships: []
       }
+      avatar_images: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          file_path: string
+          file_size: number | null
+          id: string
+          name: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          name: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          name?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           assigned_to: string[] | null
