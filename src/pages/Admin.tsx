@@ -77,7 +77,7 @@ const Admin = () => {
                 <h2 className="text-xl font-semibold mb-4">Vorhandene Skripte</h2>
                 <div className="overflow-x-auto">
                   <DocumentTableBase
-                    documents={documents}
+                    documents={documents || []}
                     showActions={true}
                     onDocumentDeleted={fetchDocuments}
                   />
