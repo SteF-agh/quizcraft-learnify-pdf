@@ -1,8 +1,28 @@
 import { Auth } from '@supabase/auth-ui-react';
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { toast } from "sonner";
+import { useEffect } from 'react';
 
 export const LoginSection = () => {
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'USER_DELETED') {
+        toast.error('User was deleted');
+      } else if (event === 'PASSWORD_RECOVERY') {
+        toast.info('Password recovery requested');
+      } else if (event === 'SIGNED_OUT') {
+        toast.info('Signed out successfully');
+      } else if (event === 'SIGNED_IN') {
+        toast.success('Signed in successfully');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <div className="mt-12 bg-white/50 rounded-2xl p-8 shadow-lg max-w-md mx-auto">
       <div className="space-y-4">
