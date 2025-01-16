@@ -6,7 +6,7 @@ export const LoginSection = () => {
   return (
     <div className="mt-12 bg-white/50 rounded-2xl p-8 shadow-lg max-w-md mx-auto">
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-center mb-6">Willkommen bei LeeTrainer</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">Log dich ein und leg los</h2>
         <Auth
           supabaseClient={supabase}
           appearance={{
