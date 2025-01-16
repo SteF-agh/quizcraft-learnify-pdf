@@ -57,25 +57,17 @@ serve(async (req) => {
     });
 
     // Generate flashcards using OpenAI
-    const prompt = `Create 10 flashcards from the following text. Each flashcard should have a question on the front and the answer on the back. Format the output as a JSON array of objects with 'front' and 'back' properties. The questions should test understanding of key concepts.
+    const prompt = `Generate exactly 10 flashcards from this text. Each flashcard should have a front (question) and back (answer). Return ONLY a JSON array of objects with 'front' and 'back' properties, with no markdown formatting or explanation. Example format: [{"front": "Question here?", "back": "Answer here"}]
 
-Text:
-${text.slice(0, 3000)} // Limit text length to avoid token limits
-
-Example format:
-[
-  {
-    "front": "What is...",
-    "back": "It is..."
-  }
-]`;
+Text to process:
+${text.slice(0, 3000)}`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that creates flashcards from educational content."
+          content: "You are a helpful assistant that creates flashcards. Always respond with valid JSON only, no markdown or explanations."
         },
         {
           role: "user",
@@ -84,30 +76,42 @@ Example format:
       ],
     });
 
-    const flashcardsContent = completion.choices[0].message.content || '[]';
-    const flashcards = JSON.parse(flashcardsContent);
-    console.log('Generated flashcards:', flashcards);
+    let flashcardsContent = completion.choices[0].message.content || '[]';
+    
+    // Clean up the response if it contains markdown formatting
+    try {
+      // Remove any markdown code block indicators if present
+      flashcardsContent = flashcardsContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      // Parse the JSON content
+      const flashcards = JSON.parse(flashcardsContent.trim());
+      console.log('Successfully generated flashcards:', flashcards.length);
 
-    // Store flashcards in database
-    const { error: insertError } = await supabaseClient
-      .from('flashcards')
-      .insert(
-        flashcards.map((card: any) => ({
-          document_id: documentId,
-          front: card.front,
-          back: card.back,
-        }))
+      // Store flashcards in database
+      const { error: insertError } = await supabaseClient
+        .from('flashcards')
+        .insert(
+          flashcards.map((card: any) => ({
+            document_id: documentId,
+            front: card.front,
+            back: card.back,
+          }))
+        );
+
+      if (insertError) {
+        console.error('Error inserting flashcards:', insertError);
+        throw new Error('Error saving flashcards');
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, flashcards }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
 
-    if (insertError) {
-      console.error('Error inserting flashcards:', insertError);
-      throw new Error('Error saving flashcards');
+    } catch (parseError) {
+      console.error('Error parsing flashcards JSON:', parseError);
+      console.error('Raw content:', flashcardsContent);
+      throw new Error('Invalid flashcards format returned from AI');
     }
-
-    return new Response(
-      JSON.stringify({ success: true, flashcards }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
 
   } catch (error) {
     console.error('Error in generate-flashcards function:', error);
