@@ -20,23 +20,20 @@ export const DocumentSection = ({
 }: DocumentSectionProps) => {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1">
-          <UploadSection onUploadSuccess={onDocumentDeleted} />
+      <div className="space-y-8">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Verfügbare Skripte</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Hier findest du alle von deinen Trainern bereitgestellten Skripte
+          </p>
+          <PublicDocumentList
+            onDocumentAssigned={onDocumentDeleted}
+          />
         </div>
-        <div className="md:col-span-2">
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-2">Verfügbare Skripte</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                Hier findest du alle von deinen Trainern bereitgestellten Skripte
-              </p>
-              <PublicDocumentList
-                onDocumentAssigned={onDocumentDeleted}
-              />
-            </div>
-            
-            <div>
+        
+        <div>
+          <div className="flex justify-between items-start gap-6">
+            <div className="flex-1">
               <h2 className="text-xl font-semibold mb-2">Deine Skripte</h2>
               <p className="text-sm text-muted-foreground mb-4">
                 Wähle das Skript aus, mit dem du jetzt lernen möchtest und gehe auf Lernen starten
@@ -48,9 +45,13 @@ export const DocumentSection = ({
                 onDocumentDeleted={onDocumentDeleted}
               />
             </div>
+            <div className="w-72">
+              <UploadSection onUploadSuccess={onDocumentDeleted} />
+            </div>
           </div>
         </div>
       </div>
+      
       <div className="pt-4">
         <LearningModeSelector
           selectedDocument={selectedDocument}
