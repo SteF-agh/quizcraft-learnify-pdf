@@ -36,7 +36,7 @@ const Dashboard = () => {
             <AvatarFallback>SF</AvatarFallback>
           </Avatar>
           <h1 className="text-3xl font-bold">
-            Willkommen zurück, <span className="text-primary">Stefanie Feurstein</span>!
+            Willkommen, <span className="text-primary">Stefanie Feurstein</span>!
           </h1>
         </div>
         <div className="flex items-center gap-8">
