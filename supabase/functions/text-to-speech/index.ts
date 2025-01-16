@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice } = await req.json()
+    const { text } = await req.json()
 
     if (!text) {
       throw new Error('Text is required')
@@ -27,7 +27,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'tts-1',
         input: text,
-        voice: voice || 'alloy',
+        voice: 'onyx', // Using a more natural-sounding voice
         response_format: 'mp3',
       }),
     })
