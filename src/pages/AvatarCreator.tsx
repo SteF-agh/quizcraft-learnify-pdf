@@ -5,30 +5,38 @@ import { AvatarPreview } from "@/components/avatar-creator/AvatarPreview";
 import { OptionsList } from "@/components/avatar-creator/OptionsList";
 import { CategoryTabs } from "@/components/avatar-creator/CategoryTabs";
 
+const avatarTypes = [
+  { id: "human", name: "Mensch" },
+  { id: "fantasy", name: "Fantasy-Wesen" },
+  { id: "monster", name: "Monster" },
+  { id: "robot", name: "Roboter" },
+];
+
 const avatarOptions = {
   skin: [
-    { id: "light", name: "Light" },
-    { id: "medium", name: "Medium" },
-    { id: "dark", name: "Dark" },
+    { id: "light", name: "Hell" },
+    { id: "medium", name: "Mittel" },
+    { id: "dark", name: "Dunkel" },
   ],
   hair: [
-    { id: "short", name: "Short" },
-    { id: "long", name: "Long" },
-    { id: "curly", name: "Curly" },
+    { id: "short", name: "Kurz" },
+    { id: "long", name: "Lang" },
+    { id: "curly", name: "Lockig" },
   ],
   accessories: [
-    { id: "glasses", name: "Glasses" },
-    { id: "hat", name: "Hat" },
-    { id: "earrings", name: "Earrings" },
+    { id: "glasses", name: "Brille" },
+    { id: "hat", name: "Hut" },
+    { id: "earrings", name: "Ohrringe" },
   ],
   facial: [
-    { id: "none", name: "None" },
-    { id: "mustache", name: "Mustache" },
-    { id: "goatee", name: "Goatee" },
+    { id: "none", name: "Keine" },
+    { id: "mustache", name: "Schnurrbart" },
+    { id: "goatee", name: "Spitzbart" },
   ],
 };
 
 const AvatarCreator = () => {
+  const [selectedAvatarType, setSelectedAvatarType] = useState("human");
   const [selectedCategory, setSelectedCategory] = useState("skin");
   const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>({
     skin: "light",
@@ -51,6 +59,16 @@ const AvatarCreator = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Avatar-Typ</h2>
+            <div className="mb-6">
+              <OptionsList
+                options={avatarTypes}
+                selectedOption={selectedAvatarType}
+                onSelect={setSelectedAvatarType}
+              />
+            </div>
+
+            <h2 className="text-xl font-semibold mb-4">Anpassungen</h2>
             <CategoryTabs
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
@@ -65,7 +83,7 @@ const AvatarCreator = () => {
             </div>
           </Card>
 
-          <AvatarPreview selectedOptions={selectedOptions} />
+          <AvatarPreview selectedOptions={{ type: selectedAvatarType, ...selectedOptions }} />
         </div>
       </div>
     </Layout>
