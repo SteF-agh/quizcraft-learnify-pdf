@@ -15,7 +15,7 @@ serve(async (req) => {
 
   try {
     const { documentId } = await req.json();
-    console.log('Generating flashcards for document:', documentId);
+    console.log('Generiere Lernkarten für Dokument:', documentId);
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -31,8 +31,8 @@ serve(async (req) => {
       .single();
 
     if (docError || !document) {
-      console.error('Document not found:', docError);
-      throw new Error('Document not found');
+      console.error('Dokument nicht gefunden:', docError);
+      throw new Error('Dokument nicht gefunden');
     }
 
     // Download PDF content
@@ -42,14 +42,14 @@ serve(async (req) => {
       .download(document.file_path);
 
     if (downloadError) {
-      console.error('Error downloading PDF:', downloadError);
-      throw new Error('Error downloading PDF');
+      console.error('Fehler beim Herunterladen der PDF:', downloadError);
+      throw new Error('Fehler beim Herunterladen der PDF');
     }
 
     // Convert PDF to text
     const arrayBuffer = await fileData.arrayBuffer();
     const text = new TextDecoder().decode(new Uint8Array(arrayBuffer));
-    console.log('Successfully extracted text from PDF, length:', text.length);
+    console.log('Text erfolgreich aus PDF extrahiert, Länge:', text.length);
 
     // Initialize OpenAI
     const openai = new OpenAI({
@@ -57,9 +57,9 @@ serve(async (req) => {
     });
 
     // Generate flashcards using OpenAI
-    const prompt = `Generate exactly 10 flashcards from this text. Each flashcard should have a front (question) and back (answer). Return ONLY a JSON array of objects with 'front' and 'back' properties, with no markdown formatting or explanation. Example format: [{"front": "Question here?", "back": "Answer here"}]
+    const prompt = `Erstelle genau 10 Lernkarten aus diesem Text. Jede Lernkarte sollte eine Vorderseite (Frage) und eine Rückseite (Antwort) haben. Gib NUR ein JSON-Array mit Objekten zurück, die 'front' und 'back' Eigenschaften haben, ohne Markdown-Formatierung oder Erklärungen. Beispielformat: [{"front": "Frage hier?", "back": "Antwort hier"}]
 
-Text to process:
+Text zum Verarbeiten:
 ${text.slice(0, 3000)}`;
 
     const completion = await openai.chat.completions.create({
@@ -67,7 +67,7 @@ ${text.slice(0, 3000)}`;
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that creates flashcards. Always respond with valid JSON only, no markdown or explanations."
+          content: "Du bist ein hilfreicher Assistent, der Lernkarten auf Deutsch erstellt. Antworte ausschließlich mit validem JSON, ohne Markdown oder Erklärungen."
         },
         {
           role: "user",
@@ -84,7 +84,7 @@ ${text.slice(0, 3000)}`;
       flashcardsContent = flashcardsContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
       // Parse the JSON content
       const flashcards = JSON.parse(flashcardsContent.trim());
-      console.log('Successfully generated flashcards:', flashcards.length);
+      console.log('Lernkarten erfolgreich generiert:', flashcards.length);
 
       // Store flashcards in database
       const { error: insertError } = await supabaseClient
@@ -98,8 +98,8 @@ ${text.slice(0, 3000)}`;
         );
 
       if (insertError) {
-        console.error('Error inserting flashcards:', insertError);
-        throw new Error('Error saving flashcards');
+        console.error('Fehler beim Speichern der Lernkarten:', insertError);
+        throw new Error('Fehler beim Speichern der Lernkarten');
       }
 
       return new Response(
@@ -108,13 +108,13 @@ ${text.slice(0, 3000)}`;
       );
 
     } catch (parseError) {
-      console.error('Error parsing flashcards JSON:', parseError);
-      console.error('Raw content:', flashcardsContent);
-      throw new Error('Invalid flashcards format returned from AI');
+      console.error('Fehler beim Parsen der Lernkarten JSON:', parseError);
+      console.error('Roher Inhalt:', flashcardsContent);
+      throw new Error('Ungültiges Lernkarten-Format von der KI zurückgegeben');
     }
 
   } catch (error) {
-    console.error('Error in generate-flashcards function:', error);
+    console.error('Fehler in generate-flashcards Funktion:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
