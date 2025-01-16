@@ -30,8 +30,22 @@ export const DocumentList = ({
 }: DocumentListProps) => {
   const handleDelete = async (doc: Document, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Attempting to delete document:', doc.id);
 
     try {
+      // First delete related flashcards
+      const { error: flashcardsError } = await supabase
+        .from('flashcards')
+        .delete()
+        .eq('document_id', doc.id);
+
+      if (flashcardsError) {
+        console.error('Error deleting related flashcards:', flashcardsError);
+        toast.error('Fehler beim Löschen der zugehörigen Lernkarten');
+        return;
+      }
+
+      // Then delete the file from storage
       const { error: storageError } = await supabase.storage
         .from('pdfs')
         .remove([doc.file_path]);
@@ -42,6 +56,7 @@ export const DocumentList = ({
         return;
       }
 
+      // Finally delete the document record
       const { error: dbError } = await supabase
         .from('documents')
         .delete()
@@ -53,6 +68,7 @@ export const DocumentList = ({
         return;
       }
 
+      console.log('Document successfully deleted:', doc.id);
       toast.success('Dokument erfolgreich gelöscht');
       if (onDocumentDeleted) {
         onDocumentDeleted();
