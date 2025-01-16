@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Shuffle } from "lucide-react";
 import { Flashcard } from "./Flashcard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface FlashcardsDeckProps {
   documentId: string;
@@ -14,16 +15,41 @@ export const FlashcardsDeck = ({ documentId }: FlashcardsDeckProps) => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Temporary mock data - will be replaced with actual data from the edge function
   const { data: flashcards = [], isLoading } = useQuery({
     queryKey: ["flashcards", documentId],
     queryFn: async () => {
-      // This will be replaced with actual API call to generate flashcards
-      return [
-        { id: 1, front: "Was ist React?", back: "Eine JavaScript-Bibliothek zur Entwicklung von Benutzeroberflächen" },
-        { id: 2, front: "Was ist ein Hook?", back: "Eine Funktion, die es ermöglicht, React-Features in Funktionskomponenten zu verwenden" },
-        { id: 3, front: "Was ist JSX?", back: "Eine Syntaxerweiterung für JavaScript, die es ermöglicht, HTML-ähnlichen Code in JavaScript zu schreiben" },
-      ];
+      console.log('Fetching flashcards for document:', documentId);
+      
+      // First, check if flashcards exist
+      const { data: existingCards, error: fetchError } = await supabase
+        .from('flashcards')
+        .select('*')
+        .eq('document_id', documentId);
+
+      if (fetchError) {
+        console.error('Error fetching flashcards:', fetchError);
+        throw new Error('Error fetching flashcards');
+      }
+
+      if (existingCards && existingCards.length > 0) {
+        console.log('Found existing flashcards:', existingCards.length);
+        return existingCards;
+      }
+
+      // If no flashcards exist, generate them
+      console.log('No existing flashcards found, generating new ones...');
+      const { data, error } = await supabase.functions.invoke('generate-flashcards', {
+        body: { documentId },
+      });
+
+      if (error) {
+        console.error('Error generating flashcards:', error);
+        toast.error('Fehler beim Generieren der Lernkarten');
+        throw error;
+      }
+
+      console.log('Successfully generated flashcards:', data.flashcards);
+      return data.flashcards;
     },
   });
 
@@ -42,9 +68,9 @@ export const FlashcardsDeck = ({ documentId }: FlashcardsDeckProps) => {
   };
 
   const handleShuffle = () => {
+    const shuffledCards = [...flashcards].sort(() => Math.random() - 0.5);
     setCurrentCardIndex(0);
     setIsFlipped(false);
-    // TODO: Implement shuffle logic
   };
 
   if (isLoading) {

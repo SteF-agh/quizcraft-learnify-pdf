@@ -60,6 +60,45 @@ export type Database = {
         }
         Relationships: []
       }
+      flashcards: {
+        Row: {
+          back: string
+          created_at: string
+          document_id: string
+          front: string
+          id: string
+        }
+        Insert: {
+          back: string
+          created_at?: string
+          document_id: string
+          front: string
+          id?: string
+        }
+        Update: {
+          back?: string
+          created_at?: string
+          document_id?: string
+          front?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_document"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flashcards_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leaderboard_history: {
         Row: {
           created_at: string | null
