@@ -33,16 +33,16 @@ export const LoginSection = () => {
                 password_label: 'Passwort',
                 button_label: 'Anmelden',
                 loading_button_label: 'Anmeldung läuft...',
-                email_input_placeholder: 'Ihre E-Mail Adresse',
-                password_input_placeholder: 'Ihr Passwort'
+                email_input_placeholder: 'Deine E-Mail Adresse',
+                password_input_placeholder: 'Dein Passwort'
               },
               sign_up: {
                 email_label: 'E-Mail Adresse',
                 password_label: 'Passwort',
                 button_label: 'Registrieren',
                 loading_button_label: 'Registrierung läuft...',
-                email_input_placeholder: 'Ihre E-Mail Adresse',
-                password_input_placeholder: 'Ihr Passwort'
+                email_input_placeholder: 'Deine E-Mail Adresse',
+                password_input_placeholder: 'Dein Passwort'
               }
             }
           }}

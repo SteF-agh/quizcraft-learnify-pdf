@@ -5,25 +5,25 @@ export const KeyFeatures = () => {
   const features = [
     {
       title: "Vielfältige Lernformate",
-      description: "Wählen Sie das Format, das zu Ihnen passt! Ob spannende Quizzes, effektive Lernkarten oder bald auch interaktive Spiele – hier findet jeder seinen Weg zum Lernerfolg.",
+      description: "Wähle das Format, das zu dir passt! Ob spannende Quizzes, effektive Lernkarten oder bald auch interaktive Spiele – hier findest du deinen Weg zum Lernerfolg.",
       icon: LucideBookOpen,
       gradient: "from-primary to-secondary"
     },
     {
       title: "Individuelle Inhalte",
-      description: "Lernen, was Sie wirklich brauchen! Laden Sie Ihre eigenen Skripte hoch und gestalten Sie Ihre Lerninhalte passgenau nach Ihren Bedürfnissen.",
+      description: "Lerne, was du wirklich brauchst! Lade deine eigenen Skripte hoch und gestalte deine Lerninhalte passgenau nach deinen Bedürfnissen.",
       icon: LucideUpload,
       gradient: "from-secondary to-accent"
     },
     {
       title: "Motivation durch Fortschritt",
-      description: "Punkte sammeln leicht gemacht: Verfolgen Sie Ihren Fortschritt, gewinnen Sie Punkte und bleiben Sie motiviert – Schritt für Schritt zu Ihrem Ziel.",
+      description: "Punkte sammeln leicht gemacht: Verfolge deinen Fortschritt, gewinne Punkte und bleibe motiviert – Schritt für Schritt zu deinem Ziel.",
       icon: LucideTrophy,
       gradient: "from-accent to-primary"
     },
     {
       title: "Freiwilliger Wettbewerb",
-      description: "Messen Sie sich mit anderen Teilnehmer:innen auf unserem Leaderboard! Teilen Sie Ihre Erfolge – oder lernen Sie einfach nur für sich selbst.",
+      description: "Miss dich mit anderen Teilnehmer:innen auf unserem Leaderboard! Teile deine Erfolge – oder lerne einfach nur für dich selbst.",
       icon: LucideUsers,
       gradient: "from-primary to-accent"
     }
@@ -31,7 +31,7 @@ export const KeyFeatures = () => {
 
   return (
     <div className="mt-12">
-      <h2 className="text-3xl font-bold text-center mb-4">Entdecken Sie, wie einfach und motivierend Lernen sein kann</h2>
+      <h2 className="text-3xl font-bold text-center mb-4">Entdecke, wie einfach und motivierend Lernen sein kann</h2>
       <div className="grid md:grid-cols-2 gap-8 mt-12">
         {features.map((feature, index) => (
           <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
@@ -45,7 +45,7 @@ export const KeyFeatures = () => {
       </div>
       <div className="text-center mt-12">
         <p className="text-lg text-muted-foreground">
-          Mit LeeonQuiz wird Lernen smarter, flexibler und unterhaltsamer. Bereit, Ihre Ziele zu erreichen? 🎯
+          Mit LeeonQuiz wird Lernen smarter, flexibler und unterhaltsamer. Bereit, deine Ziele zu erreichen? 🎯
         </p>
       </div>
     </div>
