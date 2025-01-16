@@ -50,7 +50,7 @@ export const DocumentSection = ({
 
   return (
     <div className="space-y-6">
-      <Accordion type="single" collapsible className="space-y-8">
+      <Accordion type="multiple" defaultValue={["public-documents", "my-documents"]} className="space-y-8">
         <AccordionItem value="public-documents">
           <AccordionTrigger className="text-xl font-semibold">
             Verfügbare Skripte
