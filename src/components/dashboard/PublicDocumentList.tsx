@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { DocumentTable } from "./public-document-list/DocumentTable";
 
 interface Document {
   id: string;
@@ -50,7 +49,6 @@ export const PublicDocumentList = ({ onDocumentAssigned }: PublicDocumentListPro
     try {
       console.log('Assigning document:', documentId);
       
-      // Get the current document's assigned_to array
       const { data: currentDoc } = await supabase
         .from('documents')
         .select('assigned_to')
@@ -63,13 +61,9 @@ export const PublicDocumentList = ({ onDocumentAssigned }: PublicDocumentListPro
         return;
       }
 
-      // For testing purposes, we'll use a fixed test user ID
       const testUserId = '00000000-0000-0000-0000-000000000000';
-      
-      // Create a new array with the test user ID added
       const newAssignedTo = [...(currentDoc.assigned_to || []), testUserId];
 
-      // Update the document with the new assigned_to array
       const { error: updateError } = await supabase
         .from('documents')
         .update({ assigned_to: newAssignedTo })
@@ -98,54 +92,5 @@ export const PublicDocumentList = ({ onDocumentAssigned }: PublicDocumentListPro
     return <div>Lade Dokumente...</div>;
   }
 
-  if (!documents.length) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">Keine öffentlichen Dokumente verfügbar</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full overflow-x-auto">
-      <div className="rounded-md border min-w-[800px]">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px]">Name</TableHead>
-              <TableHead className="w-[100px]">Größe</TableHead>
-              <TableHead className="w-[150px]">Upload Datum</TableHead>
-              <TableHead className="w-[170px]">Aktionen</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {documents.map((doc) => (
-              <TableRow key={doc.id}>
-                <TableCell className="font-medium">{doc.name}</TableCell>
-                <TableCell>
-                  {doc.file_size ? `${Math.round(doc.file_size / 1024)} KB` : 'N/A'}
-                </TableCell>
-                <TableCell>
-                  {new Date(doc.created_at).toLocaleDateString('de-DE', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                  })}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAssignDocument(doc.id)}
-                  >
-                    Hinzufügen
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-  );
+  return <DocumentTable documents={documents} onAssignDocument={handleAssignDocument} />;
 };
