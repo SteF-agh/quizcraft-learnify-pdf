@@ -10,19 +10,29 @@ export const Header = () => {
   useEffect(() => {
     const checkAdminStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session);
+      
       if (session) {
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .single();
         
-        setIsAdmin(profile?.role === 'admin');
+        console.log("Profile data:", profile);
+        console.log("Profile error:", error);
+        
+        if (profile) {
+          console.log("User role:", profile.role);
+          setIsAdmin(profile.role === 'admin');
+        }
       }
     };
 
     checkAdminStatus();
   }, []);
+
+  console.log("Is admin state:", isAdmin);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
