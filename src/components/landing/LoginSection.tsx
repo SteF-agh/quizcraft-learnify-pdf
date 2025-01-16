@@ -3,18 +3,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { toast } from "sonner";
 import { useEffect } from 'react';
+import { AuthChangeEvent } from '@supabase/supabase-js';
 
 export const LoginSection = () => {
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'USER_DELETED') {
-        toast.error('User was deleted');
-      } else if (event === 'PASSWORD_RECOVERY') {
-        toast.info('Password recovery requested');
-      } else if (event === 'SIGNED_OUT') {
-        toast.info('Signed out successfully');
-      } else if (event === 'SIGNED_IN') {
-        toast.success('Signed in successfully');
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
+      console.log('Auth event:', event); // Debug log to track auth events
+      
+      switch (event) {
+        case 'USER_DELETED':
+          toast.error('User was deleted');
+          break;
+        case 'PASSWORD_RECOVERY':
+          toast.info('Password recovery requested');
+          break;
+        case 'SIGNED_OUT':
+          toast.info('Signed out successfully');
+          break;
+        case 'SIGNED_IN':
+          toast.success('Signed in successfully');
+          break;
+        case 'USER_UPDATED':
+          toast.info('User information updated');
+          break;
+        default:
+          console.log('Unhandled auth event:', event);
       }
     });
 
