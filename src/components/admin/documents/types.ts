@@ -12,7 +12,7 @@ export interface Question {
     text: string;
     isCorrect: boolean;
   }>;
-  feedback: string;
+  feedback?: string;
   learningObjectiveId?: string;
   metadata?: Record<string, unknown>;
 }

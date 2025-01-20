@@ -7,10 +7,13 @@ export interface Question {
   questionText: string;
   type: "multiple-choice" | "single-choice" | "true-false";
   points: number;
-  answers: any[];
+  answers: Array<{
+    text: string;
+    isCorrect: boolean;
+  }>;
   feedback?: string;
   learningObjectiveId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   documentId: string;
 }
 
