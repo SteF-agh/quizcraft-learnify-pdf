@@ -1,13 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { formatFileSize } from "@/utils/formatters";
-import { DocumentRow } from "./DocumentRow";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Document {
   id: string;
   name: string;
-  created_at: string;
-  file_size?: number;
-  content_type?: string;
   is_public: boolean;
   assigned_to: string[];
 }
@@ -18,6 +21,32 @@ interface DocumentTableProps {
 }
 
 export const DocumentTable = ({ documents, onAssignDocument }: DocumentTableProps) => {
+  const [questionsCount, setQuestionsCount] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchQuestionsCount = async () => {
+      console.log('Fetching questions count for documents...');
+      for (const doc of documents) {
+        const { data, error } = await supabase
+          .from('quiz_questions')
+          .select('id')
+          .eq('document_id', doc.id);
+
+        if (error) {
+          console.error('Error fetching questions count:', error);
+          continue;
+        }
+
+        setQuestionsCount(prev => ({
+          ...prev,
+          [doc.id]: data.length
+        }));
+      }
+    };
+
+    fetchQuestionsCount();
+  }, [documents]);
+
   if (!documents.length) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -27,28 +56,24 @@ export const DocumentTable = ({ documents, onAssignDocument }: DocumentTableProp
   }
 
   return (
-    <div className="w-full">
-      <div className="rounded-md border">
-        <table className="w-full caption-bottom text-sm">
-          <thead className="border-b">
-            <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-              <th className="h-12 px-4 text-left align-middle font-medium">Name</th>
-              <th className="h-12 px-4 text-left align-middle font-medium">Größe</th>
-              <th className="h-12 px-4 text-left align-middle font-medium">Datum</th>
-              <th className="h-12 px-4 text-left align-middle font-medium">Aktionen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {documents.map((doc) => (
-              <DocumentRow
-                key={doc.id}
-                document={doc}
-                onAssign={() => onAssignDocument(doc.id)}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="w-full max-w-md">
+      <Select onValueChange={onAssignDocument}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Wähle ein Skript aus" />
+        </SelectTrigger>
+        <SelectContent>
+          {documents.map((doc) => (
+            <SelectItem key={doc.id} value={doc.id}>
+              <div className="flex justify-between items-center gap-4">
+                <span>{doc.name}</span>
+                <span className="text-sm text-muted-foreground">
+                  ({questionsCount[doc.id] || 0} Fragen)
+                </span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

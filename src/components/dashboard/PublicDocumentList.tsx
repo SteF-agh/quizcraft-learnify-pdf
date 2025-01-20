@@ -6,9 +6,6 @@ import { DocumentTable } from "./public-document-list/DocumentTable";
 interface Document {
   id: string;
   name: string;
-  created_at: string;
-  file_size?: number;
-  content_type?: string;
   is_public: boolean;
   assigned_to: string[];
 }
