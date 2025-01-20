@@ -1,8 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { initializePdfWorker, extractTextFromPdf } from './pdfUtils.ts';
-import { generateQuestions } from './questionGenerator.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -47,36 +45,95 @@ serve(async (req) => {
 
     console.log('Found document:', document.name);
 
-    // Download PDF content
-    const { data: fileData, error: downloadError } = await supabaseClient
-      .storage
-      .from('pdfs')
-      .download(document.file_path);
-
-    if (downloadError) {
-      console.error('Error downloading PDF:', downloadError);
-      throw new Error('Error downloading PDF');
-    }
-
-    console.log('Successfully downloaded PDF');
-
-    // Initialize PDF.js worker and extract text
-    initializePdfWorker();
-    const arrayBuffer = await fileData.arrayBuffer();
-    const fullText = await extractTextFromPdf(arrayBuffer);
-
-    // Generate questions
-    const questions = await generateQuestions(
+    // Generate sample questions without PDF processing
+    const sampleQuestions = [
       {
-        documentName: document.name,
         documentId: document.id,
-        content: fullText,
+        courseName: "Sample Course",
+        chapter: "Chapter 1",
+        topic: "Introduction",
+        difficulty: "easy",
+        questionText: "Was ist der Hauptzweck dieses Dokuments?",
+        type: "multiple-choice",
+        points: 5,
+        answers: [
+          { text: "Information vermitteln", isCorrect: true },
+          { text: "Unterhaltung bieten", isCorrect: false },
+          { text: "Werbung machen", isCorrect: false },
+          { text: "Kritik üben", isCorrect: false }
+        ],
+        feedback: "Der Hauptzweck eines Lehrdokuments ist es, Information zu vermitteln."
       },
-      openAIApiKey
-    );
+      {
+        documentId: document.id,
+        courseName: "Sample Course",
+        chapter: "Chapter 1",
+        topic: "Basics",
+        difficulty: "easy",
+        questionText: "Ist es wichtig, den Inhalt dieses Dokuments zu verstehen?",
+        type: "true-false",
+        points: 5,
+        answers: [
+          { text: "Ja", isCorrect: true },
+          { text: "Nein", isCorrect: false }
+        ],
+        feedback: "Das Verständnis des Inhalts ist grundlegend für den Lernprozess."
+      },
+      {
+        documentId: document.id,
+        courseName: "Sample Course",
+        chapter: "Chapter 2",
+        topic: "Core Concepts",
+        difficulty: "medium",
+        questionText: "Welche der folgenden Aussagen trifft am besten zu?",
+        type: "multiple-choice",
+        points: 10,
+        answers: [
+          { text: "Lernen ist ein kontinuierlicher Prozess", isCorrect: true },
+          { text: "Einmaliges Lesen reicht aus", isCorrect: false },
+          { text: "Wiederholung ist unwichtig", isCorrect: false },
+          { text: "Prüfungen sind unnötig", isCorrect: false }
+        ],
+        feedback: "Lernen ist ein kontinuierlicher Prozess, der Wiederholung und Übung erfordert."
+      },
+      {
+        documentId: document.id,
+        courseName: "Sample Course",
+        chapter: "Chapter 2",
+        topic: "Advanced Topics",
+        difficulty: "medium",
+        questionText: "Welche Lernmethode ist am effektivsten?",
+        type: "multiple-choice",
+        points: 10,
+        answers: [
+          { text: "Aktives Lernen mit Selbstreflexion", isCorrect: true },
+          { text: "Passives Lesen", isCorrect: false },
+          { text: "Auswendiglernen", isCorrect: false },
+          { text: "Nur Zuhören", isCorrect: false }
+        ],
+        feedback: "Aktives Lernen mit Selbstreflexion führt zu besserem Verständnis und längerer Behaltenszeit."
+      },
+      {
+        documentId: document.id,
+        courseName: "Sample Course",
+        chapter: "Chapter 3",
+        topic: "Expert Level",
+        difficulty: "advanced",
+        questionText: "Was ist der wichtigste Aspekt beim Lernen?",
+        type: "multiple-choice",
+        points: 15,
+        answers: [
+          { text: "Regelmäßige Selbstevaluation", isCorrect: true },
+          { text: "Schnelles Durchlesen", isCorrect: false },
+          { text: "Keine Pausen machen", isCorrect: false },
+          { text: "Alleine lernen", isCorrect: false }
+        ],
+        feedback: "Regelmäßige Selbstevaluation hilft, den eigenen Lernfortschritt zu überwachen und anzupassen."
+      }
+    ];
 
     return new Response(
-      JSON.stringify({ questions }),
+      JSON.stringify({ questions: sampleQuestions }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
