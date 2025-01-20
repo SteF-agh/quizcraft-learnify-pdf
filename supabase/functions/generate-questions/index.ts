@@ -22,6 +22,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase configuration');
       throw new Error('Missing Supabase configuration');
     }
 
@@ -39,6 +40,8 @@ serve(async (req) => {
       throw new Error('Document not found');
     }
 
+    console.log('Found document:', document.name);
+
     // Download PDF content
     const { data: fileData, error: downloadError } = await supabaseClient
       .storage
@@ -49,6 +52,8 @@ serve(async (req) => {
       console.error('Error downloading PDF:', downloadError);
       throw new Error('Error downloading PDF');
     }
+
+    console.log('Successfully downloaded PDF');
 
     // Convert PDF to text
     const arrayBuffer = await fileData.arrayBuffer();
@@ -97,7 +102,7 @@ Format your response EXACTLY as this JSON structure:
   }]
 }`;
 
-    console.log('Calling OpenAI API with system prompt:', systemPrompt);
+    console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -121,12 +126,12 @@ Format your response EXACTLY as this JSON structure:
     }
 
     const data = await response.json();
-    console.log('OpenAI response received:', data);
+    console.log('OpenAI response received');
 
     let generatedQuestions;
     try {
       const parsedContent = JSON.parse(data.choices[0].message.content);
-      console.log('Successfully parsed OpenAI response:', parsedContent);
+      console.log('Successfully parsed OpenAI response');
       
       if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
         console.error('Invalid response format:', parsedContent);
@@ -152,8 +157,8 @@ Format your response EXACTLY as this JSON structure:
     console.error('Error in generate-questions function:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: error.stack
+        error: error.message || 'An unexpected error occurred',
+        details: error.stack || 'No stack trace available'
       }),
       { 
         status: 500,
