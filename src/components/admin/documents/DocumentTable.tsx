@@ -5,16 +5,15 @@ import { DocumentRow } from "./document-row/DocumentRow";
 import { QuestionDialog } from "./question-dialog/QuestionDialog";
 import { useQuestionGeneration } from "./hooks/useQuestionGeneration";
 import { Document } from "./types";
-import { Progress } from "@/components/ui/progress";
-import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { GenerationProgress } from "./generation-progress/GenerationProgress";
+import { QuestionsDisplay } from "./questions-display/QuestionsDisplay";
 
 interface DocumentTableProps {
   documents: Document[];
@@ -91,19 +90,10 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
 
   return (
     <>
-      {isGenerating && (
-        <Card className="p-6 mb-6">
-          <h3 className="text-lg font-semibold mb-2">Generiere Quizfragen...</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Bitte haben Sie etwas Geduld, während die KI Quizfragen für das ausgewählte Skript erstellt.
-            Dies kann einige Minuten dauern.
-          </p>
-          <Progress value={generationProgress} className="w-full" />
-          <p className="text-sm text-muted-foreground mt-2">
-            {generationProgress}% abgeschlossen
-          </p>
-        </Card>
-      )}
+      <GenerationProgress 
+        isGenerating={isGenerating} 
+        generationProgress={generationProgress} 
+      />
 
       <div className="overflow-x-auto">
         <div className="w-full">
@@ -135,33 +125,10 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         </div>
       </div>
 
-      {selectedDocumentId && questions.length > 0 && (
-        <Card className="mt-6 p-6">
-          <h3 className="text-xl font-semibold mb-4">Generierte Fragen</h3>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Frage</TableHead>
-                  <TableHead>Typ</TableHead>
-                  <TableHead>Schwierigkeit</TableHead>
-                  <TableHead>Punkte</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {questions.map((question) => (
-                  <TableRow key={question.id}>
-                    <TableCell>{question.question_text}</TableCell>
-                    <TableCell>{question.type}</TableCell>
-                    <TableCell>{question.difficulty}</TableCell>
-                    <TableCell>{question.points}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
-      )}
+      <QuestionsDisplay 
+        questions={questions} 
+        documentId={selectedDocumentId} 
+      />
 
       {showQuestionDialog && currentQuestion && (
         <QuestionDialog
