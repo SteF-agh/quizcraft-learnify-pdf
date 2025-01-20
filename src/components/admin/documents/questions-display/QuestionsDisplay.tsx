@@ -7,18 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-interface Question {
-  id: string;
-  question_text: string;
-  type: string;
-  difficulty: string;
-  points: number;
-  course_name: string;
-  chapter: string;
-  topic: string;
-  answers?: Array<{ text: string; isCorrect: boolean }>;
-}
+import { Badge } from "@/components/ui/badge";
+import { Question } from "../types";
 
 interface QuestionsDisplayProps {
   questions: Question[];
@@ -33,10 +23,38 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
 
   console.log('Rendering questions in QuestionsDisplay:', questions);
 
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'advanced':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'multiple-choice':
+        return 'Multiple Choice';
+      case 'single-choice':
+        return 'Single Choice';
+      case 'true-false':
+        return 'Wahr/Falsch';
+      default:
+        return type;
+    }
+  };
+
   return (
-    <div className="bg-slate-50 p-6 rounded-lg border">
-      <h2 className="text-2xl font-semibold mb-2">KI Manager - Generierte Fragen</h2>
-      <p className="text-slate-600 mb-4">Die KI hat folgende {questions.length} Fragen für dieses Dokument generiert:</p>
+    <div className="bg-slate-50 p-6 rounded-lg border mt-8">
+      <h2 className="text-2xl font-semibold mb-2">Generierte Fragen</h2>
+      <p className="text-slate-600 mb-4">
+        {questions.length} {questions.length === 1 ? 'Frage wurde' : 'Fragen wurden'} für dieses Dokument generiert:
+      </p>
       <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
@@ -48,18 +66,41 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
               <TableHead>Typ</TableHead>
               <TableHead>Schwierigkeit</TableHead>
               <TableHead>Punkte</TableHead>
+              <TableHead>Antworten</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {questions.map((question) => (
               <TableRow key={question.id}>
-                <TableCell className="max-w-xl truncate">{question.question_text}</TableCell>
+                <TableCell className="max-w-md">
+                  <div className="truncate font-medium">{question.question_text}</div>
+                </TableCell>
                 <TableCell>{question.course_name}</TableCell>
                 <TableCell>{question.chapter}</TableCell>
                 <TableCell>{question.topic}</TableCell>
-                <TableCell>{question.type}</TableCell>
-                <TableCell>{question.difficulty}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">
+                    {getTypeLabel(question.type)}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge className={getDifficultyColor(question.difficulty)}>
+                    {question.difficulty}
+                  </Badge>
+                </TableCell>
                 <TableCell>{question.points}</TableCell>
+                <TableCell>
+                  <div className="max-w-xs">
+                    {question.answers.map((answer, index) => (
+                      <div 
+                        key={index} 
+                        className={`text-sm ${answer.isCorrect ? 'text-green-600 font-medium' : 'text-gray-600'}`}
+                      >
+                        • {answer.text}
+                      </div>
+                    ))}
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
