@@ -11,7 +11,17 @@ export const useQuestionHandlingLogic = (
     if (!state.currentQuestion) return;
 
     try {
-      // Direkt die Frage speichern ohne Authentifizierungsprüfung
+      console.log("Attempting to save question:", state.currentQuestion);
+      
+      // Get current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw sessionError;
+      }
+
+      // Insert question with user ID if authenticated
       const { error } = await supabase.from("quiz_questions").insert([
         {
           document_id: state.currentQuestion.documentId,
@@ -21,13 +31,17 @@ export const useQuestionHandlingLogic = (
           points: state.currentQuestion.points,
           answers: state.currentQuestion.answers,
           feedback: state.currentQuestion.feedback,
-          course_name: "Test Course",
-          chapter: "Test Chapter",
-          topic: "Test Topic",
+          course_name: state.currentQuestion.courseName,
+          chapter: state.currentQuestion.chapter,
+          topic: state.currentQuestion.topic,
+          created_by: session?.user?.id
         },
       ]);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error saving question:", error);
+        throw error;
+      }
 
       const nextQuestion = state.generatedQuestions[
         state.generatedQuestions.indexOf(state.currentQuestion) + 1
