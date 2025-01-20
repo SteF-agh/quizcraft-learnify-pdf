@@ -54,7 +54,7 @@ export const useQuizLogic = (documentId: string | null) => {
       }
 
       console.log('Fetched questions:', data);
-      const mappedQuestions = data.map(mapDatabaseQuestionToFrontend);
+      const mappedQuestions = data.map((q: DatabaseQuestion) => mapDatabaseQuestionToFrontend(q));
       const shuffledQuestions = mappedQuestions.sort(() => Math.random() - 0.5);
       
       console.log('Mapped and shuffled questions:', shuffledQuestions);
