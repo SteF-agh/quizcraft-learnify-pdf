@@ -1,13 +1,23 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { decode } from 'https://deno.land/std@0.177.0/encoding/base64.ts';
 
 interface Question {
-  type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
-  text: string;
-  options?: string[];
-  correctAnswer: string | number | boolean;
+  id: string;
+  courseName: string;
+  chapter: string;
+  topic: string;
+  difficulty: 'easy' | 'medium' | 'advanced';
+  questionText: string;
+  type: 'multiple-choice' | 'single-choice' | 'true-false';
+  points: number;
+  answers: Array<{
+    text: string;
+    isCorrect: boolean;
+  }>;
+  feedback: string;
+  learningObjectiveId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 const corsHeaders = {
@@ -21,8 +31,8 @@ serve(async (req) => {
   }
 
   try {
-    const { documentId, questionType } = await req.json();
-    console.log('Received request for document:', documentId, 'questionType:', questionType);
+    const { documentId } = await req.json();
+    console.log('Generating questions for document:', documentId);
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -30,7 +40,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get document details
+    // Get document content
     const { data: document, error: docError } = await supabaseClient
       .from('documents')
       .select('*')
@@ -55,62 +65,86 @@ serve(async (req) => {
 
     // Convert PDF to text
     const arrayBuffer = await fileData.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
-    const text = new TextDecoder().decode(bytes);
+    const text = new TextDecoder().decode(new Uint8Array(arrayBuffer));
     console.log('Successfully extracted text from PDF, length:', text.length);
 
-    // Example questions for each type based on the KI text
-    const exampleQuestions: Question[] = [
-      {
-        type: 'multiple-choice',
-        text: 'Welche Fähigkeiten werden im Text als Teil der Künstlichen Intelligenz genannt?',
-        options: [
-          'Lernen, Problemlösung und Entscheidungsfindung',
-          'Sprechen, Hören und Sehen',
-          'Laufen, Springen und Fliegen',
-          'Kochen, Putzen und Waschen'
-        ],
-        correctAnswer: 0
-      },
-      {
-        type: 'true-false',
-        text: 'Künstliche Intelligenz beschreibt ausschließlich die Fähigkeit von Menschen, komplexe Aufgaben zu lösen.',
-        correctAnswer: false
-      },
-      {
-        type: 'open',
-        text: 'Was sind die drei grundlegenden Konzepte der KI, die im Text erwähnt werden?',
-        correctAnswer: 'Algorithmen, Daten und Modelle'
-      },
-      {
-        type: 'matching',
-        text: 'Ordne die Begriffe ihrer korrekten Beschreibung zu.',
-        options: [
-          'KI - Fähigkeit von Maschinen, menschenähnliche Aufgaben zu lösen',
-          'Lernen - Prozess der Anpassung an neue Situationen',
-          'Algorithmen - Grundlegendes Konzept der KI',
-          'Eigenständigkeit - Fähigkeit ohne menschliche Intervention zu agieren'
-        ],
-        correctAnswer: 0
-      },
-      {
-        type: 'fill-in',
-        text: 'Künstliche Intelligenz ermöglicht es Maschinen, sich an neue [?] anzupassen.',
-        options: ['Situationen', 'Menschen', 'Computer', 'Programme'],
-        correctAnswer: 0
-      }
-    ];
-
-    // Filter questions based on type if specified
-    let questions = exampleQuestions;
-    if (questionType !== 'all') {
-      questions = exampleQuestions.filter(q => q.type === questionType);
+    // Call OpenAI API to generate questions
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
     }
 
-    console.log('Generated questions:', questions);
+    const systemPrompt = `You are an expert in creating educational quiz questions. Follow these instructions precisely:
+
+1. Script Parameters:
+   - Generate a complete set of questions:
+     - 10 easy, 10 medium, and 10 advanced questions per chapter
+     - Questions should be proportionally distributed across the entire script
+
+2. Question Formats:
+   - 40% Multiple Choice (4 options)
+   - 40% Single Choice (4 options)
+   - 20% True/False
+   - Position correct answers randomly and evenly across A, B, C, D
+
+3. For each question, provide:
+   - Question text
+   - Question type
+   - Difficulty level
+   - All possible answers
+   - Correct answer(s)
+   - Brief feedback explaining the correct answer
+   - Chapter/topic reference
+
+Format your response as a JSON array of questions following this structure:
+{
+  "questions": [{
+    "id": "unique-id",
+    "courseName": "document-name",
+    "chapter": "chapter-name",
+    "topic": "specific-topic",
+    "difficulty": "easy|medium|advanced",
+    "questionText": "question-text",
+    "type": "multiple-choice|single-choice|true-false",
+    "points": "number",
+    "answers": [{"text": "answer-text", "isCorrect": boolean}],
+    "feedback": "explanation-text",
+    "learningObjectiveId": "optional-id",
+    "metadata": {}
+  }]
+}`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { 
+            role: 'user', 
+            content: `Generate questions based on this content: ${text.substring(0, 8000)}` // Limit content length
+          }
+        ],
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('OpenAI API error:', error);
+      throw new Error('Failed to generate questions');
+    }
+
+    const data = await response.json();
+    const generatedQuestions = JSON.parse(data.choices[0].message.content).questions;
+    console.log('Successfully generated questions:', generatedQuestions.length);
 
     return new Response(
-      JSON.stringify({ questions }),
+      JSON.stringify({ questions: generatedQuestions }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
