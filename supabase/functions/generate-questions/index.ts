@@ -21,16 +21,10 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
       console.error('Missing Supabase configuration');
       throw new Error('Missing Supabase configuration');
-    }
-
-    if (!openAIApiKey) {
-      console.error('Missing OpenAI API key');
-      throw new Error('OpenAI API key not configured');
     }
 
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
@@ -73,7 +67,8 @@ serve(async (req) => {
     }
 
     try {
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
       console.log('PDF loaded, pages:', pdf.numPages);
       
       let fullText = '';
@@ -91,6 +86,12 @@ serve(async (req) => {
       }
 
       // Call OpenAI API to generate questions
+      const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+      if (!openAIApiKey) {
+        console.error('Missing OpenAI API key');
+        throw new Error('OpenAI API key not configured');
+      }
+
       console.log('Calling OpenAI API...');
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -99,7 +100,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'gpt-4',
           messages: [
             { 
               role: 'system', 
