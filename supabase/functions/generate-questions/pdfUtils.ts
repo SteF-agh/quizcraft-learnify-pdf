@@ -1,6 +1,7 @@
 import * as pdfjs from 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.js';
 
 export const initializePdfWorker = () => {
+  console.log('Initializing PDF worker');
   const workerSrc = 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.worker.js';
   if (!globalThis.pdfjsWorker) {
     pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;

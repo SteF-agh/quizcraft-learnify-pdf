@@ -16,7 +16,7 @@ serve(async (req) => {
 
   try {
     const { documentId } = await req.json();
-    console.log('Generating questions for document:', documentId);
+    console.log('Processing document:', documentId);
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -66,7 +66,7 @@ serve(async (req) => {
     const fullText = await extractTextFromPdf(arrayBuffer);
 
     // Generate questions
-    const generatedQuestions = await generateQuestions(
+    const questions = await generateQuestions(
       {
         documentName: document.name,
         documentId: document.id,
@@ -76,7 +76,7 @@ serve(async (req) => {
     );
 
     return new Response(
-      JSON.stringify({ questions: generatedQuestions }),
+      JSON.stringify({ questions }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
