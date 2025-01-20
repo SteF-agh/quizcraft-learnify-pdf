@@ -45,6 +45,7 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
     } catch (error) {
       console.error("Error generating quiz:", error);
       toast.error("Fehler beim Generieren des Quiz: " + (error.message || "Unbekannter Fehler"));
+      setShowQuestionDialog(false);
     } finally {
       setIsGenerating(false);
       setGenerationProgress(0);

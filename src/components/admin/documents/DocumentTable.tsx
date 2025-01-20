@@ -42,6 +42,16 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     }
   };
 
+  const handleQuizGeneration = async (documentId: string) => {
+    toast.info("Starte Quiz-Generierung...");
+    try {
+      await handleGenerateQuiz(documentId);
+    } catch (error) {
+      console.error("Error in quiz generation:", error);
+      toast.error("Fehler bei der Quiz-Generierung. Bitte versuchen Sie es erneut.");
+    }
+  };
+
   return (
     <>
       {isGenerating && (
@@ -81,7 +91,7 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
                     key={doc.id}
                     document={doc}
                     onTogglePublic={handleTogglePublic}
-                    onGenerateQuiz={handleGenerateQuiz}
+                    onGenerateQuiz={handleQuizGeneration}
                     isGenerating={isGenerating}
                   />
                 ))}
