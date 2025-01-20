@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import * as pdfjs from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,18 +18,24 @@ serve(async (req) => {
     const { documentId } = await req.json();
     console.log('Generating questions for document:', documentId);
 
-    // Initialize Supabase client with environment variables
+    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
       console.error('Missing Supabase configuration');
       throw new Error('Missing Supabase configuration');
     }
 
+    if (!openAIApiKey) {
+      console.error('Missing OpenAI API key');
+      throw new Error('OpenAI API key not configured');
+    }
+
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-    // Get document content
+    // Get document
     const { data: document, error: docError } = await supabaseClient
       .from('documents')
       .select('*')
@@ -55,19 +62,38 @@ serve(async (req) => {
 
     console.log('Successfully downloaded PDF');
 
-    // Convert PDF to text
+    // Convert PDF to text using pdf.js
     const arrayBuffer = await fileData.arrayBuffer();
-    const text = new TextDecoder().decode(new Uint8Array(arrayBuffer));
-    console.log('Successfully extracted text from PDF, length:', text.length);
-
-    // Call OpenAI API to generate questions
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      console.error('OpenAI API key not configured');
-      throw new Error('OpenAI API key not configured');
+    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+    
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map((item: any) => item.str).join(' ');
+      fullText += pageText + ' ';
     }
 
-    const systemPrompt = `You are an expert in creating educational quiz questions. Generate exactly 5 questions based on the provided content, following these guidelines:
+    console.log('Successfully extracted text from PDF, length:', fullText.length);
+    
+    if (fullText.length < 100) {
+      throw new Error('Extracted text is too short, possible PDF parsing error');
+    }
+
+    // Call OpenAI API to generate questions
+    console.log('Calling OpenAI API...');
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { 
+            role: 'system', 
+            content: `You are an expert in creating educational quiz questions. Generate exactly 5 questions based on the provided content, following these guidelines:
 
 1. Question Distribution:
    - 2 easy questions
@@ -90,30 +116,22 @@ Format your response EXACTLY as this JSON structure:
     "courseName": "${document.name}",
     "chapter": "chapter-1",
     "topic": "main-topic",
-    "difficulty": "easy|medium|advanced",
+    "difficulty": "easy",
     "questionText": "What is...?",
-    "type": "multiple-choice|true-false",
+    "type": "multiple-choice",
     "points": 10,
-    "answers": [{"text": "answer text", "isCorrect": boolean}],
+    "answers": [{"text": "answer text", "isCorrect": true}],
     "feedback": "explanation why the answer is correct",
     "learningObjectiveId": null,
     "metadata": {},
     "documentId": "${documentId}"
   }]
-}`;
-
-    console.log('Calling OpenAI API...');
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Generate questions based on this content: ${text.substring(0, 4000)}` }
+}`
+          },
+          { 
+            role: 'user', 
+            content: `Generate questions based on this content: ${fullText.substring(0, 4000)}` 
+          }
         ],
         temperature: 0.7,
       }),
@@ -122,7 +140,7 @@ Format your response EXACTLY as this JSON structure:
     if (!response.ok) {
       const error = await response.json();
       console.error('OpenAI API error:', error);
-      throw new Error('Failed to generate questions');
+      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
     }
 
     const data = await response.json();
