@@ -2,57 +2,74 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { formatFileSize } from "@/utils/formatters";
 import { DocumentProgress } from "./DocumentProgress";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Coins } from "lucide-react";
-
-interface Document {
-  id: string;
-  name: string;
-  created_at: string;
-  file_size?: number;
-}
+import { Button } from "@/components/ui/button";
+import { GraduationCap, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface DocumentRowProps {
-  document: Document;
+  document: {
+    id: string;
+    name: string;
+    file_size?: number;
+    created_at: string;
+  };
   isSelected: boolean;
   onSelect: () => void;
   onDelete: (e: React.MouseEvent) => void;
-  coins?: number;
+  coins: number;
 }
 
-export const DocumentRow = ({ 
-  document, 
+export const DocumentRow = ({
+  document,
   isSelected,
   onSelect,
   onDelete,
-  coins = 0
+  coins
 }: DocumentRowProps) => {
+  const navigate = useNavigate();
+
+  const handleStartLearning = () => {
+    navigate(`/learning-mode?documentId=${document.id}`);
+  };
+
   return (
     <TableRow>
       <TableCell className="w-[80px]">
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelect}
+          aria-label="Select document"
         />
       </TableCell>
       <TableCell>
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span>{document.name}</span>
-            <div className="flex items-center gap-2 text-yellow-500">
-              <Coins className="h-4 w-4" />
-              <span>{coins}</span>
-            </div>
+          <div className="font-medium">{document.name}</div>
+          <div className="text-sm text-muted-foreground">
+            {formatFileSize(document.file_size || 0)} • {coins} Coins verdient
           </div>
           <DocumentProgress documentId={document.id} />
         </div>
       </TableCell>
-      <TableCell>
-        <button
-          onClick={onDelete}
-          className="text-destructive hover:text-destructive/80"
-        >
-          Löschen
-        </button>
+      <TableCell className="w-[180px]">
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleStartLearning}
+            className="flex-1 gap-2"
+            size="sm"
+          >
+            <GraduationCap className="h-4 w-4" />
+            Lernen
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onDelete}
+            className="h-8 w-8"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </TableCell>
     </TableRow>
   );

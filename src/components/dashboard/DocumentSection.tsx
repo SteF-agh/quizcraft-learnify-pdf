@@ -1,5 +1,4 @@
 import { DocumentList } from "./DocumentList";
-import { LearningModeSelector } from "./LearningModeSelector";
 import { PublicDocumentList } from "./PublicDocumentList";
 import { 
   Accordion,
@@ -23,7 +22,6 @@ export const DocumentSection = ({
   selectedDocument,
   onSelectDocument,
   onDocumentDeleted,
-  onStartLearning
 }: DocumentSectionProps) => {
   const fetchAssignedDocuments = async () => {
     try {
@@ -72,7 +70,7 @@ export const DocumentSection = ({
           <AccordionContent>
             <div>
               <p className="text-sm text-muted-foreground mb-4">
-                Wähle das Skript aus, mit dem du jetzt lernen möchtest und gehe auf Lernen starten
+                Wähle das Skript aus, mit dem du jetzt lernen möchtest
               </p>
               <DocumentList
                 documents={documents}
@@ -84,13 +82,6 @@ export const DocumentSection = ({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      
-      <div className="pt-4">
-        <LearningModeSelector
-          selectedDocument={selectedDocument}
-          onStartLearning={onStartLearning}
-        />
-      </div>
     </div>
   );
 };
