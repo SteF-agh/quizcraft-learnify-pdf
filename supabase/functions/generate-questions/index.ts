@@ -53,50 +53,11 @@ serve(async (req) => {
     // Call OpenAI API to generate questions
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
       throw new Error('OpenAI API key not configured');
     }
 
-    const systemPrompt = `You are an expert in creating educational quiz questions. Follow these instructions precisely:
-
-1. Script Parameters:
-   - Generate a complete set of questions:
-     - 10 easy, 10 medium, and 10 advanced questions per chapter
-     - Questions should be proportionally distributed across the entire script
-
-2. Question Formats:
-   - 40% Multiple Choice (4 options)
-   - 40% Single Choice (4 options)
-   - 20% True/False
-   - Position correct answers randomly and evenly across A, B, C, D
-
-3. For each question, provide:
-   - Question text
-   - Question type
-   - Difficulty level
-   - All possible answers
-   - Correct answer(s)
-   - Brief feedback explaining the correct answer
-   - Chapter/topic reference
-
-Format your response as a JSON array of questions following this structure:
-{
-  "questions": [{
-    "courseName": "${document.name}",
-    "chapter": "chapter-name",
-    "topic": "specific-topic",
-    "difficulty": "easy|medium|advanced",
-    "questionText": "question-text",
-    "type": "multiple-choice|single-choice|true-false",
-    "points": 10,
-    "answers": [{"text": "answer-text", "isCorrect": boolean}],
-    "feedback": "explanation-text",
-    "learningObjectiveId": null,
-    "metadata": {},
-    "documentId": "${documentId}"
-  }]
-}`;
-
-    console.log('Sending request to OpenAI...');
+    console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -106,10 +67,29 @@ Format your response as a JSON array of questions following this structure:
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: systemPrompt },
+          { 
+            role: 'system', 
+            content: `You are an expert in creating educational quiz questions. Generate a complete set of questions based on the provided content. Format your response as a JSON array of questions following this structure:
+            {
+              "questions": [{
+                "courseName": "${document.name}",
+                "chapter": "chapter-name",
+                "topic": "specific-topic",
+                "difficulty": "easy|medium|advanced",
+                "questionText": "question-text",
+                "type": "multiple-choice|single-choice|true-false",
+                "points": 10,
+                "answers": [{"text": "answer-text", "isCorrect": boolean}],
+                "feedback": "explanation-text",
+                "learningObjectiveId": null,
+                "metadata": {},
+                "documentId": "${documentId}"
+              }]
+            }`
+          },
           { 
             role: 'user', 
-            content: `Generate questions based on this content: ${text.substring(0, 8000)}` // Limit content length
+            content: `Generate questions based on this content: ${text.substring(0, 8000)}` 
           }
         ],
         temperature: 0.7,
@@ -123,12 +103,12 @@ Format your response as a JSON array of questions following this structure:
     }
 
     const data = await response.json();
-    console.log('OpenAI response received');
+    console.log('OpenAI response received:', data);
 
     let generatedQuestions;
     try {
       const parsedContent = JSON.parse(data.choices[0].message.content);
-      console.log('Successfully parsed OpenAI response');
+      console.log('Successfully parsed OpenAI response:', parsedContent);
       
       if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
         console.error('Invalid response format:', parsedContent);
