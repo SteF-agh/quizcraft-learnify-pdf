@@ -8,13 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { QuizCompletionModal } from "@/components/quiz/completion/QuizCompletionModal";
 import { ChapterSelection } from "@/components/quiz/chapter-selection/ChapterSelection";
-
-interface Question {
-  type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
-  text: string;
-  options?: string[];
-  correctAnswer: string | number | boolean;
-}
+import { Question, DatabaseQuestion } from "@/components/quiz/types/QuestionTypes";
 
 const POINTS_PER_CORRECT_ANSWER = 10;
 
@@ -49,6 +43,15 @@ const Quiz = () => {
     setLoading(false);
   }, [location.search, navigate]);
 
+  const mapDatabaseQuestionToFrontend = (dbQuestion: DatabaseQuestion): Question => {
+    return {
+      type: dbQuestion.type,
+      text: dbQuestion.question_text,
+      options: dbQuestion.answers.options,
+      correctAnswer: dbQuestion.answers.correctAnswer,
+    };
+  };
+
   const loadQuestions = async (selectedChapter: string | null) => {
     try {
       setIsGenerating(true);
@@ -72,8 +75,10 @@ const Quiz = () => {
         return;
       }
 
-      // Shuffle questions
-      const shuffledQuestions = data.sort(() => Math.random() - 0.5);
+      // Map database questions to frontend format and shuffle them
+      const mappedQuestions = data.map(mapDatabaseQuestionToFrontend);
+      const shuffledQuestions = mappedQuestions.sort(() => Math.random() - 0.5);
+      
       setQuestions(shuffledQuestions);
       setCurrentQuestion(0);
       setSelectedAnswer(null);
