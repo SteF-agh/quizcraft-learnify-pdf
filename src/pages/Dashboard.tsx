@@ -1,22 +1,16 @@
 import { Layout } from "@/components/layout/Layout";
 import { DocumentSection } from "@/components/dashboard/DocumentSection";
-import { StatsSection } from "@/components/dashboard/StatsSection";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trophy, Coins } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDocuments } from "@/hooks/useDocuments";
 
 const Dashboard = () => {
-  const { 
-    documents, 
-    selectedDocument, 
-    setSelectedDocument, 
-    handleDocumentDeleted 
-  } = useDocuments();
+  const { documents, handleDocumentDeleted } = useDocuments();
   
   return (
     <Layout>
-      <div className="space-y-8">
+      <div className="space-y-8 max-w-7xl mx-auto w-full px-4 py-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Link to="/avatar-creator">
@@ -41,13 +35,9 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <StatsSection progress={65} />
         <DocumentSection 
           documents={documents}
-          selectedDocument={selectedDocument}
-          onSelectDocument={setSelectedDocument}
           onDocumentDeleted={handleDocumentDeleted}
-          onStartLearning={() => {}}
         />
       </div>
     </Layout>

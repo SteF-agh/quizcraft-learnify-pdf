@@ -1,6 +1,7 @@
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { TrendingUp } from "lucide-react";
 
 interface DocumentProgressProps {
   documentId: string;
@@ -42,11 +43,14 @@ export const DocumentProgress = ({ documentId }: DocumentProgressProps) => {
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between text-sm text-muted-foreground">
-        <span>{attempts} Versuche</span>
-        <span>{progress}% Erfolg</span>
+      <div className="flex items-center gap-2">
+        <TrendingUp className="h-4 w-4 text-green-500" />
+        <span className="text-sm font-medium">{progress}% Fortschritt</span>
       </div>
       <Progress value={progress} className="h-2" />
+      <div className="text-xs text-muted-foreground text-right">
+        {attempts} {attempts === 1 ? 'Versuch' : 'Versuche'}
+      </div>
     </div>
   );
 };

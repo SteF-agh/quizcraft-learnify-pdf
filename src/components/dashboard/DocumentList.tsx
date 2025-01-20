@@ -55,27 +55,24 @@ export const DocumentList = ({
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name & Fortschritt</TableHead>
-              <TableHead className="w-[180px]">Aktionen</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {documents.map((doc) => (
-              <DocumentRow
-                key={doc.id}
-                document={doc}
-                onDelete={(e) => handleDelete(doc, e)}
-                coins={documentCoins[doc.id] || 0}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+    <div className="w-full space-y-4">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Deine Skripte & Statistiken</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {documents.map((doc) => (
+            <DocumentRow
+              key={doc.id}
+              document={doc}
+              onDelete={(e) => handleDelete(doc, e)}
+              coins={documentCoins[doc.id] || 0}
+            />
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
