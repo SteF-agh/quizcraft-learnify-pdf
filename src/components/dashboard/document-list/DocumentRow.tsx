@@ -1,7 +1,8 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { formatFileSize, formatDate } from "@/utils/formatters";
+import { formatFileSize } from "@/utils/formatters";
 import { DocumentProgress } from "./DocumentProgress";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Coins } from "lucide-react";
 
 interface Document {
   id: string;
@@ -15,13 +16,15 @@ interface DocumentRowProps {
   isSelected: boolean;
   onSelect: () => void;
   onDelete: (e: React.MouseEvent) => void;
+  coins?: number;
 }
 
 export const DocumentRow = ({ 
   document, 
   isSelected,
   onSelect,
-  onDelete 
+  onDelete,
+  coins = 0
 }: DocumentRowProps) => {
   return (
     <TableRow>
@@ -33,12 +36,16 @@ export const DocumentRow = ({
       </TableCell>
       <TableCell>
         <div className="space-y-2">
-          <div>{document.name}</div>
+          <div className="flex items-center justify-between">
+            <span>{document.name}</span>
+            <div className="flex items-center gap-2 text-yellow-500">
+              <Coins className="h-4 w-4" />
+              <span>{coins}</span>
+            </div>
+          </div>
           <DocumentProgress documentId={document.id} />
         </div>
       </TableCell>
-      <TableCell>{document.file_size ? formatFileSize(document.file_size) : '-'}</TableCell>
-      <TableCell>{formatDate(document.created_at)}</TableCell>
       <TableCell>
         <button
           onClick={onDelete}
