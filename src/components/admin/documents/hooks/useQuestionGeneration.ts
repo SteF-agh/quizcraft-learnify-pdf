@@ -20,7 +20,6 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
 
       if (error) throw error;
 
-      // Simuliere Fortschritt während der Generierung
       const progressInterval = setInterval(() => {
         setGenerationProgress(prev => {
           if (prev >= 90) {
@@ -37,7 +36,6 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
         setShowQuestionDialog(true);
       }
 
-      // Setze Fortschritt auf 100% wenn fertig
       setGenerationProgress(100);
       setTimeout(() => {
         clearInterval(progressInterval);
@@ -58,9 +56,24 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
     if (!currentQuestion) return;
 
     try {
+      const questionData = {
+        document_id: currentQuestion.document_id,
+        course_name: currentQuestion.course_name,
+        chapter: currentQuestion.chapter,
+        topic: currentQuestion.topic,
+        difficulty: currentQuestion.difficulty,
+        question_text: currentQuestion.question_text,
+        type: currentQuestion.type,
+        points: currentQuestion.points,
+        answers: currentQuestion.answers,
+        feedback: currentQuestion.feedback,
+        learning_objective_id: currentQuestion.learning_objective_id,
+        metadata: currentQuestion.metadata
+      };
+
       const { error } = await supabase
         .from('quiz_questions')
-        .insert([currentQuestion]);
+        .insert([questionData]);
 
       if (error) throw error;
 
@@ -75,7 +88,6 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
   };
 
   const handleRegenerateQuestion = async () => {
-    // Implementierung der Regenerierung einer einzelnen Frage
     toast.info('Generiere neue Frage...');
   };
 

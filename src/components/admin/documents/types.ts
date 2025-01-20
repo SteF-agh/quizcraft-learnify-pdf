@@ -1,19 +1,19 @@
 export interface Question {
   id?: string;
-  documentId?: string;
-  courseName: string;
+  document_id?: string;
+  course_name: string;
   chapter: string;
   topic: string;
   difficulty: "easy" | "medium" | "advanced";
-  questionText: string;
+  question_text: string;
   type: "multiple-choice" | "single-choice" | "true-false";
   points: number;
-  answers: Array<{
+  answers: {
     text: string;
     isCorrect: boolean;
-  }>;
+  }[];
   feedback?: string;
-  learningObjectiveId?: string;
+  learning_objective_id?: string;
   metadata?: Record<string, unknown>;
 }
 
