@@ -9,26 +9,32 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [generatedQuestions, setGeneratedQuestions] = useState<Question[]>([]);
   const [showQuestionDialog, setShowQuestionDialog] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
 
   const handleGenerateQuiz = async (documentId: string) => {
     try {
       setIsGenerating(true);
+      setGenerationProgress(10);
+
       const response = await supabase.functions.invoke("generate-questions", {
         body: { documentId },
       });
 
       if (response.error) throw response.error;
 
+      setGenerationProgress(70);
       const questions = response.data.questions;
       setGeneratedQuestions(questions);
       setCurrentQuestion(questions[0]);
       setShowQuestionDialog(true);
+      setGenerationProgress(100);
       toast.success("Fragen wurden erfolgreich generiert");
     } catch (error) {
       console.error("Error generating quiz:", error);
       toast.error("Fehler beim Generieren des Quiz");
     } finally {
       setIsGenerating(false);
+      setGenerationProgress(0);
     }
   };
 
@@ -89,5 +95,6 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
     handleGenerateQuiz,
     handleAcceptQuestion,
     handleRegenerateQuestion,
+    generationProgress,
   };
 };
