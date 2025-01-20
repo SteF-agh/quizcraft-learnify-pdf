@@ -192,6 +192,65 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_questions: {
+        Row: {
+          id: string
+          document_id: string | null
+          course_name: string
+          chapter: string
+          topic: string
+          difficulty: 'easy' | 'medium' | 'advanced'
+          question_text: string
+          type: 'multiple-choice' | 'single-choice' | 'true-false'
+          points: number
+          answers: Json
+          feedback: string | null
+          learning_objective_id: string | null
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          document_id?: string | null
+          course_name: string
+          chapter: string
+          topic: string
+          difficulty: 'easy' | 'medium' | 'advanced'
+          question_text: string
+          type: 'multiple-choice' | 'single-choice' | 'true-false'
+          points?: number
+          answers: Json
+          feedback?: string | null
+          learning_objective_id?: string | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          document_id?: string | null
+          course_name?: string
+          chapter?: string
+          topic?: string
+          difficulty?: 'easy' | 'medium' | 'advanced'
+          question_text?: string
+          type?: 'multiple-choice' | 'single-choice' | 'true-false'
+          points?: number
+          answers?: Json
+          feedback?: string | null
+          learning_objective_id?: string | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       quiz_results: {
         Row: {
           completed_at: string | null
@@ -300,6 +359,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      difficulty_level: "easy" | "medium" | "advanced"
+      question_type: "multiple-choice" | "single-choice" | "true-false"
       user_role: "admin" | "trainee"
     }
     CompositeTypes: {
@@ -317,7 +378,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -329,10 +390,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+      Row: infer R
+    }
+    ? R
+    : never
     : never
 
 export type TablesInsert<
@@ -371,10 +432,10 @@ export type TablesUpdate<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
+      Update: infer U
+    }
+    ? U
+    : never
     : never
 
 export type Enums<

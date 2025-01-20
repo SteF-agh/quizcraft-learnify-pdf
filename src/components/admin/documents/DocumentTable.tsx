@@ -21,7 +21,7 @@ interface Document {
 }
 
 interface Question {
-  id: string;
+  id?: string;
   courseName: string;
   chapter: string;
   topic: string;
@@ -95,7 +95,17 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
       const { error } = await supabase
         .from('quiz_questions')
         .insert([{
-          ...currentQuestion,
+          course_name: currentQuestion.courseName,
+          chapter: currentQuestion.chapter,
+          topic: currentQuestion.topic,
+          difficulty: currentQuestion.difficulty,
+          question_text: currentQuestion.questionText,
+          type: currentQuestion.type,
+          points: currentQuestion.points,
+          answers: currentQuestion.answers,
+          feedback: currentQuestion.feedback,
+          learning_objective_id: currentQuestion.learningObjectiveId,
+          metadata: currentQuestion.metadata,
           document_id: documents.find(d => d.name === currentQuestion.courseName)?.id
         }]);
 
