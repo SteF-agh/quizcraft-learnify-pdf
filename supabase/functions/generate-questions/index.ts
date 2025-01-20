@@ -95,6 +95,7 @@ Format your response as a JSON array of questions following this structure:
   }]
 }`;
 
+    console.log('Sending request to OpenAI...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -102,7 +103,7 @@ Format your response as a JSON array of questions following this structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { 
@@ -121,12 +122,20 @@ Format your response as a JSON array of questions following this structure:
     }
 
     const data = await response.json();
-    console.log('OpenAI response:', data);
+    console.log('OpenAI response received');
 
     let generatedQuestions;
     try {
-      generatedQuestions = JSON.parse(data.choices[0].message.content);
-      console.log('Successfully parsed questions:', generatedQuestions);
+      const parsedContent = JSON.parse(data.choices[0].message.content);
+      console.log('Successfully parsed OpenAI response');
+      
+      if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
+        console.error('Invalid response format:', parsedContent);
+        throw new Error('Invalid response format from OpenAI');
+      }
+      
+      generatedQuestions = parsedContent.questions;
+      console.log(`Successfully extracted ${generatedQuestions.length} questions`);
     } catch (error) {
       console.error('Error parsing OpenAI response:', error);
       console.error('Raw content:', data.choices[0].message.content);
@@ -134,7 +143,7 @@ Format your response as a JSON array of questions following this structure:
     }
 
     return new Response(
-      JSON.stringify({ questions: generatedQuestions.questions }),
+      JSON.stringify({ questions: generatedQuestions }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
@@ -143,7 +152,10 @@ Format your response as a JSON array of questions following this structure:
   } catch (error) {
     console.error('Error in generate-questions function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
