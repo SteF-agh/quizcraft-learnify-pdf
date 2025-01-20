@@ -13,15 +13,7 @@ export const useQuestionHandlingLogic = (
     try {
       console.log("Attempting to save question:", state.currentQuestion);
       
-      // Get current session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error("Session error:", sessionError);
-        throw sessionError;
-      }
-
-      // Insert question with user ID if authenticated
+      // Insert question without authentication check for testing
       const { error } = await supabase.from("quiz_questions").insert([
         {
           document_id: state.currentQuestion.documentId,
@@ -34,7 +26,8 @@ export const useQuestionHandlingLogic = (
           course_name: state.currentQuestion.courseName,
           chapter: state.currentQuestion.chapter,
           topic: state.currentQuestion.topic,
-          created_by: session?.user?.id
+          // For testing, we use a default user ID
+          created_by: '00000000-0000-0000-0000-000000000000'
         },
       ]);
 

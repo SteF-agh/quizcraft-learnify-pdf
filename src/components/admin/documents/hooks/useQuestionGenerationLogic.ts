@@ -17,7 +17,7 @@ export const useQuestionGenerationLogic = () => {
       setState(prev => ({ ...prev, isGenerating: true, generationProgress: 10 }));
       console.log("Starting quiz generation for document:", documentId);
 
-      // Direkt die Edge Function aufrufen ohne Authentifizierungsprüfung
+      // Direct edge function call without authentication check for testing
       const response = await supabase.functions.invoke("generate-questions", {
         body: { documentId },
       });
