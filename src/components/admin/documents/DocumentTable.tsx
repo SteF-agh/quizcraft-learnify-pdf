@@ -4,6 +4,7 @@ import { Globe, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { Json } from "@/integrations/supabase/types";
 import {
   Dialog,
   DialogContent,
