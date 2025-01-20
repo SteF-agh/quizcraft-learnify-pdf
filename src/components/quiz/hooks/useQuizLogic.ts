@@ -16,6 +16,7 @@ export const useQuizLogic = (documentId: string | null) => {
   });
 
   const mapDatabaseQuestionToFrontend = (dbQuestion: DatabaseQuestion): Question => {
+    console.log('Mapping question:', dbQuestion);
     return {
       type: dbQuestion.type,
       text: dbQuestion.question_text,
@@ -40,22 +41,29 @@ export const useQuizLogic = (documentId: string | null) => {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading questions:', error);
+        toast.error("Fehler beim Laden der Fragen");
+        return;
+      }
 
       if (!data || data.length === 0) {
+        console.log('No questions found');
         toast.error("Keine Fragen gefunden");
         return;
       }
 
-      const mappedQuestions = data.map((dbQuestion: DatabaseQuestion) => mapDatabaseQuestionToFrontend(dbQuestion));
+      console.log('Fetched questions:', data);
+      const mappedQuestions = data.map(mapDatabaseQuestionToFrontend);
       const shuffledQuestions = mappedQuestions.sort(() => Math.random() - 0.5);
       
+      console.log('Mapped and shuffled questions:', shuffledQuestions);
       setQuestions(shuffledQuestions);
       setCurrentQuestion(0);
       setSelectedAnswer(null);
       setQuizStats({ correctAnswers: 0, totalPoints: 0 });
     } catch (error) {
-      console.error('Error loading questions:', error);
+      console.error('Error in loadQuestions:', error);
       toast.error("Fehler beim Laden der Fragen");
     } finally {
       setIsGenerating(false);
