@@ -1,19 +1,13 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { DocumentRow } from "./document-row/DocumentRow";
 import { QuestionDialog } from "./question-dialog/QuestionDialog";
 import { useQuestionGeneration } from "./hooks/useQuestionGeneration";
 import { Document } from "./types";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { GenerationProgress } from "./generation-progress/GenerationProgress";
 import { QuestionsDisplay } from "./questions-display/QuestionsDisplay";
+import { TableFilters } from "./table-filters/TableFilters";
+import { DocumentsTable } from "./table/DocumentsTable";
 
 interface DocumentTableProps {
   documents: Document[];
@@ -23,6 +17,8 @@ interface DocumentTableProps {
 export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [questions, setQuestions] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   const {
     isGenerating,
@@ -52,22 +48,11 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     }
   };
 
-  const handleQuizGeneration = async (documentId: string) => {
-    toast.info("Starte Quiz-Generierung...");
-    try {
-      await handleGenerateQuiz(documentId);
-    } catch (error) {
-      console.error("Error in quiz generation:", error);
-      toast.error("Fehler bei der Quiz-Generierung. Bitte versuchen Sie es erneut.");
-    }
-  };
-
   const handleViewQuestions = async (documentId: string) => {
     setSelectedDocumentId(documentId);
     try {
       console.log('Fetching questions for document:', documentId);
       
-      // First, let's check if the document exists
       const { data: document, error: documentError } = await supabase
         .from("documents")
         .select("*")
@@ -81,7 +66,6 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
 
       console.log('Found document:', document);
 
-      // Now fetch the questions
       const { data: existingQuestions, error: fetchError } = await supabase
         .from("quiz_questions")
         .select("*")
@@ -101,7 +85,6 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         return;
       }
 
-      // Map the questions to ensure all required fields are present
       const formattedQuestions = existingQuestions.map(q => ({
         id: q.id,
         question_text: q.question_text,
@@ -125,6 +108,17 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     }
   };
 
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase());
+    if (filterStatus === "all") return matchesSearch;
+    
+    const hasQuestions = questions.some(q => q.document_id === doc.id);
+    return matchesSearch && (
+      (filterStatus === "with-questions" && hasQuestions) ||
+      (filterStatus === "without-questions" && !hasQuestions)
+    );
+  });
+
   return (
     <>
       <GenerationProgress 
@@ -132,35 +126,20 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         generationProgress={generationProgress} 
       />
 
-      <div className="overflow-x-auto">
-        <div className="w-full">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Größe</TableHead>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Öffentlich</TableHead>
-                  <TableHead>Aktionen</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {documents.map((doc) => (
-                  <DocumentRow
-                    key={doc.id}
-                    document={doc}
-                    onTogglePublic={handleTogglePublic}
-                    onGenerateQuiz={handleQuizGeneration}
-                    onViewQuestions={handleViewQuestions}
-                    isGenerating={isGenerating}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </div>
+      <TableFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterStatus={filterStatus}
+        onFilterChange={setFilterStatus}
+      />
+
+      <DocumentsTable
+        documents={filteredDocuments}
+        onTogglePublic={handleTogglePublic}
+        onGenerateQuiz={handleGenerateQuiz}
+        onViewQuestions={handleViewQuestions}
+        isGenerating={isGenerating}
+      />
 
       {questions.length > 0 && (
         <QuestionsDisplay 
