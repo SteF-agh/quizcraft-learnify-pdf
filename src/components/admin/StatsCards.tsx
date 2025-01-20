@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { FileText, Users, BarChart3, Search, HelpCircle } from "lucide-react";
+import { FileText, Users, BarChart3, HelpCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -38,6 +38,16 @@ export const StatsCards = ({ documentsCount }: StatsCardsProps) => {
           <p className="text-2xl font-bold">{documentsCount}</p>
         </div>
       </Card>
+
+      <Card className="p-6 flex items-center space-x-4">
+        <div className="p-3 bg-green-100 rounded-full">
+          <HelpCircle className="h-6 w-6 text-green-600" />
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Verfügbare Fragen</p>
+          <p className="text-2xl font-bold">{questionsCount}</p>
+        </div>
+      </Card>
       
       <Card className="p-6 flex items-center space-x-4">
         <div className="p-3 bg-secondary/10 rounded-full">
@@ -56,16 +66,6 @@ export const StatsCards = ({ documentsCount }: StatsCardsProps) => {
         <div>
           <p className="text-sm text-muted-foreground">Quiz Durchschnitt</p>
           <p className="text-2xl font-bold">-</p>
-        </div>
-      </Card>
-      
-      <Card className="p-6 flex items-center space-x-4">
-        <div className="p-3 bg-green-100 rounded-full">
-          <HelpCircle className="h-6 w-6 text-green-600" />
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Verfügbare Fragen</p>
-          <p className="text-2xl font-bold">{questionsCount}</p>
         </div>
       </Card>
     </div>
