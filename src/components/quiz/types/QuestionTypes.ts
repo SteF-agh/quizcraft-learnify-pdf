@@ -14,7 +14,7 @@ export interface DatabaseQuestion {
   answers: {
     options?: string[];
     correctAnswer: string | number | boolean;
-  };
+  } | Json;
   course_name: string;
   topic: string;
   difficulty: 'easy' | 'medium' | 'advanced';

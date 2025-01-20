@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Question, DatabaseQuestion } from "../types/QuestionTypes";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 export const useQuizLogic = (documentId: string | null) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -17,18 +18,19 @@ export const useQuizLogic = (documentId: string | null) => {
 
   const mapDatabaseQuestionToFrontend = (dbQuestion: DatabaseQuestion): Question => {
     console.log('Mapping question:', dbQuestion);
+    const answers = dbQuestion.answers as { options?: string[]; correctAnswer: string | number | boolean };
     return {
       type: dbQuestion.type,
       text: dbQuestion.question_text,
-      options: dbQuestion.answers.options,
-      correctAnswer: dbQuestion.answers.correctAnswer,
+      options: answers.options,
+      correctAnswer: answers.correctAnswer,
     };
   };
 
   const loadQuestions = async (selectedChapter: string | null) => {
     try {
       setIsGenerating(true);
-      console.log('Loading questions for chapter:', selectedChapter);
+      console.log('Loading questions for document:', documentId);
 
       let query = supabase
         .from('quiz_questions')
@@ -54,7 +56,7 @@ export const useQuizLogic = (documentId: string | null) => {
       }
 
       console.log('Fetched questions:', data);
-      const mappedQuestions = data.map((q: DatabaseQuestion) => mapDatabaseQuestionToFrontend(q));
+      const mappedQuestions = data.map((q) => mapDatabaseQuestionToFrontend(q as DatabaseQuestion));
       const shuffledQuestions = mappedQuestions.sort(() => Math.random() - 0.5);
       
       console.log('Mapped and shuffled questions:', shuffledQuestions);
