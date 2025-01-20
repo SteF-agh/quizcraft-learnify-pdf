@@ -13,13 +13,6 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
 
   const handleGenerateQuiz = async (documentId: string) => {
     try {
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        toast.error("Bitte melden Sie sich an, um ein Quiz zu generieren");
-        return;
-      }
-
       setIsGenerating(true);
       setGenerationProgress(10);
       console.log("Starting quiz generation for document:", documentId);
@@ -66,7 +59,6 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
     }
 
     try {
-      // Check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
         toast.error("Bitte melden Sie sich an, um die Frage zu speichern");
@@ -88,7 +80,7 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
         learning_objective_id: currentQuestion.learningObjectiveId,
         metadata: currentQuestion.metadata as Json,
         document_id: currentQuestion.documentId,
-        created_by: session.user.id // Add the user ID who created the question
+        created_by: session.user.id
       });
 
       if (error) {

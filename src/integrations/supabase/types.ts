@@ -198,6 +198,7 @@ export type Database = {
           chapter: string
           course_name: string
           created_at: string
+          created_by: string | null
           difficulty: Database["public"]["Enums"]["difficulty_level"]
           document_id: string | null
           feedback: string | null
@@ -214,6 +215,7 @@ export type Database = {
           chapter: string
           course_name: string
           created_at?: string
+          created_by?: string | null
           difficulty: Database["public"]["Enums"]["difficulty_level"]
           document_id?: string | null
           feedback?: string | null
@@ -230,6 +232,7 @@ export type Database = {
           chapter?: string
           course_name?: string
           created_at?: string
+          created_by?: string | null
           difficulty?: Database["public"]["Enums"]["difficulty_level"]
           document_id?: string | null
           feedback?: string | null
