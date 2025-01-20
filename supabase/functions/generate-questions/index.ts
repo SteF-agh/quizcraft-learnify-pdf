@@ -2,24 +2,6 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
-interface Question {
-  id: string;
-  courseName: string;
-  chapter: string;
-  topic: string;
-  difficulty: 'easy' | 'medium' | 'advanced';
-  questionText: string;
-  type: 'multiple-choice' | 'single-choice' | 'true-false';
-  points: number;
-  answers: Array<{
-    text: string;
-    isCorrect: boolean;
-  }>;
-  feedback: string;
-  learningObjectiveId?: string;
-  metadata?: Record<string, unknown>;
-}
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -99,17 +81,16 @@ serve(async (req) => {
 Format your response as a JSON array of questions following this structure:
 {
   "questions": [{
-    "id": "unique-id",
-    "courseName": "document-name",
+    "courseName": "${document.name}",
     "chapter": "chapter-name",
     "topic": "specific-topic",
     "difficulty": "easy|medium|advanced",
     "questionText": "question-text",
     "type": "multiple-choice|single-choice|true-false",
-    "points": "number",
+    "points": 10,
     "answers": [{"text": "answer-text", "isCorrect": boolean}],
     "feedback": "explanation-text",
-    "learningObjectiveId": "optional-id",
+    "learningObjectiveId": null,
     "metadata": {}
   }]
 }`;

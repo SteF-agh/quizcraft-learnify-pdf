@@ -34,6 +34,8 @@ interface Question {
     isCorrect: boolean;
   }>;
   feedback: string;
+  learningObjectiveId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 interface DocumentTableProps {
@@ -90,10 +92,12 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     if (!currentQuestion) return;
 
     try {
-      // Save question to database
       const { error } = await supabase
         .from('quiz_questions')
-        .insert([currentQuestion]);
+        .insert([{
+          ...currentQuestion,
+          document_id: documents.find(d => d.name === currentQuestion.courseName)?.id
+        }]);
 
       if (error) throw error;
 
