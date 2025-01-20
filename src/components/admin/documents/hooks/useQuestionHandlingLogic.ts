@@ -23,6 +23,7 @@ export const useQuestionHandlingLogic = (
 
       console.log("Saving question:", state.currentQuestion);
 
+      // Map the properties to match database column names
       const { error } = await supabase.from("quiz_questions").insert({
         course_name: state.currentQuestion.courseName,
         chapter: state.currentQuestion.chapter,
@@ -31,7 +32,7 @@ export const useQuestionHandlingLogic = (
         question_text: state.currentQuestion.questionText,
         type: state.currentQuestion.type,
         points: state.currentQuestion.points,
-        answers: state.currentQuestion.answers,
+        answers: state.currentQuestion.answers as Json,
         feedback: state.currentQuestion.feedback,
         learning_objective_id: state.currentQuestion.learningObjectiveId,
         metadata: state.currentQuestion.metadata as Json,

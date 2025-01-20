@@ -3,9 +3,9 @@ export interface Question {
   courseName: string;
   chapter: string;
   topic: string;
-  difficulty: string;
+  difficulty: "easy" | "medium" | "advanced";
   questionText: string;
-  type: string;
+  type: "multiple-choice" | "single-choice" | "true-false";
   points: number;
   answers: any[];
   feedback?: string;
