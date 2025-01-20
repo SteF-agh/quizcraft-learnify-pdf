@@ -14,6 +14,7 @@ interface Question {
   type: string;
   difficulty: string;
   points: number;
+  answers?: Array<{ text: string; isCorrect: boolean }>;
 }
 
 interface QuestionsDisplayProps {
@@ -22,7 +23,10 @@ interface QuestionsDisplayProps {
 }
 
 export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProps) => {
-  if (!documentId || questions.length === 0) return null;
+  if (!documentId || questions.length === 0) {
+    console.log('No questions to display');
+    return null;
+  }
 
   console.log('Rendering questions in QuestionsDisplay:', questions);
 

@@ -79,6 +79,7 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
       console.log('Raw questions data:', existingQuestions);
 
       if (!existingQuestions || existingQuestions.length === 0) {
+        console.log('No questions found for document:', documentId);
         toast.info("Keine Fragen für dieses Dokument gefunden");
         setQuestions([]);
         return;
@@ -91,7 +92,8 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         type: q.type,
         difficulty: q.difficulty,
         points: q.points,
-        document_id: q.document_id
+        document_id: q.document_id,
+        answers: q.answers
       }));
 
       console.log('Formatted questions:', formattedQuestions);
