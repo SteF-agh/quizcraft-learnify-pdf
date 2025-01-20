@@ -2,12 +2,13 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { formatFileSize } from "@/utils/formatters";
 import { DocumentProgress } from "./DocumentProgress";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Trash2, Clock, Award, FileText, Timer } from "lucide-react";
+import { GraduationCap, Trash2, Clock, Award, FileText, Timer, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface DocumentRowProps {
   document: {
@@ -58,6 +59,23 @@ export const DocumentRow = ({
     navigate(`/learning-mode?documentId=${document.id}`);
   };
 
+  const handleShareResults = async () => {
+    try {
+      const { data: results, error } = await supabase
+        .from('quiz_results')
+        .update({ is_public: true })
+        .eq('document_id', document.id)
+        .eq('user_id', '00000000-0000-0000-0000-000000000000');
+
+      if (error) throw error;
+
+      toast.success("Lernergebnisse wurden erfolgreich freigegeben!");
+    } catch (error) {
+      console.error('Error sharing results:', error);
+      toast.error("Fehler beim Freigeben der Lernergebnisse");
+    }
+  };
+
   return (
     <TableRow>
       <TableCell>
@@ -80,6 +98,15 @@ export const DocumentRow = ({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                onClick={handleShareResults}
+                className="gap-2"
+                variant="outline"
+                size="lg"
+              >
+                <Share2 className="h-5 w-5" />
+                Ergebnisse freigeben
+              </Button>
               <Button
                 onClick={handleStartLearning}
                 className="gap-2 bg-primary hover:bg-primary/90 text-white"
