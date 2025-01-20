@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileUpload } from "@/components/FileUpload";
-import { DocumentTableBase } from "@/components/dashboard/DocumentTableBase";
-import { Search, Users, FileText, BarChart3, Globe } from "lucide-react";
+import { Search, Users, FileText, BarChart3, Globe, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 const Admin = () => {
   const [userRole] = useState('admin');
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
 
   // Fetch documents using React Query
   const { data: documents = [], refetch } = useQuery({
@@ -56,6 +56,26 @@ const Admin = () => {
     } catch (error) {
       console.error('Error toggling document visibility:', error);
       toast.error('Fehler beim Ändern der Sichtbarkeit');
+    }
+  };
+
+  const handleGenerateQuiz = async (documentId: string) => {
+    try {
+      const response = await fetch('/api/generate-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ documentId }),
+      });
+
+      if (!response.ok) throw new Error('Failed to generate quiz');
+
+      toast.success('Quiz wurde erfolgreich generiert');
+      setSelectedDocument(null);
+    } catch (error) {
+      console.error('Error generating quiz:', error);
+      toast.error('Fehler beim Generieren des Quiz');
     }
   };
 
@@ -177,7 +197,16 @@ const Admin = () => {
                                   <Globe className={`h-4 w-4 ${doc.is_public ? 'text-primary' : 'text-muted-foreground'}`} />
                                 </div>
                               </td>
-                              <td className="p-4 align-middle">
+                              <td className="p-4 align-middle space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleGenerateQuiz(doc.id)}
+                                  className="mr-2"
+                                >
+                                  <BookOpen className="h-4 w-4 mr-2" />
+                                  Quiz generieren
+                                </Button>
                                 <Button
                                   variant="destructive"
                                   size="sm"
