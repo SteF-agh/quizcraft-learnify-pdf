@@ -18,9 +18,9 @@ interface DocumentsTabProps {
 
 export const DocumentsTab = ({ documents, onUploadSuccess, onRefetch }: DocumentsTabProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="space-y-6">
       <UploadSection onUploadSuccess={onUploadSuccess} />
-      <Card className="p-6 md:col-span-2">
+      <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Vorhandene Skripte</h2>
         <DocumentTable documents={documents} onRefetch={onRefetch} />
       </Card>
