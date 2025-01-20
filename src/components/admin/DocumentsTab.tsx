@@ -19,7 +19,11 @@ interface DocumentsTabProps {
 export const DocumentsTab = ({ documents, onUploadSuccess, onRefetch }: DocumentsTabProps) => {
   return (
     <div className="space-y-6">
-      <UploadSection onUploadSuccess={onUploadSuccess} />
+      <div className="bg-slate-50 p-6 rounded-lg border">
+        <h2 className="text-2xl font-semibold mb-2">KI Manager</h2>
+        <p className="text-slate-600 mb-4">Laden Sie Dokumente hoch und lassen Sie die KI automatisch Fragen generieren.</p>
+        <UploadSection onUploadSuccess={onUploadSuccess} />
+      </div>
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Vorhandene Skripte</h2>
         <DocumentTable documents={documents} onRefetch={onRefetch} />
