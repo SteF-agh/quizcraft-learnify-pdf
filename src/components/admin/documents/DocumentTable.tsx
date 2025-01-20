@@ -7,6 +7,14 @@ import { useQuestionGeneration } from "./hooks/useQuestionGeneration";
 import { Document } from "./types";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface DocumentTableProps {
   documents: Document[];
@@ -14,6 +22,9 @@ interface DocumentTableProps {
 }
 
 export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<any[]>([]);
+
   const {
     isGenerating,
     currentQuestion,
@@ -52,6 +63,23 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     }
   };
 
+  const handleViewQuestions = async (documentId: string) => {
+    setSelectedDocumentId(documentId);
+    try {
+      const { data, error } = await supabase
+        .from("quiz_questions")
+        .select("*")
+        .eq("document_id", documentId);
+
+      if (error) throw error;
+
+      setQuestions(data || []);
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+      toast.error("Fehler beim Laden der Fragen");
+    }
+  };
+
   return (
     <>
       {isGenerating && (
@@ -71,35 +99,60 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
       <div className="overflow-x-auto">
         <div className="w-full">
           <div className="rounded-md border">
-            <table className="w-full caption-bottom text-sm">
-              <thead className="border-b">
-                <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                  <th className="h-12 px-4 text-left align-middle font-medium">Name</th>
-                  <th className="h-12 px-4 text-left align-middle font-medium">Größe</th>
-                  <th className="h-12 px-4 text-left align-middle font-medium">Datum</th>
-                  <th className="h-12 px-4 text-left align-middle font-medium">
-                    Öffentlich
-                  </th>
-                  <th className="h-12 px-4 text-left align-middle font-medium">
-                    Aktionen
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Größe</TableHead>
+                  <TableHead>Datum</TableHead>
+                  <TableHead>Öffentlich</TableHead>
+                  <TableHead>Aktionen</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {documents.map((doc) => (
                   <DocumentRow
                     key={doc.id}
                     document={doc}
                     onTogglePublic={handleTogglePublic}
                     onGenerateQuiz={handleQuizGeneration}
+                    onViewQuestions={() => handleViewQuestions(doc.id)}
                     isGenerating={isGenerating}
                   />
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>
+
+      {selectedDocumentId && questions.length > 0 && (
+        <Card className="mt-6 p-6">
+          <h3 className="text-xl font-semibold mb-4">Generierte Fragen</h3>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Frage</TableHead>
+                  <TableHead>Typ</TableHead>
+                  <TableHead>Schwierigkeit</TableHead>
+                  <TableHead>Punkte</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {questions.map((question) => (
+                  <TableRow key={question.id}>
+                    <TableCell>{question.question_text}</TableCell>
+                    <TableCell>{question.type}</TableCell>
+                    <TableCell>{question.difficulty}</TableCell>
+                    <TableCell>{question.points}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+      )}
 
       {showQuestionDialog && currentQuestion && (
         <QuestionDialog
