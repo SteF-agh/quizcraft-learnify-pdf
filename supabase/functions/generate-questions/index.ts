@@ -102,7 +102,7 @@ Format your response as a JSON array of questions following this structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4',
         messages: [
           { role: 'system', content: systemPrompt },
           { 
@@ -121,11 +121,20 @@ Format your response as a JSON array of questions following this structure:
     }
 
     const data = await response.json();
-    const generatedQuestions = JSON.parse(data.choices[0].message.content).questions;
-    console.log('Successfully generated questions:', generatedQuestions.length);
+    console.log('OpenAI response:', data);
+
+    let generatedQuestions;
+    try {
+      generatedQuestions = JSON.parse(data.choices[0].message.content);
+      console.log('Successfully parsed questions:', generatedQuestions);
+    } catch (error) {
+      console.error('Error parsing OpenAI response:', error);
+      console.error('Raw content:', data.choices[0].message.content);
+      throw new Error('Failed to parse generated questions');
+    }
 
     return new Response(
-      JSON.stringify({ questions: generatedQuestions }),
+      JSON.stringify({ questions: generatedQuestions.questions }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
