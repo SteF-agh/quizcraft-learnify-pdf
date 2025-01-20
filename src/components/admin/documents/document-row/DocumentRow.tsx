@@ -2,7 +2,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Document } from "../types";
-import { formatBytes } from "@/utils/formatters";
+import { formatFileSize } from "@/utils/formatters";
 import { Eye, Play } from "lucide-react";
 
 interface DocumentRowProps {
@@ -29,7 +29,7 @@ export const DocumentRow = ({
   return (
     <TableRow>
       <TableCell>{document.name}</TableCell>
-      <TableCell>{document.file_size ? formatBytes(document.file_size) : "-"}</TableCell>
+      <TableCell>{document.file_size ? formatFileSize(document.file_size) : "-"}</TableCell>
       <TableCell>{formattedDate}</TableCell>
       <TableCell>
         <Switch
