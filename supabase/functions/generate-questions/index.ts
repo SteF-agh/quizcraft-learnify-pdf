@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.mjs';
+import * as pdfjs from 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.js';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -62,39 +62,48 @@ serve(async (req) => {
 
     console.log('Successfully downloaded PDF');
 
-    // Convert PDF to text using pdf.js
+    // Convert PDF to text
     const arrayBuffer = await fileData.arrayBuffer();
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-    const pdf = await loadingTask.promise;
-    
-    let fullText = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item: any) => item.str).join(' ');
-      fullText += pageText + ' ';
+    console.log('PDF array buffer size:', arrayBuffer.byteLength);
+
+    // Initialize PDF.js worker
+    const workerSrc = 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.worker.js';
+    if (!globalThis.pdfjsWorker) {
+      pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
     }
 
-    console.log('Successfully extracted text from PDF, length:', fullText.length);
-    
-    if (fullText.length < 100) {
-      throw new Error('Extracted text is too short, possible PDF parsing error');
-    }
+    try {
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      console.log('PDF loaded, pages:', pdf.numPages);
+      
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        fullText += pageText + ' ';
+      }
 
-    // Call OpenAI API to generate questions
-    console.log('Calling OpenAI API...');
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { 
-            role: 'system', 
-            content: `You are an expert in creating educational quiz questions. Generate exactly 5 questions based on the provided content, following these guidelines:
+      console.log('Successfully extracted text from PDF, length:', fullText.length);
+      
+      if (fullText.length < 100) {
+        throw new Error('Extracted text is too short, possible PDF parsing error');
+      }
+
+      // Call OpenAI API to generate questions
+      console.log('Calling OpenAI API...');
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { 
+              role: 'system', 
+              content: `You are an expert in creating educational quiz questions. Generate exactly 5 questions based on the provided content, following these guidelines:
 
 1. Question Distribution:
    - 2 easy questions
@@ -128,49 +137,54 @@ Format your response EXACTLY as this JSON structure:
     "documentId": "${documentId}"
   }]
 }`
-          },
-          { 
-            role: 'user', 
-            content: `Generate questions based on this content: ${fullText.substring(0, 4000)}` 
-          }
-        ],
-        temperature: 0.7,
-      }),
-    });
+            },
+            { 
+              role: 'user', 
+              content: `Generate questions based on this content: ${fullText.substring(0, 4000)}` 
+            }
+          ],
+          temperature: 0.7,
+        }),
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('OpenAI API error:', error);
-      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
-    }
-
-    const data = await response.json();
-    console.log('OpenAI response received');
-
-    let generatedQuestions;
-    try {
-      const parsedContent = JSON.parse(data.choices[0].message.content);
-      console.log('Successfully parsed OpenAI response');
-      
-      if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
-        console.error('Invalid response format:', parsedContent);
-        throw new Error('Invalid response format from OpenAI');
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('OpenAI API error:', error);
+        throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
       }
-      
-      generatedQuestions = parsedContent.questions;
-      console.log(`Successfully extracted ${generatedQuestions.length} questions`);
-    } catch (error) {
-      console.error('Error parsing OpenAI response:', error);
-      console.error('Raw content:', data.choices[0].message.content);
-      throw new Error('Failed to parse generated questions');
-    }
 
-    return new Response(
-      JSON.stringify({ questions: generatedQuestions }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      const data = await response.json();
+      console.log('OpenAI response received');
+
+      let generatedQuestions;
+      try {
+        const parsedContent = JSON.parse(data.choices[0].message.content);
+        console.log('Successfully parsed OpenAI response');
+        
+        if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
+          console.error('Invalid response format:', parsedContent);
+          throw new Error('Invalid response format from OpenAI');
+        }
+        
+        generatedQuestions = parsedContent.questions;
+        console.log(`Successfully extracted ${generatedQuestions.length} questions`);
+      } catch (error) {
+        console.error('Error parsing OpenAI response:', error);
+        console.error('Raw content:', data.choices[0].message.content);
+        throw new Error('Failed to parse generated questions');
       }
-    );
+
+      return new Response(
+        JSON.stringify({ questions: generatedQuestions }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+
+    } catch (pdfError) {
+      console.error('Error processing PDF:', pdfError);
+      throw new Error(`PDF processing error: ${pdfError.message}`);
+    }
 
   } catch (error) {
     console.error('Error in generate-questions function:', error);
