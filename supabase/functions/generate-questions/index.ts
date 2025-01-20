@@ -1,6 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -57,7 +56,42 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    console.log('Calling OpenAI API...');
+    const systemPrompt = `You are an expert in creating educational quiz questions. Generate exactly 5 questions based on the provided content, following these guidelines:
+
+1. Question Distribution:
+   - 2 easy questions
+   - 2 medium questions
+   - 1 advanced question
+
+2. Question Types:
+   - Mix of multiple-choice and true-false questions
+   - For multiple-choice, provide exactly 4 options
+   - Make sure exactly one answer is correct
+
+3. Quality Guidelines:
+   - Questions should be clear and concise
+   - Answers should be unambiguous
+   - Include helpful feedback for each question
+
+Format your response EXACTLY as this JSON structure:
+{
+  "questions": [{
+    "courseName": "${document.name}",
+    "chapter": "chapter-1",
+    "topic": "main-topic",
+    "difficulty": "easy|medium|advanced",
+    "questionText": "What is...?",
+    "type": "multiple-choice|true-false",
+    "points": 10,
+    "answers": [{"text": "answer text", "isCorrect": boolean}],
+    "feedback": "explanation why the answer is correct",
+    "learningObjectiveId": null,
+    "metadata": {},
+    "documentId": "${documentId}"
+  }]
+}`;
+
+    console.log('Calling OpenAI API with system prompt:', systemPrompt);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -67,30 +101,8 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { 
-            role: 'system', 
-            content: `You are an expert in creating educational quiz questions. Generate a complete set of questions based on the provided content. Format your response as a JSON array of questions following this structure:
-            {
-              "questions": [{
-                "courseName": "${document.name}",
-                "chapter": "chapter-name",
-                "topic": "specific-topic",
-                "difficulty": "easy|medium|advanced",
-                "questionText": "question-text",
-                "type": "multiple-choice|single-choice|true-false",
-                "points": 10,
-                "answers": [{"text": "answer-text", "isCorrect": boolean}],
-                "feedback": "explanation-text",
-                "learningObjectiveId": null,
-                "metadata": {},
-                "documentId": "${documentId}"
-              }]
-            }`
-          },
-          { 
-            role: 'user', 
-            content: `Generate questions based on this content: ${text.substring(0, 8000)}` 
-          }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Generate questions based on this content: ${text.substring(0, 4000)}` }
         ],
         temperature: 0.7,
       }),
