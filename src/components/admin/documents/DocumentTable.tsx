@@ -66,25 +66,41 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     setSelectedDocumentId(documentId);
     try {
       console.log('Fetching questions for document:', documentId);
-      const { data, error } = await supabase
+      const { data: existingQuestions, error: fetchError } = await supabase
         .from("quiz_questions")
         .select("*")
         .eq("document_id", documentId);
 
-      if (error) {
-        console.error("Error fetching questions:", error);
-        throw error;
+      if (fetchError) {
+        console.error("Error fetching questions:", fetchError);
+        throw fetchError;
       }
 
-      console.log('Fetched questions:', data);
-      setQuestions(data || []);
-      
-      if (!data || data.length === 0) {
+      console.log('Raw questions data:', existingQuestions);
+
+      if (!existingQuestions || existingQuestions.length === 0) {
         toast.info("Keine Fragen für dieses Dokument gefunden");
+        setQuestions([]);
+        return;
       }
+
+      // Map the questions to ensure all required fields are present
+      const formattedQuestions = existingQuestions.map(q => ({
+        id: q.id,
+        question_text: q.question_text,
+        type: q.type,
+        difficulty: q.difficulty,
+        points: q.points,
+        document_id: q.document_id
+      }));
+
+      console.log('Formatted questions:', formattedQuestions);
+      setQuestions(formattedQuestions);
+      
     } catch (error) {
       console.error("Error fetching questions:", error);
       toast.error("Fehler beim Laden der Fragen");
+      setQuestions([]);
     }
   };
 
@@ -125,10 +141,12 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         </div>
       </div>
 
-      <QuestionsDisplay 
-        questions={questions} 
-        documentId={selectedDocumentId} 
-      />
+      {questions.length > 0 && (
+        <QuestionsDisplay 
+          questions={questions} 
+          documentId={selectedDocumentId} 
+        />
+      )}
 
       {showQuestionDialog && currentQuestion && (
         <QuestionDialog

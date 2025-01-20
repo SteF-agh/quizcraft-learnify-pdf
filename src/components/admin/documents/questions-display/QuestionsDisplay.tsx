@@ -24,9 +24,11 @@ interface QuestionsDisplayProps {
 export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProps) => {
   if (!documentId || questions.length === 0) return null;
 
+  console.log('Rendering questions in QuestionsDisplay:', questions);
+
   return (
     <Card className="mt-6 p-6">
-      <h3 className="text-xl font-semibold mb-4">Generierte Fragen</h3>
+      <h3 className="text-xl font-semibold mb-4">Generierte Fragen ({questions.length})</h3>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -40,7 +42,7 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
           <TableBody>
             {questions.map((question) => (
               <TableRow key={question.id}>
-                <TableCell>{question.question_text}</TableCell>
+                <TableCell className="max-w-xl truncate">{question.question_text}</TableCell>
                 <TableCell>{question.type}</TableCell>
                 <TableCell>{question.difficulty}</TableCell>
                 <TableCell>{question.points}</TableCell>
