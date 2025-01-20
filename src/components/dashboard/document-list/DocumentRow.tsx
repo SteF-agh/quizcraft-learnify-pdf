@@ -1,16 +1,14 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { DeleteDocumentDialog } from "./DeleteDocumentDialog";
-import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { formatFileSize } from "@/utils/formatters";
+import { formatDate } from "@/utils/formatters";
+import { DocumentProgress } from "./DocumentProgress";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Document {
   id: string;
   name: string;
   created_at: string;
   file_size?: number;
-  file_path: string;
 }
 
 interface DocumentRowProps {
@@ -22,65 +20,33 @@ interface DocumentRowProps {
 
 export const DocumentRow = ({ 
   document, 
-  isSelected, 
-  onSelect, 
+  isSelected,
+  onSelect,
   onDelete 
 }: DocumentRowProps) => {
-  const handlePreview = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log('Attempting to preview document:', document.file_path);
-    
-    try {
-      const { data } = await supabase.storage
-        .from('pdfs')
-        .createSignedUrl(document.file_path, 60);
-
-      if (data?.signedUrl) {
-        console.log('Opening signed URL:', data.signedUrl);
-        window.open(data.signedUrl, '_blank');
-      }
-    } catch (error) {
-      console.error('Error creating signed URL:', error);
-    }
-  };
-
   return (
-    <TableRow 
-      className={`cursor-pointer transition-colors ${isSelected ? "bg-primary/10" : "hover:bg-muted/50"}`}
-      onClick={onSelect}
-    >
-      <TableCell>
-        <RadioGroup value={isSelected ? document.id : undefined}>
-          <RadioGroupItem 
-            value={document.id} 
-            id={document.id}
-            checked={isSelected}
-          />
-        </RadioGroup>
-      </TableCell>
-      <TableCell className="font-medium">{document.name}</TableCell>
-      <TableCell>
-        {document.file_size ? `${Math.round(document.file_size / 1024)} KB` : 'N/A'}
+    <TableRow>
+      <TableCell className="w-[80px]">
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={onSelect}
+        />
       </TableCell>
       <TableCell>
-        {new Date(document.created_at).toLocaleDateString('de-DE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        })}
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePreview}
-            title="Dokument öffnen"
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <DeleteDocumentDialog onDelete={onDelete} />
+        <div className="space-y-2">
+          <div>{document.name}</div>
+          <DocumentProgress documentId={document.id} />
         </div>
+      </TableCell>
+      <TableCell>{document.file_size ? formatFileSize(document.file_size) : '-'}</TableCell>
+      <TableCell>{formatDate(document.created_at)}</TableCell>
+      <TableCell>
+        <button
+          onClick={onDelete}
+          className="text-destructive hover:text-destructive/80"
+        >
+          Löschen
+        </button>
       </TableCell>
     </TableRow>
   );

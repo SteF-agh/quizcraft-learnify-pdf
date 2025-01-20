@@ -38,7 +38,7 @@ export const DocumentList = ({
           <TableHeader>
             <TableRow>
               <TableHead className="w-[80px]">Auswahl</TableHead>
-              <TableHead className="w-[300px]">Name</TableHead>
+              <TableHead className="w-[400px]">Name & Fortschritt</TableHead>
               <TableHead className="w-[100px]">Größe</TableHead>
               <TableHead className="w-[150px]">Upload Datum</TableHead>
               <TableHead className="w-[170px]">Aktionen</TableHead>
