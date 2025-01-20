@@ -34,9 +34,10 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
   console.log('Rendering questions in QuestionsDisplay:', questions);
 
   return (
-    <Card className="mt-6 p-6">
-      <h3 className="text-xl font-semibold mb-4">Generierte Fragen ({questions.length})</h3>
-      <div className="rounded-md border">
+    <div className="bg-slate-50 p-6 rounded-lg border">
+      <h2 className="text-2xl font-semibold mb-2">KI Manager - Generierte Fragen</h2>
+      <p className="text-slate-600 mb-4">Die KI hat folgende {questions.length} Fragen für dieses Dokument generiert:</p>
+      <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
             <TableRow>
@@ -64,6 +65,6 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
           </TableBody>
         </Table>
       </div>
-    </Card>
+    </div>
   );
 };
