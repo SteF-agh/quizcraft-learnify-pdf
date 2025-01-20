@@ -1,11 +1,9 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { formatFileSize } from "@/utils/formatters";
 import { DocumentProgress } from "./DocumentProgress";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 interface DocumentRowProps {
   document: {
@@ -14,16 +12,12 @@ interface DocumentRowProps {
     file_size?: number;
     created_at: string;
   };
-  isSelected: boolean;
-  onSelect: () => void;
   onDelete: (e: React.MouseEvent) => void;
   coins: number;
 }
 
 export const DocumentRow = ({
   document,
-  isSelected,
-  onSelect,
   onDelete,
   coins
 }: DocumentRowProps) => {
@@ -35,13 +29,6 @@ export const DocumentRow = ({
 
   return (
     <TableRow>
-      <TableCell className="w-[80px]">
-        <Checkbox
-          checked={isSelected}
-          onCheckedChange={onSelect}
-          aria-label="Select document"
-        />
-      </TableCell>
       <TableCell>
         <div className="space-y-2">
           <div className="font-medium">{document.name}</div>

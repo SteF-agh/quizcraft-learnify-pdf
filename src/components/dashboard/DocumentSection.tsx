@@ -11,16 +11,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface DocumentSectionProps {
   documents: any[];
-  selectedDocument: string | null;
-  onSelectDocument: (id: string) => void;
   onDocumentDeleted: () => void;
-  onStartLearning: () => void;
 }
 
 export const DocumentSection = ({
   documents,
-  selectedDocument,
-  onSelectDocument,
   onDocumentDeleted,
 }: DocumentSectionProps) => {
   const fetchAssignedDocuments = async () => {
@@ -74,8 +69,6 @@ export const DocumentSection = ({
               </p>
               <DocumentList
                 documents={documents}
-                selectedDocument={selectedDocument}
-                onSelectDocument={onSelectDocument}
                 onDocumentDeleted={onDocumentDeleted}
               />
             </div>

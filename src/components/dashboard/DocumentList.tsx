@@ -16,15 +16,11 @@ interface Document {
 
 interface DocumentListProps {
   documents: Document[];
-  selectedDocument: string | null;
-  onSelectDocument: (id: string) => void;
   onDocumentDeleted?: () => void;
 }
 
 export const DocumentList = ({ 
   documents, 
-  selectedDocument, 
-  onSelectDocument,
   onDocumentDeleted 
 }: DocumentListProps) => {
   const handleDelete = useDeleteHandler(onDocumentDeleted);
@@ -64,9 +60,8 @@ export const DocumentList = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[80px]">Auswahl</TableHead>
               <TableHead>Name & Fortschritt</TableHead>
-              <TableHead className="w-[100px]">Aktionen</TableHead>
+              <TableHead className="w-[180px]">Aktionen</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -74,8 +69,6 @@ export const DocumentList = ({
               <DocumentRow
                 key={doc.id}
                 document={doc}
-                isSelected={selectedDocument === doc.id}
-                onSelect={() => onSelectDocument(doc.id)}
                 onDelete={(e) => handleDelete(doc, e)}
                 coins={documentCoins[doc.id] || 0}
               />
