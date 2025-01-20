@@ -23,7 +23,12 @@ export const QuestionDialog = ({
   onAccept,
   onRegenerate,
 }: QuestionDialogProps) => {
-  if (!currentQuestion) return null;
+  if (!currentQuestion) {
+    console.log("No question provided to QuestionDialog");
+    return null;
+  }
+
+  console.log("Rendering QuestionDialog with question:", currentQuestion);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

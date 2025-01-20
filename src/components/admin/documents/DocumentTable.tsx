@@ -91,13 +91,15 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         </div>
       </div>
 
-      <QuestionDialog
-        open={showQuestionDialog}
-        onOpenChange={setShowQuestionDialog}
-        currentQuestion={currentQuestion}
-        onAccept={handleAcceptQuestion}
-        onRegenerate={handleRegenerateQuestion}
-      />
+      {showQuestionDialog && currentQuestion && (
+        <QuestionDialog
+          open={showQuestionDialog}
+          onOpenChange={setShowQuestionDialog}
+          currentQuestion={currentQuestion}
+          onAccept={handleAcceptQuestion}
+          onRegenerate={handleRegenerateQuestion}
+        />
+      )}
     </>
   );
 };
