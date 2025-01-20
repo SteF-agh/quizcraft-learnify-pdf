@@ -91,7 +91,8 @@ Format your response as a JSON array of questions following this structure:
     "answers": [{"text": "answer-text", "isCorrect": boolean}],
     "feedback": "explanation-text",
     "learningObjectiveId": null,
-    "metadata": {}
+    "metadata": {},
+    "documentId": "${documentId}"
   }]
 }`;
 
