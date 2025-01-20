@@ -23,7 +23,7 @@ export const QuizHeader = ({
         <div className="flex items-center gap-8">
           <Button 
             variant="outline"
-            onClick={() => navigate("/learning-mode")}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2 hover:-translate-x-1 transition-transform duration-300"
           >
             <ArrowLeft className="w-4 h-4" />
