@@ -1,6 +1,5 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { formatFileSize } from "@/utils/formatters";
-import { formatDate } from "@/utils/formatters";
+import { formatFileSize, formatDate } from "@/utils/formatters";
 import { DocumentProgress } from "./DocumentProgress";
 import { Checkbox } from "@/components/ui/checkbox";
 

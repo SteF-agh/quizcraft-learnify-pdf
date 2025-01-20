@@ -11,3 +11,12 @@ export const formatFileSize = (bytes?: number) => {
   
   return `${size.toFixed(1)} ${units[unitIndex]}`;
 };
+
+export const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('de-DE', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
