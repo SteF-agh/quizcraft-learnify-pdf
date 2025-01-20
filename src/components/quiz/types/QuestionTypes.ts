@@ -7,7 +7,7 @@ export interface Question {
 
 export interface DatabaseQuestion {
   id: string;
-  document_id: string;
+  document_id: string | null;
   chapter: string;
   question_text: string;
   type: 'multiple-choice' | 'single-choice' | 'true-false';
