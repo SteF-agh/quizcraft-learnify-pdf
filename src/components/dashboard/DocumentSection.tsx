@@ -23,10 +23,7 @@ export const DocumentSection = ({
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">Deine Skripte</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Wähle das Skript aus, mit dem du jetzt lernen möchtest
-        </p>
+        <h2 className="text-3xl font-bold mb-4">Deine Skripte</h2>
         <DocumentList
           documents={documents}
           onDocumentDeleted={onDocumentDeleted}
