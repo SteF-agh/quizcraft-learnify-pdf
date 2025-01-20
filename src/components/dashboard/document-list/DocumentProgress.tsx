@@ -41,13 +41,23 @@ export const DocumentProgress = ({ documentId }: DocumentProgressProps) => {
     fetchProgress();
   }, [documentId]);
 
+  const getProgressColor = (value: number) => {
+    if (value >= 80) return "bg-green-500";
+    if (value >= 60) return "bg-yellow-500";
+    return "bg-orange-500";
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <TrendingUp className="h-4 w-4 text-green-500" />
+        <TrendingUp className={`h-4 w-4 ${progress >= 80 ? 'text-green-500' : progress >= 60 ? 'text-yellow-500' : 'text-orange-500'}`} />
         <span className="text-sm font-medium">{progress}% Fortschritt</span>
       </div>
-      <Progress value={progress} className="h-2" />
+      <Progress 
+        value={progress} 
+        className="h-2 transition-all duration-500"
+        indicatorClassName={getProgressColor(progress)}
+      />
       <div className="text-xs text-muted-foreground text-right">
         {attempts} {attempts === 1 ? 'Versuch' : 'Versuche'}
       </div>
