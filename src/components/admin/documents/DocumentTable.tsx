@@ -66,14 +66,23 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
   const handleViewQuestions = async (documentId: string) => {
     setSelectedDocumentId(documentId);
     try {
+      console.log('Fetching questions for document:', documentId);
       const { data, error } = await supabase
         .from("quiz_questions")
         .select("*")
         .eq("document_id", documentId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching questions:", error);
+        throw error;
+      }
 
+      console.log('Fetched questions:', data);
       setQuestions(data || []);
+      
+      if (!data || data.length === 0) {
+        toast.info("Keine Fragen für dieses Dokument gefunden");
+      }
     } catch (error) {
       console.error("Error fetching questions:", error);
       toast.error("Fehler beim Laden der Fragen");
@@ -116,7 +125,7 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
                     document={doc}
                     onTogglePublic={handleTogglePublic}
                     onGenerateQuiz={handleQuizGeneration}
-                    onViewQuestions={() => handleViewQuestions(doc.id)}
+                    onViewQuestions={handleViewQuestions}
                     isGenerating={isGenerating}
                   />
                 ))}
