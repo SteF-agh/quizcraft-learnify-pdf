@@ -22,10 +22,10 @@ export const LearningModeSelector = ({
   };
 
   return (
-    <div className="p-6 border rounded-xl bg-white/50 backdrop-blur-sm shadow-sm">
+    <div className="p-6 border rounded-xl bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all duration-300">
       <Button
         onClick={handleStartLearning}
-        className="w-full transition-all hover:scale-[1.02] gap-2"
+        className="w-full transition-all hover:scale-[1.02] gap-2 bg-gradient-to-r from-primary to-secondary text-white"
         disabled={!selectedDocument}
       >
         <GraduationCap className="h-5 w-5" />
