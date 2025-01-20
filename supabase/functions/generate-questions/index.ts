@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,11 +17,15 @@ serve(async (req) => {
     const { documentId } = await req.json();
     console.log('Generating questions for document:', documentId);
 
-    // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    // Initialize Supabase client with environment variables
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing Supabase configuration');
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
     // Get document content
     const { data: document, error: docError } = await supabaseClient
