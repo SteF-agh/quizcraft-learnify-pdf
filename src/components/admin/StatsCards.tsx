@@ -27,6 +27,52 @@ export const StatsCards = ({ documentsCount }: StatsCardsProps) => {
     }
   });
 
+  // Fetch active users count
+  const { data: activeUsersCount = 0 } = useQuery({
+    queryKey: ['active-users'],
+    queryFn: async () => {
+      console.log('Fetching active users count...');
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'trainee');
+
+      if (error) {
+        console.error('Error fetching active users count:', error);
+        return 0;
+      }
+
+      console.log('Active users count:', count);
+      return count || 0;
+    }
+  });
+
+  // Fetch quiz average
+  const { data: quizAverage = 0 } = useQuery({
+    queryKey: ['quiz-average'],
+    queryFn: async () => {
+      console.log('Fetching quiz average...');
+      const { data, error } = await supabase
+        .from('quiz_results')
+        .select('correct_answers, total_questions');
+
+      if (error) {
+        console.error('Error fetching quiz results:', error);
+        return 0;
+      }
+
+      if (!data || data.length === 0) return 0;
+
+      const totalPercentage = data.reduce((acc, curr) => {
+        return acc + (curr.correct_answers / curr.total_questions) * 100;
+      }, 0);
+
+      const average = Math.round(totalPercentage / data.length);
+      console.log('Quiz average:', average);
+      return average;
+    }
+  });
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card className="p-6 flex items-center space-x-4">
@@ -55,7 +101,7 @@ export const StatsCards = ({ documentsCount }: StatsCardsProps) => {
         </div>
         <div>
           <p className="text-sm text-muted-foreground">Aktive Benutzer</p>
-          <p className="text-2xl font-bold">-</p>
+          <p className="text-2xl font-bold">{activeUsersCount}</p>
         </div>
       </Card>
       
@@ -65,7 +111,7 @@ export const StatsCards = ({ documentsCount }: StatsCardsProps) => {
         </div>
         <div>
           <p className="text-sm text-muted-foreground">Quiz Durchschnitt</p>
-          <p className="text-2xl font-bold">-</p>
+          <p className="text-2xl font-bold">{quizAverage}%</p>
         </div>
       </Card>
     </div>
