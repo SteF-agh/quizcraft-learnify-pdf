@@ -4,6 +4,7 @@ import { FileUpload } from "@/components/FileUpload";
 import { Switch } from "@/components/ui/switch";
 import { Globe, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Document {
   id: string;
