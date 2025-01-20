@@ -5,9 +5,9 @@ import { QuestionCard } from "@/components/quiz/QuestionCard";
 import { Mascot } from "@/components/quiz/Mascot";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { QuestionTypeSelector, QuestionType } from "@/components/quiz/QuestionTypeSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { QuizCompletionModal } from "@/components/quiz/completion/QuizCompletionModal";
+import { ChapterSelection } from "@/components/quiz/chapter-selection/ChapterSelection";
 
 interface Question {
   type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
@@ -24,7 +24,6 @@ const Quiz = () => {
   const [showMotivation, setShowMotivation] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
-  const [questionType, setQuestionType] = useState<QuestionType>('all');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [quizStats, setQuizStats] = useState({
@@ -34,46 +33,54 @@ const Quiz = () => {
   
   const location = useLocation();
   const navigate = useNavigate();
+  const [documentId, setDocumentId] = useState<string | null>(null);
 
   useEffect(() => {
-    checkDocumentId();
-  }, [location.search, navigate]);
-
-  const checkDocumentId = () => {
     const searchParams = new URLSearchParams(location.search);
-    const documentId = searchParams.get('documentId');
+    const docId = searchParams.get('documentId');
 
-    if (!documentId) {
+    if (!docId) {
       toast.error("Wähle eine Datei aus, für die ein Quiz erzeugt werden soll");
       navigate('/learning-mode');
+      return;
     }
-    setLoading(false);
-  };
 
-  const generateQuestions = async () => {
+    setDocumentId(docId);
+    setLoading(false);
+  }, [location.search, navigate]);
+
+  const loadQuestions = async (selectedChapter: string | null) => {
     try {
       setIsGenerating(true);
-      const searchParams = new URLSearchParams(location.search);
-      const documentId = searchParams.get('documentId');
+      console.log('Loading questions for chapter:', selectedChapter);
 
-      if (!documentId) {
-        throw new Error("Keine Datei ausgewählt");
+      let query = supabase
+        .from('quiz_questions')
+        .select('*')
+        .eq('document_id', documentId);
+
+      if (selectedChapter) {
+        query = query.eq('chapter', selectedChapter);
       }
 
-      const { data, error } = await supabase.functions.invoke('generate-questions', {
-        body: { documentId, questionType }
-      });
+      const { data, error } = await query;
 
       if (error) throw error;
 
-      setQuestions(data.questions);
+      if (!data || data.length === 0) {
+        toast.error("Keine Fragen gefunden");
+        return;
+      }
+
+      // Shuffle questions
+      const shuffledQuestions = data.sort(() => Math.random() - 0.5);
+      setQuestions(shuffledQuestions);
       setCurrentQuestion(0);
       setSelectedAnswer(null);
       setQuizStats({ correctAnswers: 0, totalPoints: 0 });
-      toast.success("Fragen wurden erfolgreich generiert!");
     } catch (error) {
-      console.error('Error generating questions:', error);
-      toast.error("Fehler beim Generieren der Fragen");
+      console.error('Error loading questions:', error);
+      toast.error("Fehler beim Laden der Fragen");
     } finally {
       setIsGenerating(false);
     }
@@ -120,12 +127,7 @@ const Quiz = () => {
       setCurrentQuestion(prev => prev + 1);
       setSelectedAnswer(null);
     } else {
-      // Quiz completed
       try {
-        const searchParams = new URLSearchParams(location.search);
-        const documentId = searchParams.get('documentId');
-        
-        // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
@@ -133,7 +135,6 @@ const Quiz = () => {
           return;
         }
 
-        // Save quiz results with user_id
         const { error: quizError } = await supabase
           .from('quiz_results')
           .insert({
@@ -146,7 +147,6 @@ const Quiz = () => {
 
         if (quizError) throw quizError;
 
-        // Update user stats
         const { error: statsError } = await supabase
           .from('user_stats')
           .upsert({
@@ -166,9 +166,13 @@ const Quiz = () => {
     }
   };
 
+  const handleStartQuiz = (selectedChapter: string | null) => {
+    loadQuestions(selectedChapter);
+  };
+
   const handleContinueQuiz = () => {
     setShowCompletionModal(false);
-    generateQuestions();
+    navigate('/learning-mode');
   };
 
   if (loading) {
@@ -190,19 +194,10 @@ const Quiz = () => {
       <div className="min-h-screen bg-gradient-to-br from-background to-primary/5 py-12">
         {questions.length === 0 ? (
           <div className="container mx-auto max-w-3xl px-4 mt-8">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg border border-primary/10">
-              <QuestionTypeSelector
-                selectedType={questionType}
-                onTypeSelect={setQuestionType}
-              />
-              <button
-                onClick={generateQuestions}
-                disabled={isGenerating}
-                className="mt-8 w-full bg-gradient-to-r from-primary to-secondary text-white rounded-lg py-4 font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 text-lg"
-              >
-                {isGenerating ? "Generiere Fragen..." : "Quiz generieren"}
-              </button>
-            </div>
+            <ChapterSelection
+              documentId={documentId!}
+              onStart={handleStartQuiz}
+            />
           </div>
         ) : (
           <>
