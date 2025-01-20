@@ -13,7 +13,6 @@ export const useQuestionHandlingLogic = (
     try {
       console.log("Attempting to save question:", state.currentQuestion);
       
-      // Insert question without authentication check for testing
       const { error } = await supabase.from("quiz_questions").insert([
         {
           document_id: state.currentQuestion.documentId,
@@ -26,8 +25,6 @@ export const useQuestionHandlingLogic = (
           course_name: state.currentQuestion.courseName,
           chapter: state.currentQuestion.chapter,
           topic: state.currentQuestion.topic,
-          // For testing, we use a default user ID
-          created_by: '00000000-0000-0000-0000-000000000000'
         },
       ]);
 
