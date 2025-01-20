@@ -14,7 +14,7 @@ export interface Question {
   }[];
   feedback?: string;
   learning_objective_id?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
 }
 
 export interface Document {

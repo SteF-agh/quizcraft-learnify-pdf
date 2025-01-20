@@ -39,7 +39,7 @@ export const QuestionDialog = ({
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold mb-2">Frage:</h3>
-            <p>{currentQuestion.questionText}</p>
+            <p>{currentQuestion.question_text}</p>
           </div>
           <div>
             <h3 className="font-semibold mb-2">Antworten:</h3>

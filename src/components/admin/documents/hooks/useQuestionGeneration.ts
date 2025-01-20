@@ -65,10 +65,10 @@ export const useQuestionGeneration = (onRefetch: () => void) => {
         question_text: currentQuestion.question_text,
         type: currentQuestion.type,
         points: currentQuestion.points,
-        answers: currentQuestion.answers,
+        answers: JSON.stringify(currentQuestion.answers),
         feedback: currentQuestion.feedback,
         learning_objective_id: currentQuestion.learning_objective_id,
-        metadata: currentQuestion.metadata
+        metadata: JSON.stringify(currentQuestion.metadata || {})
       };
 
       const { error } = await supabase
