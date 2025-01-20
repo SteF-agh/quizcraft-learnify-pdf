@@ -1,5 +1,5 @@
 export interface Question {
-  type: 'multiple-choice' | 'true-false' | 'open' | 'matching' | 'fill-in';
+  type: 'multiple-choice' | 'single-choice' | 'true-false';
   text: string;
   options?: string[];
   correctAnswer: string | number | boolean;
@@ -10,7 +10,7 @@ export interface DatabaseQuestion {
   document_id: string;
   chapter: string;
   question_text: string;
-  type: 'multiple-choice' | 'true-false';
+  type: 'multiple-choice' | 'single-choice' | 'true-false';
   answers: {
     options?: string[];
     correctAnswer: string | number | boolean;

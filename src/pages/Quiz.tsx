@@ -1,33 +1,36 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { QuizHeader } from "@/components/quiz/QuizHeader";
-import { QuestionCard } from "@/components/quiz/QuestionCard";
-import { Mascot } from "@/components/quiz/Mascot";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { QuizCompletionModal } from "@/components/quiz/completion/QuizCompletionModal";
 import { ChapterSelection } from "@/components/quiz/chapter-selection/ChapterSelection";
-import { Question, DatabaseQuestion } from "@/components/quiz/types/QuestionTypes";
+import { QuizProgress } from "@/components/quiz/progress/QuizProgress";
+import { useQuizLogic } from "@/components/quiz/hooks/useQuizLogic";
 
 const POINTS_PER_CORRECT_ANSWER = 10;
 
 const Quiz = () => {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showMotivation, setShowMotivation] = useState(false);
-  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [quizStats, setQuizStats] = useState({
-    correctAnswers: 0,
-    totalPoints: 0,
-  });
+  const [documentId, setDocumentId] = useState<string | null>(null);
   
   const location = useLocation();
   const navigate = useNavigate();
-  const [documentId, setDocumentId] = useState<string | null>(null);
+  
+  const {
+    currentQuestion,
+    selectedAnswer,
+    showMotivation,
+    questions,
+    isGenerating,
+    showCompletionModal,
+    quizStats,
+    setCurrentQuestion,
+    setSelectedAnswer,
+    setShowMotivation,
+    setShowCompletionModal,
+    setQuizStats,
+    loadQuestions,
+  } = useQuizLogic(documentId);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -43,54 +46,6 @@ const Quiz = () => {
     setLoading(false);
   }, [location.search, navigate]);
 
-  const mapDatabaseQuestionToFrontend = (dbQuestion: DatabaseQuestion): Question => {
-    return {
-      type: dbQuestion.type,
-      text: dbQuestion.question_text,
-      options: dbQuestion.answers.options,
-      correctAnswer: dbQuestion.answers.correctAnswer,
-    };
-  };
-
-  const loadQuestions = async (selectedChapter: string | null) => {
-    try {
-      setIsGenerating(true);
-      console.log('Loading questions for chapter:', selectedChapter);
-
-      let query = supabase
-        .from('quiz_questions')
-        .select('*')
-        .eq('document_id', documentId);
-
-      if (selectedChapter) {
-        query = query.eq('chapter', selectedChapter);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
-        toast.error("Keine Fragen gefunden");
-        return;
-      }
-
-      // Map database questions to frontend format and shuffle them
-      const mappedQuestions = data.map(mapDatabaseQuestionToFrontend);
-      const shuffledQuestions = mappedQuestions.sort(() => Math.random() - 0.5);
-      
-      setQuestions(shuffledQuestions);
-      setCurrentQuestion(0);
-      setSelectedAnswer(null);
-      setQuizStats({ correctAnswers: 0, totalPoints: 0 });
-    } catch (error) {
-      console.error('Error loading questions:', error);
-      toast.error("Fehler beim Laden der Fragen");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   const handleAnswerSelect = (index: number) => {
     setSelectedAnswer(index);
     checkAnswer(index);
@@ -100,7 +55,7 @@ const Quiz = () => {
     const currentQ = questions[currentQuestion];
     let isCorrect = false;
 
-    if (currentQ.type === 'multiple-choice' || currentQ.type === 'matching' || currentQ.type === 'fill-in') {
+    if (currentQ.type === 'multiple-choice' || currentQ.type === 'single-choice') {
       isCorrect = index === currentQ.correctAnswer;
     } else if (currentQ.type === 'true-false') {
       isCorrect = index === (currentQ.correctAnswer ? 0 : 1);
@@ -192,8 +147,6 @@ const Quiz = () => {
     );
   }
 
-  const progress = questions.length > 0 ? ((currentQuestion + 1) / questions.length) * 100 : 0;
-
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-background to-primary/5 py-12">
@@ -205,34 +158,18 @@ const Quiz = () => {
             />
           </div>
         ) : (
-          <>
-            <QuizHeader 
-              currentQuestion={currentQuestion}
-              totalQuestions={questions.length}
-              progress={progress}
-            />
-
-            <div className="container mx-auto max-w-3xl px-4">
-              <QuestionCard
-                question={questions[currentQuestion]}
-                selectedAnswer={selectedAnswer}
-                onAnswerSelect={handleAnswerSelect}
-                onNextQuestion={handleNextQuestion}
-                isLastQuestion={currentQuestion >= questions.length - 1}
-              />
-            </div>
-
-            <Mascot showMotivation={showMotivation} />
-
-            <QuizCompletionModal
-              isOpen={showCompletionModal}
-              onClose={() => setShowCompletionModal(false)}
-              points={quizStats.totalPoints}
-              correctAnswers={quizStats.correctAnswers}
-              totalQuestions={questions.length}
-              onContinue={handleContinueQuiz}
-            />
-          </>
+          <QuizProgress
+            currentQuestion={currentQuestion}
+            questions={questions}
+            selectedAnswer={selectedAnswer}
+            showMotivation={showMotivation}
+            showCompletionModal={showCompletionModal}
+            quizStats={quizStats}
+            onAnswerSelect={handleAnswerSelect}
+            onNextQuestion={handleNextQuestion}
+            onContinue={handleContinueQuiz}
+            onCloseModal={() => setShowCompletionModal(false)}
+          />
         )}
       </div>
     </Layout>
