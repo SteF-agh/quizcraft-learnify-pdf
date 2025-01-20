@@ -66,6 +66,22 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     setSelectedDocumentId(documentId);
     try {
       console.log('Fetching questions for document:', documentId);
+      
+      // First, let's check if the document exists
+      const { data: document, error: documentError } = await supabase
+        .from("documents")
+        .select("*")
+        .eq("id", documentId)
+        .single();
+
+      if (documentError) {
+        console.error("Error fetching document:", documentError);
+        throw documentError;
+      }
+
+      console.log('Found document:', document);
+
+      // Now fetch the questions
       const { data: existingQuestions, error: fetchError } = await supabase
         .from("quiz_questions")
         .select("*")
@@ -93,7 +109,10 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         difficulty: q.difficulty,
         points: q.points,
         document_id: q.document_id,
-        answers: q.answers
+        answers: q.answers,
+        course_name: q.course_name,
+        chapter: q.chapter,
+        topic: q.topic
       }));
 
       console.log('Formatted questions:', formattedQuestions);

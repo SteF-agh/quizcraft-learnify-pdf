@@ -14,6 +14,9 @@ interface Question {
   type: string;
   difficulty: string;
   points: number;
+  course_name: string;
+  chapter: string;
+  topic: string;
   answers?: Array<{ text: string; isCorrect: boolean }>;
 }
 
@@ -38,6 +41,9 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
           <TableHeader>
             <TableRow>
               <TableHead>Frage</TableHead>
+              <TableHead>Kurs</TableHead>
+              <TableHead>Kapitel</TableHead>
+              <TableHead>Thema</TableHead>
               <TableHead>Typ</TableHead>
               <TableHead>Schwierigkeit</TableHead>
               <TableHead>Punkte</TableHead>
@@ -47,6 +53,9 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
             {questions.map((question) => (
               <TableRow key={question.id}>
                 <TableCell className="max-w-xl truncate">{question.question_text}</TableCell>
+                <TableCell>{question.course_name}</TableCell>
+                <TableCell>{question.chapter}</TableCell>
+                <TableCell>{question.topic}</TableCell>
                 <TableCell>{question.type}</TableCell>
                 <TableCell>{question.difficulty}</TableCell>
                 <TableCell>{question.points}</TableCell>
