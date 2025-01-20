@@ -1,11 +1,15 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { formatFileSize } from "@/utils/formatters";
 import { DocumentRow } from "./DocumentRow";
 
-interface Document {
+export interface Document {
   id: string;
   name: string;
   created_at: string;
   file_size?: number;
+  content_type?: string;
+  is_public: boolean;
+  assigned_to: string[];
 }
 
 interface DocumentTableProps {
@@ -16,34 +20,34 @@ interface DocumentTableProps {
 export const DocumentTable = ({ documents, onAssignDocument }: DocumentTableProps) => {
   if (!documents.length) {
     return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">Keine öffentlichen Dokumente verfügbar</p>
+      <div className="text-center py-8 text-muted-foreground">
+        Keine öffentlichen Dokumente verfügbar
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="rounded-md border min-w-[800px]">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px]">Name</TableHead>
-              <TableHead className="w-[100px]">Größe</TableHead>
-              <TableHead className="w-[150px]">Upload Datum</TableHead>
-              <TableHead className="w-[170px]">Aktionen</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+    <div className="w-full">
+      <div className="rounded-md border">
+        <table className="w-full caption-bottom text-sm">
+          <thead className="border-b">
+            <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+              <th className="h-12 px-4 text-left align-middle font-medium">Name</th>
+              <th className="h-12 px-4 text-left align-middle font-medium">Größe</th>
+              <th className="h-12 px-4 text-left align-middle font-medium">Datum</th>
+              <th className="h-12 px-4 text-left align-middle font-medium">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
             {documents.map((doc) => (
               <DocumentRow
                 key={doc.id}
                 document={doc}
-                onAssign={onAssignDocument}
+                onAssign={() => onAssignDocument(doc.id)}
               />
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
     </div>
   );

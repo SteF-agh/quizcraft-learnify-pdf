@@ -1,36 +1,42 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { formatFileSize } from "@/utils/formatters";
+import { Plus } from "lucide-react";
+
+interface Document {
+  id: string;
+  name: string;
+  created_at: string;
+  file_size?: number;
+}
 
 interface DocumentRowProps {
-  document: {
-    id: string;
-    name: string;
-    file_size?: number;
-    created_at: string;
-  };
-  onAssign: (id: string) => void;
+  document: Document;
+  onAssign: () => void;
 }
 
 export const DocumentRow = ({ document, onAssign }: DocumentRowProps) => {
   return (
-    <TableRow>
-      <TableCell className="font-medium">{document.name}</TableCell>
-      <TableCell>
-        {document.file_size ? `${Math.round(document.file_size / 1024)} KB` : 'N/A'}
+    <TableRow className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+      <TableCell className="p-4 align-middle">{document.name}</TableCell>
+      <TableCell className="p-4 align-middle">
+        {document.file_size ? formatFileSize(document.file_size) : 'N/A'}
       </TableCell>
-      <TableCell>
+      <TableCell className="p-4 align-middle">
         {new Date(document.created_at).toLocaleDateString('de-DE', {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric'
         })}
       </TableCell>
-      <TableCell>
+      <TableCell className="p-4 align-middle">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onAssign(document.id)}
+          onClick={onAssign}
+          className="flex items-center gap-2"
         >
+          <Plus className="h-4 w-4" />
           Hinzufügen
         </Button>
       </TableCell>
