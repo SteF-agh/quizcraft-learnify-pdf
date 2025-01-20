@@ -94,7 +94,7 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     try {
       const { error } = await supabase
         .from('quiz_questions')
-        .insert([{
+        .insert({
           course_name: currentQuestion.courseName,
           chapter: currentQuestion.chapter,
           topic: currentQuestion.topic,
@@ -105,9 +105,9 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
           answers: currentQuestion.answers,
           feedback: currentQuestion.feedback,
           learning_objective_id: currentQuestion.learningObjectiveId,
-          metadata: currentQuestion.metadata,
+          metadata: currentQuestion.metadata as Json,
           document_id: documents.find(d => d.name === currentQuestion.courseName)?.id
-        }]);
+        });
 
       if (error) throw error;
 

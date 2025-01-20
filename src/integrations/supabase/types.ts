@@ -194,52 +194,52 @@ export type Database = {
       }
       quiz_questions: {
         Row: {
-          id: string
-          document_id: string | null
-          course_name: string
-          chapter: string
-          topic: string
-          difficulty: 'easy' | 'medium' | 'advanced'
-          question_text: string
-          type: 'multiple-choice' | 'single-choice' | 'true-false'
-          points: number
           answers: Json
+          chapter: string
+          course_name: string
+          created_at: string
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
+          document_id: string | null
           feedback: string | null
+          id: string
           learning_objective_id: string | null
           metadata: Json | null
-          created_at: string
+          points: number
+          question_text: string
+          topic: string
+          type: Database["public"]["Enums"]["question_type"]
         }
         Insert: {
-          id?: string
-          document_id?: string | null
-          course_name: string
-          chapter: string
-          topic: string
-          difficulty: 'easy' | 'medium' | 'advanced'
-          question_text: string
-          type: 'multiple-choice' | 'single-choice' | 'true-false'
-          points?: number
           answers: Json
+          chapter: string
+          course_name: string
+          created_at?: string
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
+          document_id?: string | null
           feedback?: string | null
+          id?: string
           learning_objective_id?: string | null
           metadata?: Json | null
-          created_at?: string
+          points?: number
+          question_text: string
+          topic: string
+          type: Database["public"]["Enums"]["question_type"]
         }
         Update: {
-          id?: string
-          document_id?: string | null
-          course_name?: string
-          chapter?: string
-          topic?: string
-          difficulty?: 'easy' | 'medium' | 'advanced'
-          question_text?: string
-          type?: 'multiple-choice' | 'single-choice' | 'true-false'
-          points?: number
           answers?: Json
+          chapter?: string
+          course_name?: string
+          created_at?: string
+          difficulty?: Database["public"]["Enums"]["difficulty_level"]
+          document_id?: string | null
           feedback?: string | null
+          id?: string
           learning_objective_id?: string | null
           metadata?: Json | null
-          created_at?: string
+          points?: number
+          question_text?: string
+          topic?: string
+          type?: Database["public"]["Enums"]["question_type"]
         }
         Relationships: [
           {
@@ -248,7 +248,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "documents"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       quiz_results: {
@@ -378,7 +378,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -390,10 +390,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<
@@ -432,10 +432,10 @@ export type TablesUpdate<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-      Update: infer U
-    }
-    ? U
-    : never
+        Update: infer U
+      }
+      ? U
+      : never
     : never
 
 export type Enums<
