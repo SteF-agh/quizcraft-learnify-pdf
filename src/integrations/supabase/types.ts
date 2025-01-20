@@ -260,6 +260,7 @@ export type Database = {
           correct_answers: number | null
           document_id: string | null
           id: string
+          is_public: boolean | null
           total_points: number | null
           total_questions: number | null
           user_id: string
@@ -269,6 +270,7 @@ export type Database = {
           correct_answers?: number | null
           document_id?: string | null
           id?: string
+          is_public?: boolean | null
           total_points?: number | null
           total_questions?: number | null
           user_id: string
@@ -278,6 +280,7 @@ export type Database = {
           correct_answers?: number | null
           document_id?: string | null
           id?: string
+          is_public?: boolean | null
           total_points?: number | null
           total_questions?: number | null
           user_id?: string

@@ -1,14 +1,13 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { formatFileSize } from "@/utils/formatters";
-import { DocumentProgress } from "./DocumentProgress";
-import { Button } from "@/components/ui/button";
-import { GraduationCap, Trash2, Clock, Award, FileText, Timer, Share2 } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { DocumentActions } from "./document-actions/DocumentActions";
+import { DocumentStats } from "./document-stats/DocumentStats";
 
 interface DocumentRowProps {
   document: {
@@ -27,7 +26,9 @@ export const DocumentRow = ({
   coins
 }: DocumentRowProps) => {
   const navigate = useNavigate();
-  const daysSinceCreation = Math.floor((Date.now() - new Date(document.created_at).getTime()) / (1000 * 60 * 60 * 24));
+  const daysSinceCreation = Math.floor(
+    (Date.now() - new Date(document.created_at).getTime()) / (1000 * 60 * 60 * 24)
+  );
   
   const { data: quizStats } = useQuery({
     queryKey: ['quiz-stats', document.id],
@@ -49,7 +50,7 @@ export const DocumentRow = ({
         totalAttempts: results.length,
         averageScore: results.length > 0 
           ? Math.round(results.reduce((acc, curr) => acc + (curr.correct_answers / curr.total_questions * 100), 0) / results.length)
-          : 0,
+          : undefined,
         lastAttempt: results[0]?.completed_at
       };
     }
@@ -57,23 +58,6 @@ export const DocumentRow = ({
 
   const handleStartLearning = () => {
     navigate(`/learning-mode?documentId=${document.id}`);
-  };
-
-  const handleShareResults = async () => {
-    try {
-      const { data: results, error } = await supabase
-        .from('quiz_results')
-        .update({ is_public: true })
-        .eq('document_id', document.id)
-        .eq('user_id', '00000000-0000-0000-0000-000000000000');
-
-      if (error) throw error;
-
-      toast.success("Lernergebnisse wurden erfolgreich freigegeben!");
-    } catch (error) {
-      console.error('Error sharing results:', error);
-      toast.error("Fehler beim Freigeben der Lernergebnisse");
-    }
   };
 
   return (
@@ -97,71 +81,22 @@ export const DocumentRow = ({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={handleShareResults}
-                className="gap-2"
-                variant="outline"
-                size="lg"
-              >
-                <Share2 className="h-5 w-5" />
-                Ergebnisse freigeben
-              </Button>
-              <Button
-                onClick={handleStartLearning}
-                className="gap-2 bg-primary hover:bg-primary/90 text-white"
-                size="lg"
-              >
-                <GraduationCap className="h-5 w-5" />
-                Lernen
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onDelete}
-                className="h-10 w-10"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
+            
+            <DocumentActions
+              documentId={document.id}
+              onDelete={onDelete}
+              onStartLearning={handleStartLearning}
+            />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2">
-              <Award className="h-4 w-4 text-yellow-500" />
-              <div>
-                <span className="text-sm font-medium">{coins} Coins</span>
-                {quizStats?.totalAttempts > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    Ø {quizStats.averageScore}% Erfolg
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Timer className="h-4 w-4 text-blue-500" />
-              <div>
-                <span className="text-sm font-medium">{quizStats?.totalAttempts || 0} Quiz(ze)</span>
-                {quizStats?.lastAttempt && (
-                  <p className="text-xs text-muted-foreground">
-                    Letztes: {new Date(quizStats.lastAttempt).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-green-500" />
-              <div>
-                <span className="text-sm font-medium">
-                  Erstellt: {new Date(document.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-
-            <DocumentProgress documentId={document.id} />
-          </div>
+          <DocumentStats
+            coins={coins}
+            averageScore={quizStats?.averageScore}
+            totalAttempts={quizStats?.totalAttempts || 0}
+            lastAttempt={quizStats?.lastAttempt}
+            createdAt={document.created_at}
+            documentId={document.id}
+          />
         </Card>
       </TableCell>
     </TableRow>
