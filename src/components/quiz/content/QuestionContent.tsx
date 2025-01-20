@@ -1,7 +1,6 @@
 import { Question, BaseQuestionProps } from "../types/QuestionTypes";
 import { MultipleChoiceQuestion } from "../question-types/MultipleChoiceQuestion";
 import { TrueFalseQuestion } from "../question-types/TrueFalseQuestion";
-import { OpenQuestion } from "../question-types/OpenQuestion";
 
 interface QuestionContentProps extends BaseQuestionProps {
   question: Question;
@@ -18,8 +17,7 @@ export const QuestionContent = ({
 }: QuestionContentProps) => {
   switch (question.type) {
     case 'multiple-choice':
-    case 'matching':
-    case 'fill-in':
+    case 'single-choice':
       return (
         <MultipleChoiceQuestion
           options={question.options || []}
@@ -33,14 +31,6 @@ export const QuestionContent = ({
         <TrueFalseQuestion
           selectedAnswer={selectedAnswer}
           onAnswerSelect={onAnswerSelect}
-        />
-      );
-
-    case 'open':
-      return (
-        <OpenQuestion
-          value={openAnswer}
-          onChange={setOpenAnswer}
         />
       );
 

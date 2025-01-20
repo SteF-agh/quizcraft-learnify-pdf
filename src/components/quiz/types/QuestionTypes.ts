@@ -15,6 +15,15 @@ export interface DatabaseQuestion {
     options?: string[];
     correctAnswer: string | number | boolean;
   };
+  course_name: string;
+  topic: string;
+  difficulty: 'easy' | 'medium' | 'advanced';
+  points: number;
+  feedback?: string;
+  learning_objective_id?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  created_by?: string;
 }
 
 export interface BaseQuestionProps {

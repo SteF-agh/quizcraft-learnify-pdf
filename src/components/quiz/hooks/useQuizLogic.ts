@@ -47,7 +47,7 @@ export const useQuizLogic = (documentId: string | null) => {
         return;
       }
 
-      const mappedQuestions = data.map(mapDatabaseQuestionToFrontend);
+      const mappedQuestions = data.map((dbQuestion: DatabaseQuestion) => mapDatabaseQuestionToFrontend(dbQuestion));
       const shuffledQuestions = mappedQuestions.sort(() => Math.random() - 0.5);
       
       setQuestions(shuffledQuestions);
