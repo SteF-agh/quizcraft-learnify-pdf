@@ -4,11 +4,15 @@ import { StatsSection } from "@/components/dashboard/StatsSection";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trophy, Coins } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDocuments } from "@/hooks/useDocuments";
 
 const Dashboard = () => {
-  // Mock data for testing
-  const progress = 65;
-  const mockDocuments = [];
+  const { 
+    documents, 
+    selectedDocument, 
+    setSelectedDocument, 
+    handleDocumentDeleted 
+  } = useDocuments();
   
   return (
     <Layout>
@@ -37,12 +41,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <StatsSection progress={progress} />
+        <StatsSection progress={65} />
         <DocumentSection 
-          documents={mockDocuments}
-          selectedDocument={null}
-          onSelectDocument={() => {}}
-          onDocumentDeleted={() => {}}
+          documents={documents}
+          selectedDocument={selectedDocument}
+          onSelectDocument={setSelectedDocument}
+          onDocumentDeleted={handleDocumentDeleted}
           onStartLearning={() => {}}
         />
       </div>
