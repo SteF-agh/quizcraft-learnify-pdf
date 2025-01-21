@@ -39,7 +39,7 @@ export const QuestionCard = ({
     <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-white to-primary/5">
       <CardHeader className="space-y-4">
         <CardTitle className="text-2xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-          {question.text}
+          {question.question_text}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
