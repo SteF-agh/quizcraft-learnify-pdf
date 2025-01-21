@@ -10,7 +10,7 @@ export const FileInput = ({ isUploading, onFileSelect }: FileInputProps) => {
     <div className="mt-4">
       <input
         type="file"
-        accept=".json"
+        accept=".json,.xlsx,.xls"
         onChange={onFileSelect}
         disabled={isUploading}
         className="hidden"
@@ -24,7 +24,7 @@ export const FileInput = ({ isUploading, onFileSelect }: FileInputProps) => {
           asChild
         >
           <span>
-            {isUploading ? "Lade Fragen hoch..." : "Fragen aus JSON-Datei hochladen"}
+            {isUploading ? "Lade Fragen hoch..." : "Fragen aus JSON oder Excel hochladen"}
           </span>
         </Button>
       </label>
