@@ -29,20 +29,11 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Fetch document with timeout
-    const fetchPromise = supabase
+    const { data: document, error: docError } = await supabase
       .from('documents')
       .select('*')
       .eq('id', documentId)
       .single();
-    
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Document fetch timeout')), 5000)
-    );
-
-    const { data: document, error: docError } = await Promise.race([
-      fetchPromise,
-      timeoutPromise
-    ]);
 
     if (docError || !document) {
       console.error('Document not found:', docError);
@@ -51,7 +42,7 @@ serve(async (req) => {
 
     console.log('Found document:', document.name);
 
-    // Get PDF content with timeout
+    // Get PDF content
     const { data: fileData, error: fileError } = await supabase
       .storage
       .from('pdfs')
@@ -65,25 +56,12 @@ serve(async (req) => {
     const arrayBuffer = await fileData.arrayBuffer();
     console.log('PDF downloaded, size:', arrayBuffer.byteLength);
 
+    // Extract first 2000 characters of text to keep processing quick
     const pdfText = await extractTextFromPdf(arrayBuffer);
-    console.log('Extracted text length:', pdfText.length);
+    const truncatedText = pdfText.slice(0, 2000);
+    console.log('Extracted and truncated text length:', truncatedText.length);
 
-    if (!pdfText || pdfText.length < 100) {
-      throw new Error('Could not extract meaningful text from PDF');
-    }
-
-    // Split text into chunks to avoid token limits
-    const maxChunkLength = 4000;
-    const textChunks = [];
-    for (let i = 0; i < pdfText.length; i += maxChunkLength) {
-      textChunks.push(pdfText.slice(i, i + maxChunkLength));
-    }
-    console.log('Split text into', textChunks.length, 'chunks');
-
-    // Process first chunk only for initial questions
-    const chunk = textChunks[0];
-    console.log('Processing first chunk, length:', chunk.length);
-
+    // Generate only 3 questions to avoid timeouts
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -95,26 +73,25 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Erstelle genau 3 Fragen basierend auf dem Text.
-            Format der Antwort MUSS exakt sein:
+            content: `Generate exactly 3 questions based on the text. Format:
             {
               "questions": [
                 {
                   "document_id": "${documentId}",
-                  "course_name": "Name des Kurses aus dem Inhalt",
-                  "chapter": "Kapitelnummer und -name",
-                  "topic": "Spezifisches Thema",
+                  "course_name": "Name from content",
+                  "chapter": "Chapter from content",
+                  "topic": "Specific topic",
                   "difficulty": "easy/medium/advanced",
-                  "question_text": "Die Frage",
+                  "question_text": "The question",
                   "type": "multiple-choice/single-choice/true-false",
                   "points": 5/10/15,
                   "answers": [
                     {
-                      "text": "Antworttext",
+                      "text": "Answer text",
                       "isCorrect": true/false
                     }
                   ],
-                  "feedback": "Erklärung",
+                  "feedback": "Explanation",
                   "metadata": {}
                 }
               ]
@@ -122,10 +99,11 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: `Erstelle Fragen zu diesem Text: ${chunk}`
+            content: `Generate questions for this text: ${truncatedText}`
           }
         ],
         temperature: 0.7,
+        max_tokens: 1000,
       }),
     });
 
@@ -149,7 +127,6 @@ serve(async (req) => {
 
       // Validate questions
       parsedContent.questions.forEach((question: any, index: number) => {
-        console.log(`Validating question ${index + 1}`);
         const requiredFields = [
           'document_id', 'course_name', 'chapter', 'topic', 'difficulty',
           'question_text', 'type', 'points', 'answers', 'feedback'
@@ -163,30 +140,6 @@ serve(async (req) => {
 
         if (!Array.isArray(question.answers)) {
           throw new Error(`Question ${index + 1} has invalid answers format`);
-        }
-
-        // Validate answers based on question type
-        if (question.type === 'true-false' && question.answers.length !== 2) {
-          throw new Error(`Question ${index + 1} (true-false) must have exactly 2 answers`);
-        }
-
-        if (['multiple-choice', 'single-choice'].includes(question.type) && question.answers.length !== 4) {
-          throw new Error(`Question ${index + 1} (${question.type}) must have exactly 4 answers`);
-        }
-
-        // Validate correct answers
-        if (['single-choice', 'true-false'].includes(question.type)) {
-          const correctAnswers = question.answers.filter((a: any) => a.isCorrect);
-          if (correctAnswers.length !== 1) {
-            throw new Error(`Question ${index + 1} must have exactly one correct answer`);
-          }
-        }
-
-        if (question.type === 'multiple-choice') {
-          const correctAnswers = question.answers.filter((a: any) => a.isCorrect);
-          if (correctAnswers.length === 0) {
-            throw new Error(`Question ${index + 1} must have at least one correct answer`);
-          }
         }
       });
 
