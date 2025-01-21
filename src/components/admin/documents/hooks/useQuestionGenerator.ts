@@ -29,17 +29,6 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
         throw new Error('Ungültiges Antwortformat vom Server');
       }
 
-      // Group questions by chapter
-      const questionsByChapter = response.questions.reduce((acc: Record<string, GeneratedQuestion[]>, question: GeneratedQuestion) => {
-        if (!acc[question.chapter]) {
-          acc[question.chapter] = [];
-        }
-        acc[question.chapter].push(question);
-        return acc;
-      }, {});
-
-      console.log('Questions grouped by chapter:', questionsByChapter);
-
       setState(prev => ({
         ...prev,
         currentQuestions: response.questions,
