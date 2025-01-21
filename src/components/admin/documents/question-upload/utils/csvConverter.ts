@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { CsvQuestion, Question } from '../types';
+import { CsvQuestion, Question } from '../../types';
 
 const mapDifficulty = (difficulty: string): "easy" | "medium" | "advanced" => {
   const difficultyMap: { [key: string]: "easy" | "medium" | "advanced" } = {
