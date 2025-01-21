@@ -66,7 +66,7 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
 
       console.log('Fetched questions:', existingQuestions);
 
-      if (!existingQuestions || existingQuestions.length === 0) {
+      if (!existingQuestions) {
         toast.info("Keine Fragen für dieses Dokument gefunden");
         setQuestions([]);
         return;
@@ -128,12 +128,10 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         />
       )}
 
-      {questions.length > 0 && (
-        <QuestionsDisplay 
-          questions={questions} 
-          documentId={selectedDocumentId} 
-        />
-      )}
+      <QuestionsDisplay 
+        questions={questions} 
+        documentId={selectedDocumentId} 
+      />
 
       {showQuestionDialog && currentQuestions.length > 0 && (
         <QuestionDialog

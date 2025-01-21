@@ -16,12 +16,7 @@ interface QuestionsDisplayProps {
 }
 
 export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProps) => {
-  if (!documentId || questions.length === 0) {
-    console.log('No questions to display');
-    return null;
-  }
-
-  console.log('Rendering questions in QuestionsDisplay:', questions);
+  console.log('QuestionsDisplay rendered with:', { questions, documentId });
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -49,63 +44,79 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
     }
   };
 
+  if (!documentId) {
+    return (
+      <div className="bg-slate-50 p-6 rounded-lg border mt-8">
+        <h2 className="text-2xl font-semibold mb-2">Generierte bzw. hochgeladene Fragen</h2>
+        <p className="text-slate-600">
+          Bitte wählen Sie ein Dokument aus, um dessen Fragen anzuzeigen.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-slate-50 p-6 rounded-lg border mt-8">
       <h2 className="text-2xl font-semibold mb-2">Generierte bzw. hochgeladene Fragen</h2>
       <p className="text-slate-600 mb-4">
-        {questions.length} {questions.length === 1 ? 'Frage wurde' : 'Fragen wurden'} für dieses Dokument erfasst:
+        {questions.length === 0 
+          ? "Keine Fragen für dieses Dokument vorhanden." 
+          : `${questions.length} ${questions.length === 1 ? 'Frage wurde' : 'Fragen wurden'} für dieses Dokument erfasst:`
+        }
       </p>
-      <div className="rounded-md border bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Frage</TableHead>
-              <TableHead>Kurs</TableHead>
-              <TableHead>Kapitel</TableHead>
-              <TableHead>Thema</TableHead>
-              <TableHead>Typ</TableHead>
-              <TableHead>Schwierigkeit</TableHead>
-              <TableHead>Punkte</TableHead>
-              <TableHead>Antworten</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {questions.map((question) => (
-              <TableRow key={question.id}>
-                <TableCell className="max-w-md">
-                  <div className="truncate font-medium">{question.question_text}</div>
-                </TableCell>
-                <TableCell>{question.course_name}</TableCell>
-                <TableCell>{question.chapter}</TableCell>
-                <TableCell>{question.topic}</TableCell>
-                <TableCell>
-                  <Badge variant="outline">
-                    {getTypeLabel(question.type)}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge className={getDifficultyColor(question.difficulty)}>
-                    {question.difficulty}
-                  </Badge>
-                </TableCell>
-                <TableCell>{question.points}</TableCell>
-                <TableCell>
-                  <div className="max-w-xs">
-                    {question.answers.map((answer, index) => (
-                      <div 
-                        key={index} 
-                        className={`text-sm ${answer.isCorrect ? 'text-green-600 font-medium' : 'text-gray-600'}`}
-                      >
-                        • {answer.text}
-                      </div>
-                    ))}
-                  </div>
-                </TableCell>
+      {questions.length > 0 && (
+        <div className="rounded-md border bg-white">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Frage</TableHead>
+                <TableHead>Kurs</TableHead>
+                <TableHead>Kapitel</TableHead>
+                <TableHead>Thema</TableHead>
+                <TableHead>Typ</TableHead>
+                <TableHead>Schwierigkeit</TableHead>
+                <TableHead>Punkte</TableHead>
+                <TableHead>Antworten</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {questions.map((question) => (
+                <TableRow key={question.id}>
+                  <TableCell className="max-w-md">
+                    <div className="truncate font-medium">{question.question_text}</div>
+                  </TableCell>
+                  <TableCell>{question.course_name}</TableCell>
+                  <TableCell>{question.chapter}</TableCell>
+                  <TableCell>{question.topic}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {getTypeLabel(question.type)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getDifficultyColor(question.difficulty)}>
+                      {question.difficulty}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{question.points}</TableCell>
+                  <TableCell>
+                    <div className="max-w-xs">
+                      {question.answers.map((answer, index) => (
+                        <div 
+                          key={index} 
+                          className={`text-sm ${answer.isCorrect ? 'text-green-600 font-medium' : 'text-gray-600'}`}
+                        >
+                          • {answer.text}
+                        </div>
+                      ))}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 };
