@@ -1,4 +1,4 @@
-export const formatFileSize = (bytes?: number) => {
+export const formatBytes = (bytes?: number) => {
   if (!bytes) return 'Größe nicht verfügbar';
   const units = ['B', 'KB', 'MB', 'GB'];
   let size = bytes;
