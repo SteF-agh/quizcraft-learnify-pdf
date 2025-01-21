@@ -1,5 +1,5 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { formatBytes } from "@/utils/formatters";
+import { formatFileSize } from "@/utils/formatters";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import { Switch } from "@/components/ui/switch";
@@ -32,7 +32,7 @@ export const DocumentRow = ({
   return (
     <TableRow key={document.id}>
       <TableCell>{document.name}</TableCell>
-      <TableCell>{formatBytes(document.file_size || 0)}</TableCell>
+      <TableCell>{formatFileSize(document.file_size || 0)}</TableCell>
       <TableCell>
         {formatDistanceToNow(new Date(document.created_at), {
           addSuffix: true,
