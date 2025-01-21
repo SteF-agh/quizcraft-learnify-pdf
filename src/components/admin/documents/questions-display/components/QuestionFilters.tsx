@@ -30,45 +30,51 @@ export const QuestionFilters = ({
   onTopicChange,
 }: QuestionFiltersProps) => {
   return (
-    <div className="flex gap-4 mb-4">
-      <Select value={selectedCourse} onValueChange={onCourseChange}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Kurs auswählen" />
-        </SelectTrigger>
-        <SelectContent>
-          {courses.map((course) => (
-            <SelectItem key={course} value={course || "unknown"}>
-              {course === "all" ? "Alle Kurse" : (course || "Unbekannter Kurs")}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="flex flex-wrap gap-4 mb-6">
+      <div className="flex-1 min-w-[200px]">
+        <Select value={selectedCourse} onValueChange={onCourseChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Kurs auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {courses.map((course) => (
+              <SelectItem key={course} value={course}>
+                {course === 'all' ? 'Alle Kurse' : course}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-      <Select value={selectedChapter} onValueChange={onChapterChange}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Kapitel auswählen" />
-        </SelectTrigger>
-        <SelectContent>
-          {chapters.map((chapter) => (
-            <SelectItem key={chapter} value={chapter || "unknown"}>
-              {chapter === "all" ? "Alle Kapitel" : (chapter || "Unbekanntes Kapitel")}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex-1 min-w-[200px]">
+        <Select value={selectedChapter} onValueChange={onChapterChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Kapitel auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {chapters.map((chapter) => (
+              <SelectItem key={chapter} value={chapter}>
+                {chapter === 'all' ? 'Alle Kapitel' : chapter}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-      <Select value={selectedTopic} onValueChange={onTopicChange}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Thema auswählen" />
-        </SelectTrigger>
-        <SelectContent>
-          {topics.map((topic) => (
-            <SelectItem key={topic} value={topic || "unknown"}>
-              {topic === "all" ? "Alle Themen" : (topic || "Unbekanntes Thema")}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex-1 min-w-[200px]">
+        <Select value={selectedTopic} onValueChange={onTopicChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Thema auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {topics.map((topic) => (
+              <SelectItem key={topic} value={topic}>
+                {topic === 'all' ? 'Alle Themen' : topic}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };

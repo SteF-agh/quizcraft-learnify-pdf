@@ -61,9 +61,9 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
               <TableCell className="max-w-md">
                 <div className="truncate font-medium">{question.question_text}</div>
               </TableCell>
-              <TableCell>{question.course_name}</TableCell>
-              <TableCell>{question.chapter}</TableCell>
-              <TableCell>{question.topic}</TableCell>
+              <TableCell>{question.course_name || 'KI Manager'}</TableCell>
+              <TableCell>{question.chapter || 'Grundlagen'}</TableCell>
+              <TableCell>{question.topic || 'KI Basics'}</TableCell>
               <TableCell>
                 <Badge variant="outline">
                   {getTypeLabel(question.type)}
