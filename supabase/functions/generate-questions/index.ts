@@ -41,13 +41,21 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch document
-    console.log('Fetching document from database...');
-    const { data: document, error: documentError } = await supabase
+    // Fetch document with timeout
+    const fetchPromise = supabase
       .from('documents')
       .select('*')
       .eq('id', documentId)
       .single();
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database query timeout')), 5000)
+    );
+    
+    const { data: document, error: documentError } = await Promise.race([
+      fetchPromise,
+      timeoutPromise
+    ]);
 
     if (documentError) {
       console.error('Error fetching document:', documentError);
@@ -59,12 +67,16 @@ serve(async (req) => {
       throw new Error('Document not found');
     }
 
-    // Download PDF file
-    console.log('Downloading PDF file...');
-    const { data: fileData, error: downloadError } = await supabase
+    // Download PDF file with timeout
+    const downloadPromise = supabase
       .storage
       .from('pdfs')
       .download(document.file_path);
+    
+    const { data: fileData, error: downloadError } = await Promise.race([
+      downloadPromise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('File download timeout')), 5000))
+    ]);
 
     if (downloadError || !fileData) {
       console.error('Error downloading file:', downloadError);
@@ -82,11 +94,15 @@ serve(async (req) => {
       throw new Error('Not enough text extracted from PDF (minimum 100 characters required)');
     }
 
-    // Generate questions
+    // Generate questions with timeout
     console.log('Generating questions...');
-    const questions = await generateQuestions(text, documentId, openAIApiKey);
-    console.log('Questions generated successfully:', questions);
+    const questions = await Promise.race([
+      generateQuestions(text, documentId, openAIApiKey),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Question generation timeout')), 25000))
+    ]);
 
+    console.log('Questions generated successfully:', questions);
+    
     return new Response(
       JSON.stringify({ questions }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -96,7 +112,6 @@ serve(async (req) => {
     console.error('Error in generate-questions function:', error);
     console.error('Error stack:', error.stack);
     
-    // Return a more detailed error response
     return new Response(
       JSON.stringify({ 
         error: error.message,
