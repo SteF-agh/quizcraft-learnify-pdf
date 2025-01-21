@@ -49,9 +49,10 @@ serve(async (req) => {
       throw new Error('Failed to download PDF file');
     }
 
-    // Extract text from PDF
+    // Extract text from PDF (limited to first 2000 characters)
     console.log('Extracting text from PDF...');
-    const text = await extractTextFromPdf(await fileData.arrayBuffer());
+    const fullText = await extractTextFromPdf(await fileData.arrayBuffer());
+    const text = fullText.slice(0, 2000); // Limit text to prevent timeouts
     console.log('Text extracted, length:', text.length);
 
     // Generate questions
