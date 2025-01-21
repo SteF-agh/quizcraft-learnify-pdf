@@ -1,10 +1,5 @@
 import { GeneratedQuestion } from './types.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
 export const generateQuestions = async (
   content: string,
   documentId: string,
@@ -91,19 +86,6 @@ Document ID: ${documentId}`
             !Array.isArray(question.answers) ||
             !question.feedback) {
           throw new Error(`Question ${index + 1} is missing required fields`);
-        }
-
-        // Validate difficulty
-        if (!['easy', 'medium', 'advanced'].includes(question.difficulty)) {
-          throw new Error(`Question ${index + 1} has invalid difficulty: ${question.difficulty}`);
-        }
-
-        // Validate type and number of answers
-        if (['multiple-choice', 'single-choice'].includes(question.type) && question.answers.length !== 4) {
-          throw new Error(`Question ${index + 1} should have exactly 4 options`);
-        }
-        if (question.type === 'true-false' && question.answers.length !== 2) {
-          throw new Error(`Question ${index + 1} should have exactly 2 options`);
         }
       });
       

@@ -55,6 +55,10 @@ serve(async (req) => {
     const text = fullText.slice(0, 2000); // Limit text to prevent timeouts
     console.log('Text extracted, length:', text.length);
 
+    if (text.length < 100) {
+      throw new Error('Not enough text extracted from PDF');
+    }
+
     // Generate questions
     console.log('Generating questions...');
     const questions = await generateQuestions(text, documentId, openAIApiKey);
@@ -68,7 +72,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in generate-questions function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

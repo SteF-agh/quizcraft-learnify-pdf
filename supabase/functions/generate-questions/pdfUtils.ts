@@ -29,16 +29,7 @@ export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<stri
     }
 
     console.log('Text extraction complete, total length:', fullText.length);
-    
-    // Limit text length to avoid token limits
-    const maxLength = 2000;
-    const truncatedText = fullText.slice(0, maxLength);
-    
-    if (truncatedText.length < 100) {
-      throw new Error('Extracted text is too short, possible PDF parsing error');
-    }
-
-    return truncatedText;
+    return fullText;
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
     throw new Error(`PDF processing error: ${error.message}`);
