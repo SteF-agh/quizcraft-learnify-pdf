@@ -45,48 +45,44 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Frage</TableHead>
-            <TableHead>Kurs</TableHead>
+            <TableHead>ID</TableHead>
+            <TableHead>Kursname</TableHead>
             <TableHead>Kapitel</TableHead>
             <TableHead>Thema</TableHead>
-            <TableHead>Typ</TableHead>
             <TableHead>Schwierigkeit</TableHead>
+            <TableHead>Frage</TableHead>
+            <TableHead>Typ</TableHead>
             <TableHead>Punkte</TableHead>
-            <TableHead>Antworten</TableHead>
+            <TableHead>Lernziel</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {questions.map((question) => (
-            <TableRow key={question.id}>
-              <TableCell className="max-w-md">
-                <div className="truncate font-medium">{question.question_text}</div>
-              </TableCell>
-              <TableCell>{question.course_name || 'KI Manager'}</TableCell>
-              <TableCell>{question.chapter || 'Grundlagen'}</TableCell>
-              <TableCell>{question.topic || 'KI Basics'}</TableCell>
-              <TableCell>
-                <Badge variant="outline">
-                  {getTypeLabel(question.type)}
-                </Badge>
-              </TableCell>
+          {questions.map((question, index) => (
+            <TableRow key={question.id || index}>
+              <TableCell>{question.id || index + 1}</TableCell>
+              <TableCell>{question.course_name}</TableCell>
+              <TableCell>{question.chapter}</TableCell>
+              <TableCell>{question.topic}</TableCell>
               <TableCell>
                 <Badge className={getDifficultyColor(question.difficulty)}>
                   {question.difficulty}
                 </Badge>
               </TableCell>
-              <TableCell>{question.points}</TableCell>
-              <TableCell>
-                <div className="max-w-xs">
-                  {question.answers.map((answer, index) => (
-                    <div 
-                      key={index} 
-                      className={`text-sm ${answer.isCorrect ? 'text-green-600 font-medium' : 'text-gray-600'}`}
-                    >
-                      • {answer.text}
-                    </div>
-                  ))}
-                </div>
+              <TableCell className="max-w-md">
+                <div className="truncate font-medium">{question.question_text}</div>
+                {question.feedback && (
+                  <div className="mt-1 text-sm text-gray-500 truncate">
+                    Feedback: {question.feedback}
+                  </div>
+                )}
               </TableCell>
+              <TableCell>
+                <Badge variant="outline">
+                  {getTypeLabel(question.type)}
+                </Badge>
+              </TableCell>
+              <TableCell>{question.points}</TableCell>
+              <TableCell>{question.learning_objective_id}</TableCell>
             </TableRow>
           ))}
         </TableBody>
