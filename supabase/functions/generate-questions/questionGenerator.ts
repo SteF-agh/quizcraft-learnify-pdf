@@ -18,66 +18,65 @@ export const generateQuestions = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           { 
             role: 'system', 
-            content: `You are an expert in creating educational quiz questions. Generate exactly 30 questions per chapter based on the provided content. Return them as an array of objects with the following EXACT structure:
+            content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Generiere genau 10 Fragen pro Kapitel basierend auf dem bereitgestellten Inhalt. Gib sie als Array von Objekten mit folgender EXAKTER Struktur zurück:
 
 {
   "questions": [
     {
-      "documentId": "string (from input)",
-      "courseName": "string (extract from content)",
+      "document_id": "string (from input)",
+      "course_name": "string (extract from content)",
       "chapter": "string (extract from content)",
       "topic": "string (extract from content)",
       "difficulty": "easy" | "medium" | "advanced",
-      "questionText": "string",
+      "question_text": "string (in German)",
       "type": "multiple-choice" | "single-choice" | "true-false",
       "points": number,
       "answers": [
         {
-          "text": "string",
+          "text": "string (in German)",
           "isCorrect": boolean
         }
       ],
-      "feedback": "string",
-      "learningObjectiveId": "string (optional)",
-      "metadata": object (optional)
+      "feedback": "string (in German)",
+      "metadata": {}
     }
   ]
 }
 
-Guidelines:
-1. Question Distribution per Chapter:
-   - 10 easy questions (5 points each)
-   - 10 medium questions (10 points each)
-   - 10 advanced questions (15 points each)
+Richtlinien:
+1. Fragen pro Kapitel:
+   - 4 einfache Fragen (5 Punkte)
+   - 3 mittelschwere Fragen (10 Punkte)
+   - 3 schwere Fragen (15 Punkte)
 
-2. Question Types Distribution:
-   - 40% multiple-choice questions (4 options, one correct)
-   - 40% single-choice questions (4 options, one correct)
-   - 20% true-false questions (2 options)
-   - Position the correct answer randomly across options
+2. Fragetypen:
+   - 40% Multiple-Choice (4 Optionen, eine richtig)
+   - 40% Single-Choice (4 Optionen, eine richtig)
+   - 20% Wahr/Falsch (2 Optionen)
+   - Richtige Antwort zufällig positionieren
 
-3. Quality Guidelines:
-   - Questions should be clear and concise
-   - Answers should be unambiguous
-   - Include helpful feedback for each question
-   - Avoid duplicate questions
-   - Distribute questions proportionally across all chapters
+3. Qualitätsrichtlinien:
+   - Fragen müssen sich DIREKT auf den Inhalt des Dokuments beziehen
+   - Fragen müssen klar und eindeutig sein
+   - Antworten müssen unmissverständlich sein
+   - Hilfreiches Feedback bei jeder Frage geben
+   - Keine Duplikate
+   - Fragen gleichmäßig über alle Kapitel verteilen
 
-4. Answer Format:
-   - Multiple/Single Choice: Exactly 4 options
-   - True/False: Exactly 2 options
-   - Randomize correct answer position
-   - Ensure answers are distinct and clear`
+4. Antwortformat:
+   - Multiple/Single Choice: Genau 4 Optionen
+   - Wahr/Falsch: Genau 2 Optionen
+   - Zufällige Position der richtigen Antwort`
           },
           { 
             role: 'user', 
-            content: `Generate questions based on this content: ${options.content.substring(0, 4000)}
+            content: `Generiere Fragen basierend auf diesem Inhalt: ${options.content.substring(0, 4000)}
 
-Document ID to use: ${options.documentId}
+Document ID: ${options.documentId}
 Document Name: ${options.documentName}`
           }
         ],
@@ -107,12 +106,12 @@ Document Name: ${options.documentName}`
       parsedContent.questions.forEach((question: any, index: number) => {
         console.log(`Validating question ${index + 1}:`, question);
         
-        if (!question.documentId || 
-            !question.courseName ||
+        if (!question.document_id || 
+            !question.course_name ||
             !question.chapter ||
             !question.topic ||
             !question.difficulty ||
-            !question.questionText ||
+            !question.question_text ||
             !question.type ||
             !question.points ||
             !Array.isArray(question.answers) ||
@@ -131,23 +130,6 @@ Document Name: ${options.documentName}`
         }
         if (question.type === 'true-false' && question.answers.length !== 2) {
           throw new Error(`Question ${index + 1} should have exactly 2 options`);
-        }
-
-        // Validate type distribution
-        const questionTypes = parsedContent.questions.map((q: any) => q.type);
-        const multipleChoiceCount = questionTypes.filter((t: string) => t === 'multiple-choice').length;
-        const singleChoiceCount = questionTypes.filter((t: string) => t === 'single-choice').length;
-        const trueFalseCount = questionTypes.filter((t: string) => t === 'true-false').length;
-
-        const totalQuestions = parsedContent.questions.length;
-        if (multipleChoiceCount / totalQuestions < 0.35 || multipleChoiceCount / totalQuestions > 0.45) {
-          console.warn('Multiple choice questions distribution is not optimal');
-        }
-        if (singleChoiceCount / totalQuestions < 0.35 || singleChoiceCount / totalQuestions > 0.45) {
-          console.warn('Single choice questions distribution is not optimal');
-        }
-        if (trueFalseCount / totalQuestions < 0.15 || trueFalseCount / totalQuestions > 0.25) {
-          console.warn('True/False questions distribution is not optimal');
         }
       });
       
