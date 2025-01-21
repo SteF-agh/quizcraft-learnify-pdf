@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { extractTextFromPdf } from './pdfUtils.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,7 +27,7 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Dokument abrufen
+    // Fetch document
     const { data: document, error: docError } = await supabase
       .from('documents')
       .select('*')
@@ -40,7 +41,7 @@ serve(async (req) => {
 
     console.log('Found document:', document.name);
 
-    // PDF-Inhalt aus dem Storage abrufen
+    // Get PDF content
     const { data: fileData, error: fileError } = await supabase
       .storage
       .from('pdfs')
@@ -51,10 +52,11 @@ serve(async (req) => {
       throw new Error('Could not download file');
     }
 
-    const pdfText = await fileData.text();
+    const arrayBuffer = await fileData.arrayBuffer();
+    const pdfText = await extractTextFromPdf(arrayBuffer);
     console.log('Successfully extracted text from PDF, length:', pdfText.length);
 
-    // OpenAI API aufrufen
+    // Call OpenAI API
     console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -67,42 +69,43 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Analysiere den bereitgestellten Text und erstelle relevante Fragen. 
-            Wichtige Regeln:
-            1. Erstelle genau 5 Fragen pro identifiziertem Kapitel
-            2. Fragen müssen sich DIREKT auf den Inhalt beziehen
-            3. Keine allgemeinen oder oberflächlichen Fragen
-            4. Jede Frage muss ein spezifisches Konzept oder eine wichtige Information aus dem Text abfragen
-            5. Bei Multiple-Choice: Alle Antwortoptionen müssen plausibel sein
-            6. Gib hilfreiches, erklärendes Feedback
-            7. Verteile die Schwierigkeitsgrade: 2 leicht, 2 mittel, 1 schwer pro Kapitel
+            content: `You are an expert at creating exam questions. Analyze the provided text and create relevant questions.
+            Important rules:
+            1. Create exactly 5 questions per identified chapter
+            2. Questions MUST be DIRECTLY related to the content
+            3. No general or superficial questions
+            4. Each question must test a specific concept or important information from the text
+            5. For Multiple-Choice: All answer options must be plausible
+            6. Provide helpful, explanatory feedback
+            7. Distribute difficulty levels: 2 easy, 2 medium, 1 hard per chapter
 
-            Gib die Fragen in diesem Format zurück:
+            Return the questions in this EXACT format:
             {
               "questions": [
                 {
                   "document_id": "${documentId}",
-                  "course_name": "Name des Kurses aus dem Inhalt",
-                  "chapter": "Kapitelnummer und -name",
-                  "topic": "Spezifisches Thema der Frage",
+                  "course_name": "Name of the course from the content",
+                  "chapter": "Chapter number and name",
+                  "topic": "Specific topic of the question",
                   "difficulty": "easy/medium/advanced",
-                  "question_text": "Die eigentliche Frage",
+                  "question_text": "The actual question",
                   "type": "multiple-choice/single-choice/true-false",
-                  "points": "5 für easy, 10 für medium, 15 für advanced",
+                  "points": "5 for easy, 10 for medium, 15 for advanced",
                   "answers": [
                     {
-                      "text": "Antworttext",
+                      "text": "Answer text",
                       "isCorrect": true/false
                     }
                   ],
-                  "feedback": "Ausführliche Erklärung der richtigen Antwort"
+                  "feedback": "Detailed explanation of the correct answer",
+                  "metadata": {}
                 }
               ]
             }`
           },
           {
             role: 'user',
-            content: `Erstelle Fragen basierend auf diesem Text: ${pdfText.substring(0, 8000)}`
+            content: `Create questions based on this text: ${pdfText.substring(0, 8000)}`
           }
         ],
         temperature: 0.7,
@@ -116,25 +119,50 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('Received response from OpenAI');
+    console.log('Received response from OpenAI:', data);
 
     try {
       const parsedContent = JSON.parse(data.choices[0].message.content);
-      console.log('Successfully parsed OpenAI response');
+      console.log('Successfully parsed OpenAI response:', parsedContent);
       
       if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
         console.error('Invalid response format:', parsedContent);
         throw new Error('Invalid response format from OpenAI');
       }
 
+      // Validate each question
+      parsedContent.questions.forEach((question: any, index: number) => {
+        const requiredFields = [
+          'document_id', 'course_name', 'chapter', 'topic', 'difficulty',
+          'question_text', 'type', 'points', 'answers', 'feedback'
+        ];
+        
+        for (const field of requiredFields) {
+          if (!question[field]) {
+            throw new Error(`Question ${index + 1} is missing required field: ${field}`);
+          }
+        }
+
+        if (!Array.isArray(question.answers)) {
+          throw new Error(`Question ${index + 1} has invalid answers format`);
+        }
+
+        if (question.type === 'true-false' && question.answers.length !== 2) {
+          throw new Error(`Question ${index + 1} (true-false) must have exactly 2 answers`);
+        }
+
+        if (['multiple-choice', 'single-choice'].includes(question.type) && question.answers.length !== 4) {
+          throw new Error(`Question ${index + 1} (${question.type}) must have exactly 4 answers`);
+        }
+      });
+
       return new Response(
         JSON.stringify({ questions: parsedContent.questions }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } catch (error) {
-      console.error('Error parsing OpenAI response:', error);
-      console.error('Raw content:', data.choices[0].message.content);
-      throw new Error('Failed to parse generated questions');
+      console.error('Error parsing or validating questions:', error);
+      throw new Error(`Failed to parse generated questions: ${error.message}`);
     }
   } catch (error) {
     console.error('Error in generate-questions function:', error);
