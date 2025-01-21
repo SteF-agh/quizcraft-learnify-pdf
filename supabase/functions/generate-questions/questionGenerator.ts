@@ -18,11 +18,11 @@ export const generateQuestions = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4',
         messages: [
           { 
             role: 'system', 
-            content: `You are an expert in creating educational quiz questions. Generate exactly 5 questions based on the provided content. Return them as an array of objects with the following EXACT structure:
+            content: `You are an expert in creating educational quiz questions. Generate exactly 30 questions per chapter based on the provided content. Return them as an array of objects with the following EXACT structure:
 
 {
   "questions": [
@@ -41,29 +41,37 @@ export const generateQuestions = async (
           "isCorrect": boolean
         }
       ],
-      "feedback": "string"
+      "feedback": "string",
+      "learningObjectiveId": "string (optional)",
+      "metadata": object (optional)
     }
   ]
 }
 
 Guidelines:
-1. Question Distribution:
-   - 2 easy questions
-   - 2 medium questions
-   - 1 advanced question
-2. Question Types:
-   - Mix of multiple-choice and true-false questions
-   - For multiple-choice, provide exactly 4 options
-   - Make sure exactly one answer is correct for single-choice
-   - For true-false, provide exactly 2 options
+1. Question Distribution per Chapter:
+   - 10 easy questions (5 points each)
+   - 10 medium questions (10 points each)
+   - 10 advanced questions (15 points each)
+
+2. Question Types Distribution:
+   - 40% multiple-choice questions (4 options, one correct)
+   - 40% single-choice questions (4 options, one correct)
+   - 20% true-false questions (2 options)
+   - Position the correct answer randomly across options
+
 3. Quality Guidelines:
    - Questions should be clear and concise
    - Answers should be unambiguous
    - Include helpful feedback for each question
-4. Points:
-   - easy: 5 points
-   - medium: 10 points
-   - advanced: 15 points`
+   - Avoid duplicate questions
+   - Distribute questions proportionally across all chapters
+
+4. Answer Format:
+   - Multiple/Single Choice: Exactly 4 options
+   - True/False: Exactly 2 options
+   - Randomize correct answer position
+   - Ensure answers are distinct and clear`
           },
           { 
             role: 'user', 
@@ -117,17 +125,29 @@ Document Name: ${options.documentName}`
           throw new Error(`Question ${index + 1} has invalid difficulty: ${question.difficulty}`);
         }
 
-        // Validate type
-        if (!['multiple-choice', 'single-choice', 'true-false'].includes(question.type)) {
-          throw new Error(`Question ${index + 1} has invalid type: ${question.type}`);
-        }
-
-        // Validate answers
-        if (question.type === 'multiple-choice' && question.answers.length !== 4) {
+        // Validate type and number of answers
+        if (['multiple-choice', 'single-choice'].includes(question.type) && question.answers.length !== 4) {
           throw new Error(`Question ${index + 1} should have exactly 4 options`);
         }
         if (question.type === 'true-false' && question.answers.length !== 2) {
           throw new Error(`Question ${index + 1} should have exactly 2 options`);
+        }
+
+        // Validate type distribution
+        const questionTypes = parsedContent.questions.map((q: any) => q.type);
+        const multipleChoiceCount = questionTypes.filter((t: string) => t === 'multiple-choice').length;
+        const singleChoiceCount = questionTypes.filter((t: string) => t === 'single-choice').length;
+        const trueFalseCount = questionTypes.filter((t: string) => t === 'true-false').length;
+
+        const totalQuestions = parsedContent.questions.length;
+        if (multipleChoiceCount / totalQuestions < 0.35 || multipleChoiceCount / totalQuestions > 0.45) {
+          console.warn('Multiple choice questions distribution is not optimal');
+        }
+        if (singleChoiceCount / totalQuestions < 0.35 || singleChoiceCount / totalQuestions > 0.45) {
+          console.warn('Single choice questions distribution is not optimal');
+        }
+        if (trueFalseCount / totalQuestions < 0.15 || trueFalseCount / totalQuestions > 0.25) {
+          console.warn('True/False questions distribution is not optimal');
         }
       });
       
