@@ -13,7 +13,7 @@ interface DatabaseQuestion {
   question_text: string;
   type: "multiple-choice" | "single-choice" | "true-false";
   points: number;
-  answers: Record<string, string>;
+  answers: Record<string, any>;
   feedback?: string;
   learning_objective_id?: string;
   metadata?: Record<string, any>;
@@ -26,23 +26,38 @@ export const useQuestionView = () => {
   const mapDatabaseQuestionToQuestion = (dbQuestion: DatabaseQuestion): Question => {
     console.log('Mapping database question:', dbQuestion);
     
-    // Ensure answers is properly formatted
+    // Format answers from the database structure
     let formattedAnswers = [];
     
     if (typeof dbQuestion.answers === 'object' && dbQuestion.answers !== null) {
-      const answerEntries = Object.entries(dbQuestion.answers);
-      for (let i = 1; i <= 4; i++) {
-        const answerText = answerEntries.find(([key]) => key === `Antwort ${i}`)?.[1];
-        const isCorrect = answerEntries.find(([key]) => key === `Antwort ${i} korrekt`)?.[1] === 'true';
-        
-        if (answerText) {
-          formattedAnswers.push({
-            text: answerText,
-            isCorrect: isCorrect || false
-          });
+      // Handle both array and record formats
+      if (Array.isArray(dbQuestion.answers)) {
+        formattedAnswers = dbQuestion.answers.map(answer => ({
+          text: answer.text,
+          isCorrect: answer.isCorrect
+        }));
+      } else {
+        // Handle record format (e.g., from CSV import)
+        const answerEntries = Object.entries(dbQuestion.answers);
+        for (let i = 1; i <= 4; i++) {
+          const answerText = answerEntries.find(([key]) => 
+            key === `Antwort ${i}` || key === `text${i}` || key === `answer${i}`
+          )?.[1];
+          const isCorrect = answerEntries.find(([key]) => 
+            key === `Antwort ${i} korrekt` || key === `correct${i}` || key === `isCorrect${i}`
+          )?.[1] === 'true';
+          
+          if (answerText) {
+            formattedAnswers.push({
+              text: answerText,
+              isCorrect: isCorrect || false
+            });
+          }
         }
       }
     }
+
+    console.log('Formatted answers:', formattedAnswers);
 
     // Map to Question type
     const question: Question = {
