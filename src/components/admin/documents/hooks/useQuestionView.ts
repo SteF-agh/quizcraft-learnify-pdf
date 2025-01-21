@@ -12,16 +12,22 @@ export const useQuestionView = () => {
     console.log('Mapping database question:', dbQuestion);
     
     // Ensure answers is properly formatted
-    const answers = Array.isArray(dbQuestion.answers) 
-      ? dbQuestion.answers 
-      : typeof dbQuestion.answers === 'object' && dbQuestion.answers !== null
-      ? Object.entries(dbQuestion.answers)
-          .filter(([key]) => key.startsWith('Antwort'))
-          .map((_, index) => ({
-            text: dbQuestion.answers[`Antwort ${index + 1}`] || '',
-            isCorrect: dbQuestion.answers[`Antwort ${index + 1} korrekt`] === 'true'
-          }))
-      : [];
+    let formattedAnswers = [];
+    
+    if (typeof dbQuestion.answers === 'object' && dbQuestion.answers !== null) {
+      const answerEntries = Object.entries(dbQuestion.answers);
+      for (let i = 1; i <= 4; i++) {
+        const answerText = answerEntries.find(([key]) => key === `Antwort ${i}`)?.[1];
+        const isCorrect = answerEntries.find(([key]) => key === `Antwort ${i} korrekt`)?.[1] === 'true';
+        
+        if (answerText) {
+          formattedAnswers.push({
+            text: answerText,
+            isCorrect: isCorrect || false
+          });
+        }
+      }
+    }
 
     return {
       id: dbQuestion.id,
@@ -33,10 +39,10 @@ export const useQuestionView = () => {
       question_text: dbQuestion.question_text,
       type: dbQuestion.type,
       points: dbQuestion.points,
-      answers: answers,
+      answers: formattedAnswers,
       feedback: dbQuestion.feedback,
       learning_objective_id: dbQuestion.learning_objective_id,
-      metadata: dbQuestion.metadata
+      metadata: dbQuestion.metadata as Record<string, unknown> | undefined
     };
   };
 

@@ -40,17 +40,25 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
     }
   };
 
+  const formatAnswers = (answers: { text: string; isCorrect: boolean }[]) => {
+    return answers.map((answer, index) => (
+      <div key={index} className={`text-sm ${answer.isCorrect ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+        {answer.text} {answer.isCorrect && '✓'}
+      </div>
+    ));
+  };
+
   return (
     <div className="rounded-md border bg-white">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
             <TableHead>Kursname</TableHead>
             <TableHead>Kapitel</TableHead>
             <TableHead>Thema</TableHead>
             <TableHead>Schwierigkeit</TableHead>
             <TableHead>Frage</TableHead>
+            <TableHead>Antworten</TableHead>
             <TableHead>Typ</TableHead>
             <TableHead>Punkte</TableHead>
             <TableHead>Lernziel</TableHead>
@@ -59,7 +67,6 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
         <TableBody>
           {questions.map((question, index) => (
             <TableRow key={question.id || index}>
-              <TableCell>{question.id || index + 1}</TableCell>
               <TableCell>{question.course_name}</TableCell>
               <TableCell>{question.chapter}</TableCell>
               <TableCell>{question.topic}</TableCell>
@@ -69,12 +76,15 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
                 </Badge>
               </TableCell>
               <TableCell className="max-w-md">
-                <div className="truncate font-medium">{question.question_text}</div>
+                <div className="font-medium">{question.question_text}</div>
                 {question.feedback && (
-                  <div className="mt-1 text-sm text-gray-500 truncate">
+                  <div className="mt-1 text-sm text-gray-500">
                     Feedback: {question.feedback}
                   </div>
                 )}
+              </TableCell>
+              <TableCell className="max-w-xs">
+                {formatAnswers(question.answers)}
               </TableCell>
               <TableCell>
                 <Badge variant="outline">
