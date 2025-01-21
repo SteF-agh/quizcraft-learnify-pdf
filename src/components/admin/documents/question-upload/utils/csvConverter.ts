@@ -1,19 +1,27 @@
 import { Question } from "../../types";
 
 const mapDifficulty = (difficulty: string): "easy" | "medium" | "advanced" => {
+  console.log('Mapping difficulty:', difficulty);
   const difficultyMap: Record<string, "easy" | "medium" | "advanced"> = {
     "Leicht": "easy",
     "Mittel": "medium",
-    "Schwer": "advanced"
+    "Schwer": "advanced",
+    "Easy": "easy",
+    "Medium": "medium",
+    "Advanced": "advanced"
   };
   return difficultyMap[difficulty] || "medium";
 };
 
 const mapQuestionType = (type: string): "multiple-choice" | "single-choice" | "true-false" => {
+  console.log('Mapping question type:', type);
   const typeMap: Record<string, "multiple-choice" | "single-choice" | "true-false"> = {
     "Multiple Choice": "multiple-choice",
+    "Multiple-Choice": "multiple-choice",
+    "Single Choice": "single-choice",
+    "Single-Choice": "single-choice",
     "True/False": "true-false",
-    "Single Choice": "single-choice"
+    "True-False": "true-false"
   };
   return typeMap[type] || "multiple-choice";
 };
@@ -24,20 +32,30 @@ export const convertCsvToQuestions = (file: File): Promise<Question[]> => {
     
     reader.onload = (e) => {
       try {
+        console.log('Starting CSV conversion...');
         const text = e.target?.result as string;
-        const rows = text.split('\n').map(row => {
-          // Split by tab since it's a TSV format
-          return row.split('\t').map(cell => cell.trim());
+        
+        // Split by newline and handle both \n and \r\n
+        const rows = text.split(/\r?\n/).map(row => {
+          // Split by tab or semicolon to handle different CSV formats
+          const cells = row.includes(';') ? row.split(';') : row.split('\t');
+          return cells.map(cell => cell.trim());
         });
         
+        console.log('CSV Headers:', rows[0]);
         const headers = rows[0];
+
         const questions: Question[] = rows.slice(1)
           .filter(row => row.length > 1) // Skip empty rows
-          .map(row => {
+          .map((row, index) => {
+            console.log(`Processing row ${index + 1}:`, row);
+            
             const rowData: Record<string, string> = {};
             headers.forEach((header, index) => {
               rowData[header] = row[index] || '';
             });
+
+            console.log('Row data:', rowData);
 
             // Convert the row data to match our Question interface
             const answers = [];
@@ -48,12 +66,14 @@ export const convertCsvToQuestions = (file: File): Promise<Question[]> => {
               if (answerText) {
                 answers.push({
                   text: answerText,
-                  isCorrect: isCorrect === 'true' || isCorrect === 'correct'
+                  isCorrect: isCorrect === 'true' || isCorrect === 'correct' || isCorrect === 'ja' || isCorrect === '1'
                 });
               }
             }
 
-            return {
+            console.log('Processed answers:', answers);
+
+            const question: Question = {
               course_name: rowData['Kursname'] || 'KI Manager',
               chapter: rowData['Kapitel'] || 'Grundlagen',
               topic: rowData['Thema'] || 'KI Basics',
@@ -66,17 +86,21 @@ export const convertCsvToQuestions = (file: File): Promise<Question[]> => {
               learning_objective_id: rowData['Lernziel-ID'],
               metadata: rowData['Metadaten'] ? JSON.parse(rowData['Metadaten']) : undefined
             };
+
+            console.log('Created question object:', question);
+            return question;
           });
 
-        console.log('Converted questions:', questions);
+        console.log('Total questions converted:', questions.length);
         resolve(questions);
       } catch (error) {
         console.error('Error converting CSV:', error);
-        reject(new Error('Fehler beim Konvertieren der CSV-Datei'));
+        reject(new Error(`Fehler beim Konvertieren der CSV-Datei: ${error.message}`));
       }
     };
 
     reader.onerror = () => {
+      console.error('Error reading CSV file');
       reject(new Error('Fehler beim Lesen der CSV-Datei'));
     };
 
