@@ -52,9 +52,10 @@ serve(async (req) => {
     }
 
     const pdfText = await fileData.text();
-    console.log('Successfully extracted text from PDF');
+    console.log('Successfully extracted text from PDF, length:', pdfText.length);
 
     // OpenAI API aufrufen
+    console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -122,6 +123,7 @@ serve(async (req) => {
       console.log('Successfully parsed OpenAI response');
       
       if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
+        console.error('Invalid response format:', parsedContent);
         throw new Error('Invalid response format from OpenAI');
       }
 
@@ -131,6 +133,7 @@ serve(async (req) => {
       );
     } catch (error) {
       console.error('Error parsing OpenAI response:', error);
+      console.error('Raw content:', data.choices[0].message.content);
       throw new Error('Failed to parse generated questions');
     }
   } catch (error) {

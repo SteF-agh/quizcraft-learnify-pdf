@@ -20,6 +20,8 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
+  console.log('DocumentTable rendered with documents:', documents);
+
   const {
     state: {
       isGenerating,
@@ -33,6 +35,7 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
   } = useQuestionGenerator(onRefetch);
 
   const handleTogglePublic = async (documentId: string, currentState: boolean) => {
+    console.log('Attempting to toggle document visibility:', documentId);
     try {
       const { error } = await supabase
         .from("documents")
@@ -50,10 +53,9 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
   };
 
   const handleViewQuestions = async (documentId: string) => {
+    console.log('Viewing questions for document:', documentId);
     setSelectedDocumentId(documentId);
     try {
-      console.log('Fetching questions for document:', documentId);
-      
       const { data: existingQuestions, error: fetchError } = await supabase
         .from("quiz_questions")
         .select("*")
@@ -86,6 +88,14 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
       (filterStatus === "with-questions" && hasQuestions) ||
       (filterStatus === "without-questions" && !hasQuestions)
     );
+  });
+
+  console.log('Current state:', {
+    selectedDocumentId,
+    questionsCount: questions.length,
+    isGenerating,
+    showQuestionDialog,
+    currentQuestionsCount: currentQuestions.length
   });
 
   return (

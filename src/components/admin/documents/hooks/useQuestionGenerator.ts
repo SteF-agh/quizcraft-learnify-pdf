@@ -17,15 +17,20 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
     setState(prev => ({ ...prev, isGenerating: true, generationProgress: 10 }));
 
     try {
+      console.log('Calling generate-questions edge function...');
       const { data: response, error } = await supabase.functions.invoke('generate-questions', {
         body: { documentId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error from edge function:', error);
+        throw error;
+      }
 
-      console.log('Generated questions:', response);
+      console.log('Response from edge function:', response);
 
       if (!response.questions || !Array.isArray(response.questions)) {
+        console.error('Invalid response format:', response);
         throw new Error('Ungültiges Antwortformat vom Server');
       }
 
@@ -36,6 +41,7 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
         generationProgress: 100,
       }));
 
+      console.log('Questions generated successfully:', response.questions);
       toast.success('Fragen wurden erfolgreich generiert');
     } catch (error) {
       console.error('Error generating questions:', error);
@@ -46,7 +52,7 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
   };
 
   const saveQuestions = async (questions: GeneratedQuestion[]) => {
-    console.log('Saving questions:', questions);
+    console.log('Attempting to save questions:', questions);
     
     try {
       const { error } = await supabase
@@ -66,8 +72,12 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
           metadata: q.metadata
         })));
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving questions:', error);
+        throw error;
+      }
 
+      console.log('Questions saved successfully');
       toast.success('Fragen wurden erfolgreich gespeichert');
       setState(prev => ({ ...prev, showQuestionDialog: false, currentQuestions: [] }));
       onRefetch();
