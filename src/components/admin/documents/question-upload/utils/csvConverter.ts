@@ -1,109 +1,105 @@
-import { Question } from "../../types";
+import { CsvQuestion, Question } from "../../types";
+import Papa from 'papaparse';
 
 const mapDifficulty = (difficulty: string): "easy" | "medium" | "advanced" => {
-  console.log('Mapping difficulty:', difficulty);
-  const difficultyMap: Record<string, "easy" | "medium" | "advanced"> = {
-    "Leicht": "easy",
-    "Mittel": "medium",
-    "Schwer": "advanced",
-    "Easy": "easy",
-    "Medium": "medium",
-    "Advanced": "advanced"
+  const difficultyMap: { [key: string]: "easy" | "medium" | "advanced" } = {
+    'leicht': 'easy',
+    'mittel': 'medium',
+    'schwer': 'advanced',
+    'Leicht': 'easy',
+    'Mittel': 'medium',
+    'Schwer': 'advanced'
   };
-  return difficultyMap[difficulty] || "medium";
+  return difficultyMap[difficulty] || 'medium';
 };
 
 const mapQuestionType = (type: string): "multiple-choice" | "single-choice" | "true-false" => {
-  console.log('Mapping question type:', type);
-  const typeMap: Record<string, "multiple-choice" | "single-choice" | "true-false"> = {
-    "Multiple Choice": "multiple-choice",
-    "Multiple-Choice": "multiple-choice",
-    "Single Choice": "single-choice",
-    "Single-Choice": "single-choice",
-    "True/False": "true-false",
-    "True-False": "true-false"
+  const typeMap: { [key: string]: "multiple-choice" | "single-choice" | "true-false" } = {
+    'Multiple Choice': 'multiple-choice',
+    'Single Choice': 'single-choice',
+    'Wahr/Falsch': 'true-false',
+    'multiple-choice': 'multiple-choice',
+    'single-choice': 'single-choice',
+    'true-false': 'true-false'
   };
-  return typeMap[type] || "multiple-choice";
+  return typeMap[type] || 'multiple-choice';
 };
 
-export const convertCsvToQuestions = (file: File): Promise<Question[]> => {
+export const convertCsvToQuestions = async (file: File): Promise<Question[]> => {
+  console.log('Starting CSV conversion for file:', file.name);
+  
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      try {
-        console.log('Starting CSV conversion...');
-        const text = e.target?.result as string;
+    Papa.parse(file, {
+      header: true,
+      complete: (results) => {
+        console.log('CSV parsing complete. Raw results:', results);
         
-        // Split by newline and handle both \n and \r\n
-        const rows = text.split(/\r?\n/).map(row => {
-          // Split by tab or semicolon to handle different CSV formats
-          const cells = row.includes(';') ? row.split(';') : row.split('\t');
-          return cells.map(cell => cell.trim());
-        });
-        
-        console.log('CSV Headers:', rows[0]);
-        const headers = rows[0];
+        try {
+          const questions: Question[] = (results.data as CsvQuestion[])
+            .filter(row => row.Fragentext && row['Antwort 1']) // Filter out empty rows
+            .map(row => {
+              console.log('Processing row:', row);
+              
+              // Create answers array from the CSV data
+              const answers = [];
+              for (let i = 1; i <= 4; i++) {
+                const answerText = row[`Antwort ${i}` as keyof CsvQuestion];
+                const isCorrect = row[`Antwort ${i} korrekt` as keyof CsvQuestion];
+                
+                if (answerText) {
+                  answers.push({
+                    text: answerText,
+                    isCorrect: isCorrect?.toLowerCase() === 'true' || isCorrect === '1'
+                  });
+                }
+              }
 
-        const questions: Question[] = rows.slice(1)
-          .filter(row => row.length > 1) // Skip empty rows
-          .map((row, index) => {
-            console.log(`Processing row ${index + 1}:`, row);
-            
-            const rowData: Record<string, string> = {};
-            headers.forEach((header, index) => {
-              rowData[header] = row[index] || '';
+              // Handle metadata
+              let metadata = null;
+              try {
+                metadata = row.Metadaten ? JSON.parse(row.Metadaten) : null;
+              } catch (e) {
+                console.warn('Failed to parse metadata:', e);
+                metadata = { raw: row.Metadaten };
+              }
+
+              // Convert learning objective ID to null if it's not a valid UUID
+              const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+              const learningObjectiveId = uuidRegex.test(row['Lernziel-ID']) ? row['Lernziel-ID'] : null;
+
+              if (!uuidRegex.test(row['Lernziel-ID'])) {
+                console.log('Invalid UUID format for learning objective ID:', row['Lernziel-ID'], 'Setting to null');
+              }
+
+              const question: Question = {
+                course_name: row.Kursname || 'Unspecified Course',
+                chapter: row.Kapitel || 'Chapter 1',
+                topic: row.Thema || 'General',
+                difficulty: mapDifficulty(row.Schwierigkeitsgrad),
+                question_text: row.Fragentext,
+                type: mapQuestionType(row.Typ),
+                points: parseInt(row.Punktewert) || 10,
+                answers: answers,
+                feedback: row.Feedback || undefined,
+                learning_objective_id: learningObjectiveId,
+                metadata: metadata || undefined
+              };
+
+              console.log('Processed question:', question);
+              return question;
             });
 
-            console.log('Row data:', rowData);
-
-            // Convert the row data to match our Question interface
-            const answers = [];
-            for (let i = 1; i <= 4; i++) {
-              const answerText = rowData[`Antwort ${i}`];
-              const isCorrect = rowData[`Antwort ${i} korrekt`]?.toLowerCase();
-              
-              if (answerText) {
-                answers.push({
-                  text: answerText,
-                  isCorrect: isCorrect === 'true' || isCorrect === 'correct' || isCorrect === 'ja' || isCorrect === '1'
-                });
-              }
-            }
-
-            console.log('Processed answers:', answers);
-
-            const question: Question = {
-              course_name: rowData['Kursname'] || 'KI Manager',
-              chapter: rowData['Kapitel'] || 'Grundlagen',
-              topic: rowData['Thema'] || 'KI Basics',
-              difficulty: mapDifficulty(rowData['Schwierigkeitsgrad']),
-              question_text: rowData['Fragentext'] || '',
-              type: mapQuestionType(rowData['Typ']),
-              points: parseInt(rowData['Punktewert']) || 1,
-              answers,
-              feedback: rowData['Feedback'],
-              learning_objective_id: rowData['Lernziel-ID'],
-              metadata: rowData['Metadaten'] ? JSON.parse(rowData['Metadaten']) : undefined
-            };
-
-            console.log('Created question object:', question);
-            return question;
-          });
-
-        console.log('Total questions converted:', questions.length);
-        resolve(questions);
-      } catch (error) {
-        console.error('Error converting CSV:', error);
-        reject(new Error(`Fehler beim Konvertieren der CSV-Datei: ${error.message}`));
+          console.log('Converted questions:', questions);
+          resolve(questions);
+        } catch (error) {
+          console.error('Error converting CSV data:', error);
+          reject(error);
+        }
+      },
+      error: (error) => {
+        console.error('Error parsing CSV:', error);
+        reject(error);
       }
-    };
-
-    reader.onerror = () => {
-      console.error('Error reading CSV file');
-      reject(new Error('Fehler beim Lesen der CSV-Datei'));
-    };
-
-    reader.readAsText(file);
+    });
   });
 };
