@@ -1,84 +1,67 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { formatBytes } from "@/utils/formatters";
+import { formatDistanceToNow } from "date-fns";
+import { de } from "date-fns/locale";
 import { Switch } from "@/components/ui/switch";
-import { Document } from "../types";
-import { formatFileSize } from "@/utils/formatters";
-import { Eye } from "lucide-react";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { QuestionUpload } from "../question-upload/QuestionUpload";
+
+interface Document {
+  id: string;
+  name: string;
+  file_size?: number;
+  created_at: string;
+  is_public?: boolean;
+}
 
 interface DocumentRowProps {
   document: Document;
-  onTogglePublic: (id: string, currentState: boolean) => void;
-  onGenerateQuiz: (id: string) => void;
-  onViewQuestions: (id: string) => void;
+  onTogglePublic: (documentId: string, currentState: boolean) => Promise<void>;
+  onGenerateQuiz: (documentId: string) => Promise<void>;
+  onViewQuestions: (documentId: string) => Promise<void>;
   isGenerating: boolean;
 }
 
 export const DocumentRow = ({
   document,
   onTogglePublic,
+  onGenerateQuiz,
   onViewQuestions,
+  isGenerating
 }: DocumentRowProps) => {
-  const [questionCount, setQuestionCount] = useState<number | null>(null);
-
-  useEffect(() => {
-    const fetchQuestionCount = async () => {
-      try {
-        const { data, error, count } = await supabase
-          .from("quiz_questions")
-          .select("*", { count: 'exact' })
-          .eq("document_id", document.id);
-
-        if (error) {
-          console.error("Error fetching question count:", error);
-          return;
-        }
-
-        console.log(`Found ${count} questions for document ${document.id}`);
-        setQuestionCount(count);
-      } catch (error) {
-        console.error("Error in fetchQuestionCount:", error);
-      }
-    };
-
-    fetchQuestionCount();
-  }, [document.id]);
-
-  const formattedDate = new Date(document.created_at).toLocaleDateString("de-DE", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
   return (
-    <TableRow>
+    <TableRow key={document.id}>
       <TableCell>{document.name}</TableCell>
-      <TableCell>{document.file_size ? formatFileSize(document.file_size) : "-"}</TableCell>
-      <TableCell>{formattedDate}</TableCell>
+      <TableCell>{formatBytes(document.file_size || 0)}</TableCell>
+      <TableCell>
+        {formatDistanceToNow(new Date(document.created_at), {
+          addSuffix: true,
+          locale: de
+        })}
+      </TableCell>
       <TableCell>
         <Switch
           checked={document.is_public}
-          onCheckedChange={() => onTogglePublic(document.id, document.is_public || false)}
+          onCheckedChange={(checked) => onTogglePublic(document.id, checked)}
         />
       </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onViewQuestions(document.id)}
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            Fragen anzeigen
-          </Button>
-          {questionCount !== null && (
-            <Badge variant={questionCount > 0 ? "default" : "secondary"}>
-              {questionCount} {questionCount === 1 ? 'Frage' : 'Fragen'}
-            </Badge>
-          )}
-        </div>
+      <TableCell className="space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onGenerateQuiz(document.id)}
+          disabled={isGenerating}
+        >
+          {isGenerating ? "Generiere Fragen..." : "Fragen generieren"}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onViewQuestions(document.id)}
+        >
+          Fragen anzeigen
+        </Button>
+        <QuestionUpload documentId={document.id} onUploadSuccess={() => onViewQuestions(document.id)} />
       </TableCell>
     </TableRow>
   );
