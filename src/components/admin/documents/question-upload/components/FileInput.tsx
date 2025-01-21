@@ -10,7 +10,7 @@ export const FileInput = ({ isUploading, onFileSelect }: FileInputProps) => {
     <div className="mt-4">
       <input
         type="file"
-        accept=".json,.xlsx,.xls"
+        accept=".json,.xlsx,.xls,.csv"
         onChange={onFileSelect}
         disabled={isUploading}
         className="block w-full text-sm text-slate-500

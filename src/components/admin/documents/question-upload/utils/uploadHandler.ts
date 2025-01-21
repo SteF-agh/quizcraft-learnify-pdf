@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { convertExcelToQuestions } from "./excelConverter";
+import { convertCsvToQuestions } from "./csvConverter";
 
 export const handleQuestionFileUpload = async (
   file: File,
@@ -14,6 +15,8 @@ export const handleQuestionFileUpload = async (
       questions = JSON.parse(text);
     } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
       questions = await convertExcelToQuestions(file);
+    } else if (file.name.endsWith('.csv')) {
+      questions = await convertCsvToQuestions(file);
     } else {
       throw new Error("Nicht unterstütztes Dateiformat");
     }
