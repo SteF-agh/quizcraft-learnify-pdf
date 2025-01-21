@@ -56,10 +56,10 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
     }
   };
 
-  // Get unique values for filters
-  const courses = ["all", ...new Set(questions.map(q => q.course_name))];
-  const chapters = ["all", ...new Set(questions.map(q => q.chapter))];
-  const topics = ["all", ...new Set(questions.map(q => q.topic))];
+  // Get unique values for filters and ensure no empty values
+  const courses = ["all", ...new Set(questions.map(q => q.course_name || 'Unbekannter Kurs'))];
+  const chapters = ["all", ...new Set(questions.map(q => q.chapter || 'Unbekanntes Kapitel'))];
+  const topics = ["all", ...new Set(questions.map(q => q.topic || 'Unbekanntes Thema'))];
 
   // Filter questions based on selections
   const filteredQuestions = questions.filter(question => {
@@ -90,8 +90,8 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
           </SelectTrigger>
           <SelectContent>
             {courses.map((course) => (
-              <SelectItem key={course} value={course}>
-                {course === "all" ? "Alle Kurse" : course}
+              <SelectItem key={course} value={course || "unknown"}>
+                {course === "all" ? "Alle Kurse" : (course || "Unbekannter Kurs")}
               </SelectItem>
             ))}
           </SelectContent>
@@ -103,8 +103,8 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
           </SelectTrigger>
           <SelectContent>
             {chapters.map((chapter) => (
-              <SelectItem key={chapter} value={chapter}>
-                {chapter === "all" ? "Alle Kapitel" : chapter}
+              <SelectItem key={chapter} value={chapter || "unknown"}>
+                {chapter === "all" ? "Alle Kapitel" : (chapter || "Unbekanntes Kapitel")}
               </SelectItem>
             ))}
           </SelectContent>
@@ -116,8 +116,8 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
           </SelectTrigger>
           <SelectContent>
             {topics.map((topic) => (
-              <SelectItem key={topic} value={topic}>
-                {topic === "all" ? "Alle Themen" : topic}
+              <SelectItem key={topic} value={topic || "unknown"}>
+                {topic === "all" ? "Alle Themen" : (topic || "Unbekanntes Thema")}
               </SelectItem>
             ))}
           </SelectContent>
