@@ -14,8 +14,11 @@ export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<stri
     console.log('PDF loaded successfully, pages:', pdf.numPages);
     
     let fullText = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      console.log(`Processing page ${i} of ${pdf.numPages}`);
+    // Only process first 5 pages to avoid timeout
+    const pagesToProcess = Math.min(pdf.numPages, 5);
+    
+    for (let i = 1; i <= pagesToProcess; i++) {
+      console.log(`Processing page ${i} of ${pagesToProcess}`);
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
       const pageText = textContent.items
@@ -27,11 +30,15 @@ export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<stri
 
     console.log('Text extraction complete, total length:', fullText.length);
     
-    if (fullText.length < 100) {
+    // Limit text length to avoid token limits
+    const maxLength = 2000;
+    const truncatedText = fullText.slice(0, maxLength);
+    
+    if (truncatedText.length < 100) {
       throw new Error('Extracted text is too short, possible PDF parsing error');
     }
 
-    return fullText;
+    return truncatedText;
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
     throw new Error(`PDF processing error: ${error.message}`);

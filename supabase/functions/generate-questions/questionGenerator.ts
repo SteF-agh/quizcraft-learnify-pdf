@@ -1,14 +1,16 @@
-interface QuestionGeneratorOptions {
-  documentName: string;
-  documentId: string;
-  content: string;
-}
+import { GeneratedQuestion } from './types.ts';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 export const generateQuestions = async (
-  options: QuestionGeneratorOptions,
+  content: string,
+  documentId: string,
   openAIApiKey: string
-): Promise<any> => {
-  console.log('Calling OpenAI API...');
+): Promise<GeneratedQuestion[]> => {
+  console.log('Calling OpenAI API with content length:', content.length);
   
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -18,12 +20,11 @@ export const generateQuestions = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
-            content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Generiere genau 10 Fragen pro Kapitel basierend auf dem bereitgestellten Inhalt. Gib sie als Array von Objekten mit folgender EXAKTER Struktur zurück:
-
+            content: `Generate exactly 3 questions based on the provided content. Return them as an array of objects with this EXACT structure:
 {
   "questions": [
     {
@@ -41,45 +42,18 @@ export const generateQuestions = async (
           "isCorrect": boolean
         }
       ],
-      "feedback": "string (in German)",
-      "metadata": {}
+      "feedback": "string (in German)"
     }
   ]
-}
-
-Richtlinien:
-1. Fragen pro Kapitel:
-   - 4 einfache Fragen (5 Punkte)
-   - 3 mittelschwere Fragen (10 Punkte)
-   - 3 schwere Fragen (15 Punkte)
-
-2. Fragetypen:
-   - 40% Multiple-Choice (4 Optionen, eine richtig)
-   - 40% Single-Choice (4 Optionen, eine richtig)
-   - 20% Wahr/Falsch (2 Optionen)
-   - Richtige Antwort zufällig positionieren
-
-3. Qualitätsrichtlinien:
-   - Fragen müssen sich DIREKT auf den Inhalt des Dokuments beziehen
-   - Fragen müssen klar und eindeutig sein
-   - Antworten müssen unmissverständlich sein
-   - Hilfreiches Feedback bei jeder Frage geben
-   - Keine Duplikate
-   - Fragen gleichmäßig über alle Kapitel verteilen
-
-4. Antwortformat:
-   - Multiple/Single Choice: Genau 4 Optionen
-   - Wahr/Falsch: Genau 2 Optionen
-   - Zufällige Position der richtigen Antwort`
+}`
           },
           { 
             role: 'user', 
-            content: `Generiere Fragen basierend auf diesem Inhalt: ${options.content.substring(0, 4000)}
-
-Document ID: ${options.documentId}
-Document Name: ${options.documentName}`
+            content: `Generate questions based on this content: ${content}
+Document ID: ${documentId}`
           }
         ],
+        max_tokens: 1000,
         temperature: 0.7,
       }),
     });
@@ -102,7 +76,7 @@ Document Name: ${options.documentName}`
         throw new Error('Invalid response format from OpenAI');
       }
       
-      // Validate the structure of each question
+      // Validate each question
       parsedContent.questions.forEach((question: any, index: number) => {
         console.log(`Validating question ${index + 1}:`, question);
         
