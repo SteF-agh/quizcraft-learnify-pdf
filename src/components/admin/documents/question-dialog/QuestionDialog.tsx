@@ -24,11 +24,13 @@ export const QuestionDialog = ({
   onRegenerate,
 }: QuestionDialogProps) => {
   if (!currentQuestion) {
-    console.log("No question provided to QuestionDialog");
+    console.error("No question provided to QuestionDialog");
     return null;
   }
 
-  console.log("Rendering QuestionDialog with question:", currentQuestion);
+  console.log("QuestionDialog - Current Question:", currentQuestion);
+  console.log("QuestionDialog - Question Text:", currentQuestion.question_text);
+  console.log("QuestionDialog - Answers:", currentQuestion.answers);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -39,7 +41,7 @@ export const QuestionDialog = ({
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold mb-2">Frage:</h3>
-            <p>{currentQuestion.question_text}</p>
+            <p className="text-lg">{currentQuestion.question_text}</p>
           </div>
           <div>
             <h3 className="font-semibold mb-2">Antworten:</h3>
@@ -47,26 +49,49 @@ export const QuestionDialog = ({
               {currentQuestion.answers.map((answer, index) => (
                 <li
                   key={index}
-                  className={`${answer.isCorrect ? "text-green-600 font-semibold" : ""}`}
+                  className={`p-2 rounded ${
+                    answer.isCorrect 
+                      ? "bg-green-100 text-green-800 border border-green-300" 
+                      : "bg-gray-50 border border-gray-200"
+                  }`}
                 >
                   {String.fromCharCode(65 + index)}) {answer.text}
+                  {answer.isCorrect && (
+                    <span className="ml-2 text-sm text-green-600">(Richtige Antwort)</span>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
-          <div>
+          <div className="space-y-2">
             <h3 className="font-semibold mb-2">Details:</h3>
-            <p>Typ: {currentQuestion.type}</p>
-            <p>Schwierigkeit: {currentQuestion.difficulty}</p>
-            <p>Kapitel: {currentQuestion.chapter}</p>
-            <p>Feedback: {currentQuestion.feedback}</p>
+            <p><span className="font-medium">Typ:</span> {currentQuestion.type}</p>
+            <p><span className="font-medium">Schwierigkeit:</span> {currentQuestion.difficulty}</p>
+            <p><span className="font-medium">Kapitel:</span> {currentQuestion.chapter}</p>
+            {currentQuestion.feedback && (
+              <div>
+                <span className="font-medium">Feedback:</span>
+                <p className="mt-1 text-gray-600">{currentQuestion.feedback}</p>
+              </div>
+            )}
           </div>
         </div>
-        <DialogFooter className="flex justify-between">
-          <Button variant="outline" onClick={onRegenerate}>
+        <DialogFooter className="flex justify-between mt-6">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              console.log("Regenerate button clicked");
+              onRegenerate();
+            }}
+          >
             Neue Frage generieren
           </Button>
-          <Button onClick={onAccept}>
+          <Button 
+            onClick={() => {
+              console.log("Accept button clicked");
+              onAccept();
+            }}
+          >
             Frage akzeptieren
           </Button>
         </DialogFooter>
