@@ -56,6 +56,10 @@ serve(async (req) => {
     const pdfText = await extractTextFromPdf(arrayBuffer);
     console.log('Successfully extracted text from PDF, length:', pdfText.length);
 
+    if (!pdfText || pdfText.length < 100) {
+      throw new Error('Could not extract meaningful text from PDF');
+    }
+
     // Call OpenAI API
     console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -69,35 +73,36 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert at creating exam questions. Analyze the provided text and create relevant questions.
-            Important rules:
-            1. Create exactly 5 questions per identified chapter
-            2. Questions MUST be DIRECTLY related to the content
-            3. No general or superficial questions
-            4. Each question must test a specific concept or important information from the text
-            5. For Multiple-Choice: All answer options must be plausible
-            6. Provide helpful, explanatory feedback
-            7. Distribute difficulty levels: 2 easy, 2 medium, 1 hard per chapter
+            content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Analysiere den bereitgestellten Text und erstelle relevante Fragen.
+            
+            Wichtige Regeln:
+            1. Erstelle genau 5 Fragen pro identifiziertem Kapitel
+            2. Fragen MÜSSEN sich DIREKT auf den Inhalt beziehen
+            3. Keine allgemeinen oder oberflächlichen Fragen
+            4. Jede Frage muss ein spezifisches Konzept oder wichtige Information aus dem Text testen
+            5. Bei Multiple-Choice: Alle Antwortoptionen müssen plausibel sein
+            6. Gib hilfreiches, erklärendes Feedback
+            7. Verteile die Schwierigkeitsgrade: 2 leicht, 2 mittel, 1 schwer pro Kapitel
 
-            Return the questions in this EXACT format:
+            Gib die Fragen in EXAKT diesem Format zurück:
             {
               "questions": [
                 {
                   "document_id": "${documentId}",
-                  "course_name": "Name of the course from the content",
-                  "chapter": "Chapter number and name",
-                  "topic": "Specific topic of the question",
+                  "course_name": "Name des Kurses aus dem Inhalt",
+                  "chapter": "Kapitelnummer und -name",
+                  "topic": "Spezifisches Thema der Frage",
                   "difficulty": "easy/medium/advanced",
-                  "question_text": "The actual question",
+                  "question_text": "Die eigentliche Frage",
                   "type": "multiple-choice/single-choice/true-false",
-                  "points": "5 for easy, 10 for medium, 15 for advanced",
+                  "points": "5 für leicht, 10 für mittel, 15 für schwer",
                   "answers": [
                     {
-                      "text": "Answer text",
+                      "text": "Antworttext",
                       "isCorrect": true/false
                     }
                   ],
-                  "feedback": "Detailed explanation of the correct answer",
+                  "feedback": "Detaillierte Erklärung der richtigen Antwort",
                   "metadata": {}
                 }
               ]
@@ -105,7 +110,7 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: `Create questions based on this text: ${pdfText.substring(0, 8000)}`
+            content: `Erstelle Fragen basierend auf diesem Text: ${pdfText.substring(0, 8000)}`
           }
         ],
         temperature: 0.7,
@@ -119,11 +124,11 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('Received response from OpenAI:', data);
+    console.log('Received response from OpenAI');
 
     try {
       const parsedContent = JSON.parse(data.choices[0].message.content);
-      console.log('Successfully parsed OpenAI response:', parsedContent);
+      console.log('Successfully parsed OpenAI response');
       
       if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
         console.error('Invalid response format:', parsedContent);
@@ -153,6 +158,22 @@ serve(async (req) => {
 
         if (['multiple-choice', 'single-choice'].includes(question.type) && question.answers.length !== 4) {
           throw new Error(`Question ${index + 1} (${question.type}) must have exactly 4 answers`);
+        }
+
+        // Validate that exactly one answer is correct for single-choice and true-false
+        if (['single-choice', 'true-false'].includes(question.type)) {
+          const correctAnswers = question.answers.filter((a: any) => a.isCorrect);
+          if (correctAnswers.length !== 1) {
+            throw new Error(`Question ${index + 1} must have exactly one correct answer`);
+          }
+        }
+
+        // For multiple-choice, at least one answer must be correct
+        if (question.type === 'multiple-choice') {
+          const correctAnswers = question.answers.filter((a: any) => a.isCorrect);
+          if (correctAnswers.length === 0) {
+            throw new Error(`Question ${index + 1} must have at least one correct answer`);
+          }
         }
       });
 
