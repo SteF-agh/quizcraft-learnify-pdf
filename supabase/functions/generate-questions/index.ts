@@ -95,11 +95,14 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in generate-questions function:', error);
     console.error('Error stack:', error.stack);
+    
+    // Return a more detailed error response
     return new Response(
       JSON.stringify({ 
         error: error.message,
         details: error.stack,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        type: error.constructor.name
       }),
       { 
         status: 500,

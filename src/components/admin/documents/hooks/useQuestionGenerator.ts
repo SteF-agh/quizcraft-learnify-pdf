@@ -27,8 +27,16 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
         console.error('Error from edge function:', error);
         const errorMessage = error.message || 'Unknown error';
         const details = error.stack || '';
-        toast.error(`Fehler bei der Fragengenerierung: ${errorMessage}`);
-        console.error('Full error details:', details);
+        
+        // Log detailed error information
+        console.error('Full error details:', {
+          message: errorMessage,
+          details: details,
+          error: error
+        });
+
+        // Show a more descriptive error message to the user
+        toast.error(`Fehler bei der Fragengenerierung: ${errorMessage}. Bitte versuchen Sie es später erneut.`);
         throw error;
       }
 
