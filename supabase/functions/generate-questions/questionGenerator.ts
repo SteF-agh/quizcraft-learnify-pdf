@@ -5,7 +5,7 @@ export const generateQuestions = async (
   documentId: string,
   openAIApiKey: string
 ): Promise<GeneratedQuestion[]> => {
-  console.log('Calling OpenAI API with content length:', content.length);
+  console.log('Starting OpenAI request with content length:', content.length);
   
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -55,7 +55,7 @@ Document ID: ${documentId}`
 
     if (!response.ok) {
       const error = await response.json();
-      console.error('OpenAI API error:', error);
+      console.error('OpenAI API error response:', error);
       throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
     }
 
@@ -64,7 +64,7 @@ Document ID: ${documentId}`
 
     try {
       const parsedContent = JSON.parse(data.choices[0].message.content);
-      console.log('Successfully parsed OpenAI response');
+      console.log('Successfully parsed OpenAI response:', parsedContent);
       
       if (!parsedContent.questions || !Array.isArray(parsedContent.questions)) {
         console.error('Invalid response format:', parsedContent);
@@ -87,13 +87,26 @@ Document ID: ${documentId}`
             !question.feedback) {
           throw new Error(`Question ${index + 1} is missing required fields`);
         }
+
+        // Validate difficulty
+        if (!['easy', 'medium', 'advanced'].includes(question.difficulty)) {
+          throw new Error(`Question ${index + 1} has invalid difficulty: ${question.difficulty}`);
+        }
+
+        // Validate type and number of answers
+        if (['multiple-choice', 'single-choice'].includes(question.type) && question.answers.length < 2) {
+          throw new Error(`Question ${index + 1} should have at least 2 options`);
+        }
+        if (question.type === 'true-false' && question.answers.length !== 2) {
+          throw new Error(`Question ${index + 1} should have exactly 2 options for true-false`);
+        }
       });
       
       return parsedContent.questions;
     } catch (error) {
       console.error('Error parsing OpenAI response:', error);
       console.error('Raw content:', data.choices[0].message.content);
-      throw new Error('Failed to parse generated questions');
+      throw new Error(`Failed to parse generated questions: ${error.message}`);
     }
   } catch (error) {
     console.error('Error generating questions:', error);

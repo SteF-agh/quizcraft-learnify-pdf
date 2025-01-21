@@ -15,17 +15,29 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting question generation process...');
+    
+    // Get request body
     const { documentId } = await req.json();
+    if (!documentId) {
+      throw new Error('Document ID is required');
+    }
     console.log('Processing document:', documentId);
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
+
+    if (!supabaseUrl || !supabaseKey || !openAIApiKey) {
+      console.error('Missing required environment variables');
+      throw new Error('Server configuration error');
+    }
+
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch document from storage
-    console.log('Fetching document from storage...');
+    // Fetch document
+    console.log('Fetching document from database...');
     const { data: document, error: documentError } = await supabase
       .from('documents')
       .select('*')
@@ -49,20 +61,21 @@ serve(async (req) => {
       throw new Error('Failed to download PDF file');
     }
 
-    // Extract text from PDF (limited to first 2000 characters)
+    // Extract text from PDF
     console.log('Extracting text from PDF...');
     const fullText = await extractTextFromPdf(await fileData.arrayBuffer());
     const text = fullText.slice(0, 2000); // Limit text to prevent timeouts
     console.log('Text extracted, length:', text.length);
 
     if (text.length < 100) {
+      console.error('Extracted text is too short:', text);
       throw new Error('Not enough text extracted from PDF');
     }
 
     // Generate questions
     console.log('Generating questions...');
     const questions = await generateQuestions(text, documentId, openAIApiKey);
-    console.log('Questions generated:', questions.length);
+    console.log('Questions generated successfully:', questions);
 
     return new Response(
       JSON.stringify({ questions }),
@@ -71,10 +84,12 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in generate-questions function:', error);
+    console.error('Error stack:', error.stack);
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.stack
+        details: error.stack,
+        timestamp: new Date().toISOString()
       }),
       { 
         status: 500,
