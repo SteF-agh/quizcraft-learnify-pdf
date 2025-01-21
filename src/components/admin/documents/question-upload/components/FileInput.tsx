@@ -13,21 +13,15 @@ export const FileInput = ({ isUploading, onFileSelect }: FileInputProps) => {
         accept=".json,.xlsx,.xls"
         onChange={onFileSelect}
         disabled={isUploading}
-        className="hidden"
+        className="block w-full text-sm text-slate-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-full file:border-0
+          file:text-sm file:font-semibold
+          file:bg-violet-50 file:text-violet-700
+          hover:file:bg-violet-100
+          disabled:opacity-50 disabled:cursor-not-allowed"
         id="question-upload"
       />
-      <label htmlFor="question-upload">
-        <Button
-          variant="outline"
-          disabled={isUploading}
-          className="cursor-pointer"
-          asChild
-        >
-          <span>
-            {isUploading ? "Lade Fragen hoch..." : "Fragen aus JSON oder Excel hochladen"}
-          </span>
-        </Button>
-      </label>
     </div>
   );
 };
