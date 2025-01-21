@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { QuestionDialog } from "./question-dialog/QuestionDialog";
-import { useQuestionGeneration } from "./hooks/useQuestionGeneration";
+import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
 import { Document } from "./types";
 import { GenerationProgress } from "./generation-progress/GenerationProgress";
 import { QuestionsDisplay } from "./questions-display/QuestionsDisplay";
@@ -21,15 +21,16 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
   const [filterStatus, setFilterStatus] = useState("all");
 
   const {
-    isGenerating,
-    currentQuestion,
-    showQuestionDialog,
-    setShowQuestionDialog,
-    handleGenerateQuiz,
-    handleAcceptQuestion,
-    handleRegenerateQuestion,
-    generationProgress
-  } = useQuestionGeneration(onRefetch);
+    state: {
+      isGenerating,
+      currentQuestions,
+      showQuestionDialog,
+      generationProgress
+    },
+    generateQuestions,
+    saveQuestions,
+    setState
+  } = useQuestionGenerator(onRefetch);
 
   const handleTogglePublic = async (documentId: string, currentState: boolean) => {
     try {
@@ -53,73 +54,22 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
     try {
       console.log('Fetching questions for document:', documentId);
       
-      const { data: document, error: documentError } = await supabase
-        .from("documents")
-        .select("*")
-        .eq("id", documentId)
-        .single();
-
-      if (documentError) {
-        console.error("Error fetching document:", documentError);
-        throw documentError;
-      }
-
-      console.log('Found document:', document);
-
       const { data: existingQuestions, error: fetchError } = await supabase
         .from("quiz_questions")
         .select("*")
         .eq("document_id", documentId);
 
-      if (fetchError) {
-        console.error("Error fetching questions:", fetchError);
-        throw fetchError;
-      }
+      if (fetchError) throw fetchError;
 
-      console.log('Raw questions data:', existingQuestions);
+      console.log('Fetched questions:', existingQuestions);
 
       if (!existingQuestions || existingQuestions.length === 0) {
-        console.log('No questions found for document:', documentId);
         toast.info("Keine Fragen für dieses Dokument gefunden");
         setQuestions([]);
         return;
       }
 
-      // Analyze question distribution
-      const questionTypes = existingQuestions.map(q => q.type);
-      const difficulties = existingQuestions.map(q => q.difficulty);
-      
-      const typeDistribution = {
-        'multiple-choice': questionTypes.filter(t => t === 'multiple-choice').length,
-        'single-choice': questionTypes.filter(t => t === 'single-choice').length,
-        'true-false': questionTypes.filter(t => t === 'true-false').length
-      };
-
-      const difficultyDistribution = {
-        'easy': difficulties.filter(d => d === 'easy').length,
-        'medium': difficulties.filter(d => d === 'medium').length,
-        'advanced': difficulties.filter(d => d === 'advanced').length
-      };
-
-      console.log('Question type distribution:', typeDistribution);
-      console.log('Difficulty distribution:', difficultyDistribution);
-
-      const formattedQuestions = existingQuestions.map(q => ({
-        id: q.id,
-        question_text: q.question_text,
-        type: q.type,
-        difficulty: q.difficulty,
-        points: q.points,
-        document_id: q.document_id,
-        answers: q.answers,
-        course_name: q.course_name,
-        chapter: q.chapter,
-        topic: q.topic
-      }));
-
-      console.log('Formatted questions:', formattedQuestions);
-      setQuestions(formattedQuestions);
-      
+      setQuestions(existingQuestions);
     } catch (error) {
       console.error("Error fetching questions:", error);
       toast.error("Fehler beim Laden der Fragen");
@@ -155,7 +105,7 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
       <DocumentsTable
         documents={filteredDocuments}
         onTogglePublic={handleTogglePublic}
-        onGenerateQuiz={handleGenerateQuiz}
+        onGenerateQuiz={generateQuestions}
         onViewQuestions={handleViewQuestions}
         isGenerating={isGenerating}
       />
@@ -167,13 +117,12 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         />
       )}
 
-      {showQuestionDialog && currentQuestion && (
+      {showQuestionDialog && currentQuestions.length > 0 && (
         <QuestionDialog
           open={showQuestionDialog}
-          onOpenChange={setShowQuestionDialog}
-          currentQuestion={currentQuestion}
-          onAccept={handleAcceptQuestion}
-          onRegenerate={handleRegenerateQuestion}
+          onOpenChange={(open) => setState(prev => ({ ...prev, showQuestionDialog: open }))}
+          questions={currentQuestions}
+          onSave={saveQuestions}
         />
       )}
     </>
