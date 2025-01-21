@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Document } from "../types";
 import { formatFileSize } from "@/utils/formatters";
-import { Eye, Play } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +19,7 @@ interface DocumentRowProps {
 export const DocumentRow = ({
   document,
   onTogglePublic,
-  onGenerateQuiz,
   onViewQuestions,
-  isGenerating,
 }: DocumentRowProps) => {
   const [questionCount, setQuestionCount] = useState<number | null>(null);
 
@@ -67,15 +65,6 @@ export const DocumentRow = ({
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onGenerateQuiz(document.id)}
-            disabled={isGenerating}
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Quiz generieren
-          </Button>
           <Button
             variant="outline"
             size="sm"
