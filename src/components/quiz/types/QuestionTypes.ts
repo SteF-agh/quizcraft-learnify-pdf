@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types";
+
 export interface Question {
   type: 'multiple-choice' | 'single-choice' | 'true-false';
   text: string;
