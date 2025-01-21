@@ -51,9 +51,9 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
 
   return (
     <div className="bg-slate-50 p-6 rounded-lg border mt-8">
-      <h2 className="text-2xl font-semibold mb-2">Generierte Fragen</h2>
+      <h2 className="text-2xl font-semibold mb-2">Generierte bzw. hochgeladene Fragen</h2>
       <p className="text-slate-600 mb-4">
-        {questions.length} {questions.length === 1 ? 'Frage wurde' : 'Fragen wurden'} für dieses Dokument generiert:
+        {questions.length} {questions.length === 1 ? 'Frage wurde' : 'Fragen wurden'} für dieses Dokument erfasst:
       </p>
       <div className="rounded-md border bg-white">
         <Table>
