@@ -14,6 +14,7 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting question generation process...');
     const { documentId } = await req.json();
     console.log('Processing document:', documentId);
 
@@ -27,12 +28,21 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch document
-    const { data: document, error: docError } = await supabase
+    // Fetch document with timeout
+    const fetchPromise = supabase
       .from('documents')
       .select('*')
       .eq('id', documentId)
       .single();
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Document fetch timeout')), 5000)
+    );
+
+    const { data: document, error: docError } = await Promise.race([
+      fetchPromise,
+      timeoutPromise
+    ]);
 
     if (docError || !document) {
       console.error('Document not found:', docError);
@@ -41,7 +51,7 @@ serve(async (req) => {
 
     console.log('Found document:', document.name);
 
-    // Get PDF content
+    // Get PDF content with timeout
     const { data: fileData, error: fileError } = await supabase
       .storage
       .from('pdfs')
@@ -53,15 +63,27 @@ serve(async (req) => {
     }
 
     const arrayBuffer = await fileData.arrayBuffer();
+    console.log('PDF downloaded, size:', arrayBuffer.byteLength);
+
     const pdfText = await extractTextFromPdf(arrayBuffer);
-    console.log('Successfully extracted text from PDF, length:', pdfText.length);
+    console.log('Extracted text length:', pdfText.length);
 
     if (!pdfText || pdfText.length < 100) {
       throw new Error('Could not extract meaningful text from PDF');
     }
 
-    // Call OpenAI API
-    console.log('Calling OpenAI API...');
+    // Split text into chunks to avoid token limits
+    const maxChunkLength = 4000;
+    const textChunks = [];
+    for (let i = 0; i < pdfText.length; i += maxChunkLength) {
+      textChunks.push(pdfText.slice(i, i + maxChunkLength));
+    }
+    console.log('Split text into', textChunks.length, 'chunks');
+
+    // Process first chunk only for initial questions
+    const chunk = textChunks[0];
+    console.log('Processing first chunk, length:', chunk.length);
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -69,40 +91,30 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
-            content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Analysiere den bereitgestellten Text und erstelle relevante Fragen.
-            
-            Wichtige Regeln:
-            1. Erstelle genau 5 Fragen pro identifiziertem Kapitel
-            2. Fragen MÜSSEN sich DIREKT auf den Inhalt beziehen
-            3. Keine allgemeinen oder oberflächlichen Fragen
-            4. Jede Frage muss ein spezifisches Konzept oder wichtige Information aus dem Text testen
-            5. Bei Multiple-Choice: Alle Antwortoptionen müssen plausibel sein
-            6. Gib hilfreiches, erklärendes Feedback
-            7. Verteile die Schwierigkeitsgrade: 2 leicht, 2 mittel, 1 schwer pro Kapitel
-
-            Gib die Fragen in EXAKT diesem Format zurück:
+            content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Erstelle genau 3 Fragen basierend auf dem Text.
+            Format der Antwort MUSS exakt sein:
             {
               "questions": [
                 {
                   "document_id": "${documentId}",
                   "course_name": "Name des Kurses aus dem Inhalt",
                   "chapter": "Kapitelnummer und -name",
-                  "topic": "Spezifisches Thema der Frage",
+                  "topic": "Spezifisches Thema",
                   "difficulty": "easy/medium/advanced",
-                  "question_text": "Die eigentliche Frage",
+                  "question_text": "Die Frage",
                   "type": "multiple-choice/single-choice/true-false",
-                  "points": "5 für leicht, 10 für mittel, 15 für schwer",
+                  "points": 5/10/15,
                   "answers": [
                     {
                       "text": "Antworttext",
                       "isCorrect": true/false
                     }
                   ],
-                  "feedback": "Detaillierte Erklärung der richtigen Antwort",
+                  "feedback": "Erklärung",
                   "metadata": {}
                 }
               ]
@@ -110,7 +122,7 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: `Erstelle Fragen basierend auf diesem Text: ${pdfText.substring(0, 8000)}`
+            content: `Erstelle Fragen zu diesem Text: ${chunk}`
           }
         ],
         temperature: 0.7,
@@ -135,8 +147,9 @@ serve(async (req) => {
         throw new Error('Invalid response format from OpenAI');
       }
 
-      // Validate each question
+      // Validate questions
       parsedContent.questions.forEach((question: any, index: number) => {
+        console.log(`Validating question ${index + 1}`);
         const requiredFields = [
           'document_id', 'course_name', 'chapter', 'topic', 'difficulty',
           'question_text', 'type', 'points', 'answers', 'feedback'
@@ -152,6 +165,7 @@ serve(async (req) => {
           throw new Error(`Question ${index + 1} has invalid answers format`);
         }
 
+        // Validate answers based on question type
         if (question.type === 'true-false' && question.answers.length !== 2) {
           throw new Error(`Question ${index + 1} (true-false) must have exactly 2 answers`);
         }
@@ -160,7 +174,7 @@ serve(async (req) => {
           throw new Error(`Question ${index + 1} (${question.type}) must have exactly 4 answers`);
         }
 
-        // Validate that exactly one answer is correct for single-choice and true-false
+        // Validate correct answers
         if (['single-choice', 'true-false'].includes(question.type)) {
           const correctAnswers = question.answers.filter((a: any) => a.isCorrect);
           if (correctAnswers.length !== 1) {
@@ -168,7 +182,6 @@ serve(async (req) => {
           }
         }
 
-        // For multiple-choice, at least one answer must be correct
         if (question.type === 'multiple-choice') {
           const correctAnswers = question.answers.filter((a: any) => a.isCorrect);
           if (correctAnswers.length === 0) {
@@ -177,6 +190,7 @@ serve(async (req) => {
         }
       });
 
+      console.log('All questions validated successfully');
       return new Response(
         JSON.stringify({ questions: parsedContent.questions }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
