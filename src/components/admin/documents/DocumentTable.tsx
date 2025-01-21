@@ -85,6 +85,25 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         return;
       }
 
+      // Analyze question distribution
+      const questionTypes = existingQuestions.map(q => q.type);
+      const difficulties = existingQuestions.map(q => q.difficulty);
+      
+      const typeDistribution = {
+        'multiple-choice': questionTypes.filter(t => t === 'multiple-choice').length,
+        'single-choice': questionTypes.filter(t => t === 'single-choice').length,
+        'true-false': questionTypes.filter(t => t === 'true-false').length
+      };
+
+      const difficultyDistribution = {
+        'easy': difficulties.filter(d => d === 'easy').length,
+        'medium': difficulties.filter(d => d === 'medium').length,
+        'advanced': difficulties.filter(d => d === 'advanced').length
+      };
+
+      console.log('Question type distribution:', typeDistribution);
+      console.log('Difficulty distribution:', difficultyDistribution);
+
       const formattedQuestions = existingQuestions.map(q => ({
         id: q.id,
         question_text: q.question_text,
