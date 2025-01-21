@@ -1,7 +1,7 @@
 import * as pdfjs from 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.js';
 
 export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<string> => {
-  console.log('Starting PDF text extraction, buffer size:', arrayBuffer.byteLength);
+  console.log('Starting PDF text extraction');
   
   try {
     const workerSrc = 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.worker.js';
@@ -11,25 +11,18 @@ export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<stri
 
     const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
     const pdf = await loadingTask.promise;
-    console.log('PDF loaded successfully, pages:', pdf.numPages);
+    console.log('PDF loaded successfully');
     
-    let fullText = '';
-    // Only process first 5 pages to avoid timeout
-    const pagesToProcess = Math.min(pdf.numPages, 5);
-    
-    for (let i = 1; i <= pagesToProcess; i++) {
-      console.log(`Processing page ${i} of ${pagesToProcess}`);
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .map((item: any) => item.str)
-        .join(' ')
-        .replace(/\s+/g, ' ');
-      fullText += pageText + '\n\n';
-    }
+    // Only process first page to avoid timeouts
+    const page = await pdf.getPage(1);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items
+      .map((item: any) => item.str)
+      .join(' ')
+      .replace(/\s+/g, ' ');
 
-    console.log('Text extraction complete, total length:', fullText.length);
-    return fullText;
+    console.log('Text extraction complete');
+    return pageText;
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
     throw new Error(`PDF processing error: ${error.message}`);
