@@ -29,7 +29,8 @@ export const useQuestionView = () => {
       }
     }
 
-    return {
+    // Map to Question type
+    const question: Question = {
       id: dbQuestion.id,
       document_id: dbQuestion.document_id,
       course_name: dbQuestion.course_name,
@@ -40,10 +41,12 @@ export const useQuestionView = () => {
       type: dbQuestion.type,
       points: dbQuestion.points,
       answers: formattedAnswers,
-      feedback: dbQuestion.feedback,
-      learning_objective_id: dbQuestion.learning_objective_id,
+      feedback: dbQuestion.feedback || undefined,
+      learning_objective_id: dbQuestion.learning_objective_id || undefined,
       metadata: dbQuestion.metadata as Record<string, unknown> | undefined
     };
+
+    return question;
   };
 
   const handleViewQuestions = async (documentId: string) => {
@@ -67,7 +70,7 @@ export const useQuestionView = () => {
       }
 
       // Map database questions to our Question type
-      const mappedQuestions = dbQuestions.map(mapDatabaseQuestionToQuestion);
+      const mappedQuestions = dbQuestions.map((q) => mapDatabaseQuestionToQuestion(q as DatabaseQuestion));
       console.log('Mapped questions:', mappedQuestions);
       
       setQuestions(mappedQuestions);

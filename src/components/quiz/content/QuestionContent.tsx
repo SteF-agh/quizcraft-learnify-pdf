@@ -20,7 +20,7 @@ export const QuestionContent = ({
     case 'single-choice':
       return (
         <MultipleChoiceQuestion
-          options={question.options || []}
+          options={question.answers.map(a => a.text)}
           selectedAnswer={selectedAnswer}
           onAnswerSelect={onAnswerSelect}
         />

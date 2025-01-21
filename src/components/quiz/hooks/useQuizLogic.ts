@@ -18,12 +18,21 @@ export const useQuizLogic = (documentId: string | null) => {
 
   const mapDatabaseQuestionToFrontend = (dbQuestion: DatabaseQuestion): Question => {
     console.log('Mapping question:', dbQuestion);
-    const answers = dbQuestion.answers as { options?: string[]; correctAnswer: string | number | boolean };
+    
+    // Convert the answers object to the expected format
+    const formattedAnswers = Object.entries(dbQuestion.answers)
+      .filter(([key]) => !key.includes('korrekt'))
+      .map((entry, index) => ({
+        text: entry[1],
+        isCorrect: dbQuestion.answers[`${entry[0]} korrekt`] === 'true'
+      }));
+
     return {
-      type: dbQuestion.type,
-      text: dbQuestion.question_text,
-      options: answers.options,
-      correctAnswer: answers.correctAnswer,
+      ...dbQuestion,
+      answers: formattedAnswers,
+      feedback: dbQuestion.feedback || undefined,
+      learning_objective_id: dbQuestion.learning_objective_id || undefined,
+      metadata: dbQuestion.metadata as Record<string, unknown> | undefined
     };
   };
 
