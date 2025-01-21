@@ -20,18 +20,23 @@ serve(async (req) => {
     // Get request body
     const { documentId } = await req.json();
     if (!documentId) {
+      console.error('Missing documentId in request');
       throw new Error('Document ID is required');
     }
     console.log('Processing document:', documentId);
 
     // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
     if (!supabaseUrl || !supabaseKey || !openAIApiKey) {
-      console.error('Missing required environment variables');
-      throw new Error('Server configuration error');
+      console.error('Missing required environment variables:', {
+        hasSupabaseUrl: !!supabaseUrl,
+        hasSupabaseKey: !!supabaseKey,
+        hasOpenAIKey: !!openAIApiKey
+      });
+      throw new Error('Server configuration error: Missing required environment variables');
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -44,8 +49,13 @@ serve(async (req) => {
       .eq('id', documentId)
       .single();
 
-    if (documentError || !document) {
+    if (documentError) {
       console.error('Error fetching document:', documentError);
+      throw new Error(`Document not found: ${documentError.message}`);
+    }
+
+    if (!document) {
+      console.error('Document not found for ID:', documentId);
       throw new Error('Document not found');
     }
 
@@ -58,7 +68,7 @@ serve(async (req) => {
 
     if (downloadError || !fileData) {
       console.error('Error downloading file:', downloadError);
-      throw new Error('Failed to download PDF file');
+      throw new Error(`Failed to download PDF file: ${downloadError?.message || 'No file data'}`);
     }
 
     // Extract text from PDF
@@ -69,7 +79,7 @@ serve(async (req) => {
 
     if (text.length < 100) {
       console.error('Extracted text is too short:', text);
-      throw new Error('Not enough text extracted from PDF');
+      throw new Error('Not enough text extracted from PDF (minimum 100 characters required)');
     }
 
     // Generate questions

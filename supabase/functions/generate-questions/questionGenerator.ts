@@ -75,17 +75,22 @@ Document ID: ${documentId}`
       parsedContent.questions.forEach((question: any, index: number) => {
         console.log(`Validating question ${index + 1}:`, question);
         
-        if (!question.document_id || 
-            !question.course_name ||
-            !question.chapter ||
-            !question.topic ||
-            !question.difficulty ||
-            !question.question_text ||
-            !question.type ||
-            !question.points ||
-            !Array.isArray(question.answers) ||
-            !question.feedback) {
-          throw new Error(`Question ${index + 1} is missing required fields`);
+        const requiredFields = [
+          'document_id',
+          'course_name',
+          'chapter',
+          'topic',
+          'difficulty',
+          'question_text',
+          'type',
+          'points',
+          'answers',
+          'feedback'
+        ];
+
+        const missingFields = requiredFields.filter(field => !question[field]);
+        if (missingFields.length > 0) {
+          throw new Error(`Question ${index + 1} is missing required fields: ${missingFields.join(', ')}`);
         }
 
         // Validate difficulty
@@ -94,11 +99,22 @@ Document ID: ${documentId}`
         }
 
         // Validate type and number of answers
+        if (!['multiple-choice', 'single-choice', 'true-false'].includes(question.type)) {
+          throw new Error(`Question ${index + 1} has invalid type: ${question.type}`);
+        }
+
         if (['multiple-choice', 'single-choice'].includes(question.type) && question.answers.length < 2) {
           throw new Error(`Question ${index + 1} should have at least 2 options`);
         }
+
         if (question.type === 'true-false' && question.answers.length !== 2) {
           throw new Error(`Question ${index + 1} should have exactly 2 options for true-false`);
+        }
+
+        // Validate that at least one answer is correct
+        const hasCorrectAnswer = question.answers.some((answer: any) => answer.isCorrect);
+        if (!hasCorrectAnswer) {
+          throw new Error(`Question ${index + 1} must have at least one correct answer`);
         }
       });
       

@@ -25,6 +25,10 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
 
       if (error) {
         console.error('Error from edge function:', error);
+        const errorMessage = error.message || 'Unknown error';
+        const details = error.stack || '';
+        toast.error(`Fehler bei der Fragengenerierung: ${errorMessage}`);
+        console.error('Full error details:', details);
         throw error;
       }
 
@@ -32,7 +36,8 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
 
       if (!response.questions || !Array.isArray(response.questions)) {
         console.error('Invalid response format:', response);
-        throw new Error('Ungültiges Antwortformat vom Server');
+        toast.error('Ungültiges Antwortformat vom Server');
+        throw new Error('Invalid response format');
       }
 
       setState(prev => ({
@@ -43,10 +48,11 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
       }));
 
       console.log('Questions generated successfully:', response.questions);
-      toast.success('Fragen wurden erfolgreich generiert');
+      toast.success(`${response.questions.length} Fragen wurden erfolgreich generiert`);
     } catch (error) {
       console.error('Error generating questions:', error);
-      toast.error('Fehler bei der Fragengenerierung: ' + (error.message || 'Unbekannter Fehler'));
+      const errorMessage = error.message || 'Unbekannter Fehler';
+      toast.error(`Fehler bei der Fragengenerierung: ${errorMessage}`);
     } finally {
       setState(prev => ({ ...prev, isGenerating: false }));
     }
@@ -77,6 +83,7 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
 
       if (error) {
         console.error('Error saving questions:', error);
+        toast.error(`Fehler beim Speichern der Fragen: ${error.message}`);
         throw error;
       }
 
@@ -86,7 +93,7 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
       onRefetch();
     } catch (error) {
       console.error('Error saving questions:', error);
-      toast.error('Fehler beim Speichern der Fragen');
+      toast.error(`Fehler beim Speichern der Fragen: ${error.message || 'Unbekannter Fehler'}`);
     }
   };
 
