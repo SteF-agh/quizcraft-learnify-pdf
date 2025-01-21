@@ -8,6 +8,7 @@ import { GenerationProgress } from "./generation-progress/GenerationProgress";
 import { QuestionsDisplay } from "./questions-display/QuestionsDisplay";
 import { TableFilters } from "./table-filters/TableFilters";
 import { DocumentsTable } from "./table/DocumentsTable";
+import { QuestionUpload } from "./question-upload/QuestionUpload";
 
 interface DocumentTableProps {
   documents: Document[];
@@ -119,6 +120,13 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
         onViewQuestions={handleViewQuestions}
         isGenerating={isGenerating}
       />
+
+      {selectedDocumentId && (
+        <QuestionUpload 
+          documentId={selectedDocumentId} 
+          onUploadSuccess={() => handleViewQuestions(selectedDocumentId)} 
+        />
+      )}
 
       {questions.length > 0 && (
         <QuestionsDisplay 
