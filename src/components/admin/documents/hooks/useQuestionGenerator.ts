@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GeneratedQuestion, QuestionGenerationState } from "../types/questionTypes";
+import { Json } from "@/integrations/supabase/types";
 
 export const useQuestionGenerator = (onRefetch: () => void) => {
   const [state, setState] = useState<QuestionGenerationState>({
@@ -55,22 +56,24 @@ export const useQuestionGenerator = (onRefetch: () => void) => {
     console.log('Attempting to save questions:', questions);
     
     try {
+      const formattedQuestions = questions.map(q => ({
+        document_id: q.document_id,
+        course_name: q.course_name,
+        chapter: q.chapter,
+        topic: q.topic,
+        difficulty: q.difficulty,
+        question_text: q.question_text,
+        type: q.type,
+        points: q.points,
+        answers: q.answers as unknown as Json,
+        feedback: q.feedback,
+        learning_objective_id: q.learning_objective_id,
+        metadata: q.metadata
+      }));
+
       const { error } = await supabase
         .from('quiz_questions')
-        .insert(questions.map(q => ({
-          document_id: q.document_id,
-          course_name: q.course_name,
-          chapter: q.chapter,
-          topic: q.topic,
-          difficulty: q.difficulty,
-          question_text: q.question_text,
-          type: q.type,
-          points: q.points,
-          answers: q.answers,
-          feedback: q.feedback,
-          learning_objective_id: q.learning_objective_id,
-          metadata: q.metadata
-        })));
+        .insert(formattedQuestions);
 
       if (error) {
         console.error('Error saving questions:', error);

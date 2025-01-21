@@ -1,3 +1,10 @@
+import { Json } from "@/integrations/supabase/types";
+
+export interface Answer {
+  text: string;
+  isCorrect: boolean;
+}
+
 export interface GeneratedQuestion {
   document_id: string;
   course_name: string;
@@ -11,11 +18,6 @@ export interface GeneratedQuestion {
   feedback?: string;
   learning_objective_id?: string;
   metadata?: Record<string, any>;
-}
-
-export interface Answer {
-  text: string;
-  isCorrect: boolean;
 }
 
 export interface QuestionGenerationState {
