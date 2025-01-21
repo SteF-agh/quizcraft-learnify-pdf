@@ -1,3 +1,8 @@
+export interface Answer {
+  text: string;
+  isCorrect: boolean;
+}
+
 export interface Question {
   id?: string;
   document_id?: string;
@@ -8,10 +13,7 @@ export interface Question {
   question_text: string;
   type: "multiple-choice" | "single-choice" | "true-false";
   points: number;
-  answers: {
-    text: string;
-    isCorrect: boolean;
-  }[];
+  answers: Answer[];
   feedback?: string;
   learning_objective_id?: string;
   metadata?: Record<string, any>;

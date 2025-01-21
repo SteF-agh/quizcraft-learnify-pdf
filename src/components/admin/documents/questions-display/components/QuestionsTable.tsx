@@ -6,48 +6,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Question } from "../../types";
+import { QuestionAnswers } from "./QuestionAnswers";
+import { QuestionFeedback } from "./QuestionFeedback";
+import { QuestionMeta } from "./QuestionMeta";
 
 interface QuestionsTableProps {
   questions: Question[];
 }
 
 export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'bg-green-100 text-green-800';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'advanced':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'multiple-choice':
-        return 'Multiple Choice';
-      case 'single-choice':
-        return 'Single Choice';
-      case 'true-false':
-        return 'Wahr/Falsch';
-      default:
-        return type;
-    }
-  };
-
-  const formatAnswers = (answers: { text: string; isCorrect: boolean }[]) => {
-    return answers.map((answer, index) => (
-      <div key={index} className={`text-sm ${answer.isCorrect ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
-        {answer.text} {answer.isCorrect && '✓'}
-      </div>
-    ));
-  };
-
   return (
     <div className="rounded-md border bg-white">
       <Table>
@@ -56,11 +24,9 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
             <TableHead>Kursname</TableHead>
             <TableHead>Kapitel</TableHead>
             <TableHead>Thema</TableHead>
-            <TableHead>Schwierigkeit</TableHead>
+            <TableHead>Details</TableHead>
             <TableHead>Frage</TableHead>
             <TableHead>Antworten</TableHead>
-            <TableHead>Typ</TableHead>
-            <TableHead>Punkte</TableHead>
             <TableHead>Lernziel</TableHead>
           </TableRow>
         </TableHeader>
@@ -71,27 +37,19 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
               <TableCell>{question.chapter}</TableCell>
               <TableCell>{question.topic}</TableCell>
               <TableCell>
-                <Badge className={getDifficultyColor(question.difficulty)}>
-                  {question.difficulty}
-                </Badge>
+                <QuestionMeta 
+                  difficulty={question.difficulty}
+                  type={question.type}
+                  points={question.points}
+                />
               </TableCell>
               <TableCell className="max-w-md">
                 <div className="font-medium">{question.question_text}</div>
-                {question.feedback && (
-                  <div className="mt-1 text-sm text-gray-500">
-                    Feedback: {question.feedback}
-                  </div>
-                )}
+                <QuestionFeedback feedback={question.feedback} />
               </TableCell>
               <TableCell className="max-w-xs">
-                {formatAnswers(question.answers)}
+                <QuestionAnswers answers={question.answers} />
               </TableCell>
-              <TableCell>
-                <Badge variant="outline">
-                  {getTypeLabel(question.type)}
-                </Badge>
-              </TableCell>
-              <TableCell>{question.points}</TableCell>
               <TableCell>{question.learning_objective_id}</TableCell>
             </TableRow>
           ))}
