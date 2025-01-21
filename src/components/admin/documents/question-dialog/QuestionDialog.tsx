@@ -30,7 +30,6 @@ export const QuestionDialog = ({
   }
 
   console.log("QuestionDialog - Current Question:", currentQuestion);
-  console.log("QuestionDialog - Chapter:", currentQuestion.chapter);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -84,7 +83,7 @@ export const QuestionDialog = ({
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Frage:</h3>
-                  <p className="text-gray-800">{currentQuestion.question_text}</p>
+                  <p className="text-gray-800">{currentQuestion.questionText}</p>
                 </div>
 
                 <div>
