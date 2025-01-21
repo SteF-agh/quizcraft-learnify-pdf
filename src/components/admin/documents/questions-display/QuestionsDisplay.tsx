@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -9,6 +10,13 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Question } from "../types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface QuestionsDisplayProps {
   questions: Question[];
@@ -16,6 +24,10 @@ interface QuestionsDisplayProps {
 }
 
 export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProps) => {
+  const [selectedCourse, setSelectedCourse] = useState<string>("all");
+  const [selectedChapter, setSelectedChapter] = useState<string>("all");
+  const [selectedTopic, setSelectedTopic] = useState<string>("all");
+
   console.log('QuestionsDisplay rendered with:', { questions, documentId });
 
   const getDifficultyColor = (difficulty: string) => {
@@ -44,6 +56,19 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
     }
   };
 
+  // Get unique values for filters
+  const courses = ["all", ...new Set(questions.map(q => q.course_name))];
+  const chapters = ["all", ...new Set(questions.map(q => q.chapter))];
+  const topics = ["all", ...new Set(questions.map(q => q.topic))];
+
+  // Filter questions based on selections
+  const filteredQuestions = questions.filter(question => {
+    const matchesCourse = selectedCourse === "all" || question.course_name === selectedCourse;
+    const matchesChapter = selectedChapter === "all" || question.chapter === selectedChapter;
+    const matchesTopic = selectedTopic === "all" || question.topic === selectedTopic;
+    return matchesCourse && matchesChapter && matchesTopic;
+  });
+
   if (!documentId) {
     return (
       <div className="bg-slate-50 p-6 rounded-lg border mt-8">
@@ -58,13 +83,55 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
   return (
     <div className="bg-slate-50 p-6 rounded-lg border mt-8">
       <h2 className="text-2xl font-semibold mb-2">Generierte bzw. hochgeladene Fragen</h2>
+      <div className="flex gap-4 mb-4">
+        <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Kurs auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {courses.map((course) => (
+              <SelectItem key={course} value={course}>
+                {course === "all" ? "Alle Kurse" : course}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedChapter} onValueChange={setSelectedChapter}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Kapitel auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {chapters.map((chapter) => (
+              <SelectItem key={chapter} value={chapter}>
+                {chapter === "all" ? "Alle Kapitel" : chapter}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Thema auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {topics.map((topic) => (
+              <SelectItem key={topic} value={topic}>
+                {topic === "all" ? "Alle Themen" : topic}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
       <p className="text-slate-600 mb-4">
-        {questions.length === 0 
+        {filteredQuestions.length === 0 
           ? "Keine Fragen für dieses Dokument vorhanden." 
-          : `${questions.length} ${questions.length === 1 ? 'Frage wurde' : 'Fragen wurden'} für dieses Dokument erfasst:`
+          : `${filteredQuestions.length} ${filteredQuestions.length === 1 ? 'Frage wurde' : 'Fragen wurden'} für dieses Dokument erfasst:`
         }
       </p>
-      {questions.length > 0 && (
+      
+      {filteredQuestions.length > 0 && (
         <div className="rounded-md border bg-white">
           <Table>
             <TableHeader>
@@ -80,7 +147,7 @@ export const QuestionsDisplay = ({ questions, documentId }: QuestionsDisplayProp
               </TableRow>
             </TableHeader>
             <TableBody>
-              {questions.map((question) => (
+              {filteredQuestions.map((question) => (
                 <TableRow key={question.id}>
                   <TableCell className="max-w-md">
                     <div className="truncate font-medium">{question.question_text}</div>
