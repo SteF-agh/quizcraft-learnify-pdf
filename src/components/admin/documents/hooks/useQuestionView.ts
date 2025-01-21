@@ -2,7 +2,22 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Question } from "../types";
-import { DatabaseQuestion } from "@/components/quiz/types/QuestionTypes";
+
+interface DatabaseQuestion {
+  id: string;
+  document_id: string;
+  course_name: string;
+  chapter: string;
+  topic: string;
+  difficulty: "easy" | "medium" | "advanced";
+  question_text: string;
+  type: "multiple-choice" | "single-choice" | "true-false";
+  points: number;
+  answers: Record<string, string>;
+  feedback?: string;
+  learning_objective_id?: string;
+  metadata?: Record<string, any>;
+}
 
 export const useQuestionView = () => {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
@@ -43,7 +58,7 @@ export const useQuestionView = () => {
       answers: formattedAnswers,
       feedback: dbQuestion.feedback || undefined,
       learning_objective_id: dbQuestion.learning_objective_id || undefined,
-      metadata: dbQuestion.metadata as Record<string, unknown> | undefined
+      metadata: dbQuestion.metadata
     };
 
     return question;
