@@ -27,6 +27,8 @@ export const QuestionDialog = ({
     return null;
   }
 
+  console.log('Rendering QuestionDialog with questions:', questions);
+
   // Group questions by chapter
   const questionsByChapter = questions.reduce((acc: Record<string, GeneratedQuestion[]>, question) => {
     if (!acc[question.chapter]) {
