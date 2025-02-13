@@ -1,9 +1,11 @@
+
 import { TableCell, TableRow } from "@/components/ui/table";
 import { formatFileSize } from "@/utils/formatters";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { PDFViewer } from "../pdf-viewer/PDFViewer";
 import { QuestionUpload } from "../question-upload/QuestionUpload";
 
 interface Document {
@@ -12,6 +14,7 @@ interface Document {
   file_size?: number;
   created_at: string;
   is_public?: boolean;
+  file_path: string;
 }
 
 interface DocumentRowProps {
@@ -46,6 +49,10 @@ export const DocumentRow = ({
         />
       </TableCell>
       <TableCell className="space-x-2">
+        <PDFViewer 
+          documentPath={document.file_path} 
+          documentName={document.name}
+        />
         <Button
           variant="outline"
           size="sm"
@@ -61,7 +68,6 @@ export const DocumentRow = ({
         >
           Fragen anzeigen
         </Button>
-        <QuestionUpload documentId={document.id} onUploadSuccess={() => onViewQuestions(document.id)} />
       </TableCell>
     </TableRow>
   );
