@@ -1,5 +1,6 @@
 
 import * as pdfjs from 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/legacy/build/pdf.js';
+import 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/legacy/build/pdf.worker.entry.js';
 
 export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<string> => {
   console.log('Starting PDF text extraction');
@@ -7,7 +8,9 @@ export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<stri
   try {
     // Configure PDF.js for server environment
     const pdfjsLib = pdfjs;
-    pdfjsLib.disableWorker = true; // Disable worker to run in edge function
+    if (typeof window === 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/legacy/build/pdf.worker.entry.js';
+    }
     
     console.log('PDF.js configured for server environment');
 
@@ -16,22 +19,28 @@ export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<stri
     const pdf = await loadingTask.promise;
     console.log('PDF loaded successfully');
     
-    // Get the first page
-    const page = await pdf.getPage(1);
-    console.log('First page loaded');
+    // Get all pages
+    const numPages = pdf.numPages;
+    console.log(`PDF has ${numPages} pages`);
+    
+    let fullText = '';
+    
+    // Extract text from all pages
+    for (let i = 1; i <= numPages; i++) {
+      const page = await pdf.getPage(i);
+      console.log(`Processing page ${i}`);
+      
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ')
+        .replace(/\s+/g, ' ');
+      
+      fullText += pageText + ' ';
+    }
 
-    // Extract text content
-    const textContent = await page.getTextContent();
-    console.log('Text content extracted');
-
-    // Combine text items
-    const pageText = textContent.items
-      .map((item: any) => item.str)
-      .join(' ')
-      .replace(/\s+/g, ' ');
-
-    console.log('Text extraction complete, length:', pageText.length);
-    return pageText;
+    console.log('Text extraction complete, length:', fullText.length);
+    return fullText.trim();
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
     throw new Error(`PDF processing error: ${error.message}`);
