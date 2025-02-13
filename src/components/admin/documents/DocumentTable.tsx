@@ -1,8 +1,8 @@
+
 import { QuestionDialog } from "./question-dialog/QuestionDialog";
 import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
 import { Document } from "./types";
 import { GenerationProgress } from "./generation-progress/GenerationProgress";
-import { QuestionsDisplay } from "./questions-display/QuestionsDisplay";
 import { TableFilters } from "./table-filters/TableFilters";
 import { DocumentsTable } from "./table/DocumentsTable";
 import { QuestionUpload } from "./question-upload/QuestionUpload";
@@ -75,11 +75,6 @@ export const DocumentTable = ({ documents, onRefetch }: DocumentTableProps) => {
           onUploadSuccess={() => handleViewQuestions(selectedDocumentId)} 
         />
       )}
-
-      <QuestionsDisplay 
-        questions={questions} 
-        documentId={selectedDocumentId} 
-      />
 
       {showQuestionDialog && currentQuestions.length > 0 && (
         <QuestionDialog
