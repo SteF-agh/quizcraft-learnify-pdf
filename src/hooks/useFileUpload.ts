@@ -1,13 +1,12 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { uploadImageToStorage, saveImageToDatabase } from "@/services/uploadService";
+import { uploadDocumentToStorage, saveDocumentToDatabase } from "@/services/uploadService";
 
 export const useFileUpload = (onUploadSuccess?: () => void) => {
   const [dragActive, setDragActive] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -20,19 +19,19 @@ export const useFileUpload = (onUploadSuccess?: () => void) => {
   };
 
   const handleUpload = async (file: File) => {
-    if (!file || !file.type.includes('image')) {
+    if (!file || !file.type.includes('pdf')) {
       toast({
-        title: "Invalid file type",
-        description: "Please upload an image file (PNG, JPG, or GIF)",
+        title: "Ungültiger Dateityp",
+        description: "Bitte laden Sie eine PDF-Datei hoch",
         variant: "destructive",
       });
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
       toast({
-        title: "File too large",
-        description: "Please upload an image smaller than 5MB",
+        title: "Datei zu groß",
+        description: "Die Datei darf nicht größer als 10MB sein",
         variant: "destructive",
       });
       return;
@@ -40,13 +39,13 @@ export const useFileUpload = (onUploadSuccess?: () => void) => {
 
     setIsUploading(true);
     try {
-      const { fileName, uploadData } = await uploadImageToStorage(file);
-      await saveImageToDatabase(file.name, fileName, file);
+      const { fileName, uploadData } = await uploadDocumentToStorage(file);
+      await saveDocumentToDatabase(file.name, fileName, file);
 
-      console.log("Image uploaded successfully:", uploadData);
+      console.log("Document uploaded successfully:", uploadData);
       toast({
-        title: "Success!",
-        description: "Your avatar image has been uploaded successfully.",
+        title: "Erfolgreich!",
+        description: "Ihr Dokument wurde erfolgreich hochgeladen.",
       });
       
       if (onUploadSuccess) {
@@ -55,8 +54,8 @@ export const useFileUpload = (onUploadSuccess?: () => void) => {
     } catch (error) {
       console.error("Error uploading file:", error);
       toast({
-        title: "Upload failed",
-        description: "There was an error uploading your image. Please try again.",
+        title: "Upload fehlgeschlagen",
+        description: "Beim Hochladen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
         variant: "destructive",
       });
     } finally {

@@ -1,6 +1,8 @@
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRef } from "react";
+import { FileText } from "lucide-react";
 
 interface UploadZoneProps {
   isUploading: boolean;
@@ -48,20 +50,18 @@ export const UploadZone = ({
       
       <div className="text-center space-y-4">
         <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <FileText className="w-6 h-6 text-primary" />
         </div>
         <div>
           <p className="text-lg font-medium">
-            {isUploading ? "Uploading..." : "Drop your PDF document here"}
+            {isUploading ? "Upload läuft..." : "PDF hier ablegen"}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            PDF files up to 10MB
+            PDF Dateien bis 10MB
           </p>
         </div>
         <Button variant="outline" disabled={isUploading}>
-          Select PDF
+          PDF auswählen
         </Button>
       </div>
     </div>

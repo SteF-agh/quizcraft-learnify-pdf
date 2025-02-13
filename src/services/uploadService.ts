@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 const sanitizeFileName = (fileName: string): string => {
@@ -11,8 +12,8 @@ const sanitizeFileName = (fileName: string): string => {
     .replace(/[^a-zA-Z0-9.-]/g, '_');  // Replace other special chars with underscore
 };
 
-export const uploadImageToStorage = async (file: File) => {
-  console.log("Starting image upload:", file.name);
+export const uploadDocumentToStorage = async (file: File) => {
+  console.log("Starting document upload:", file.name);
   
   const sanitizedName = sanitizeFileName(file.name);
   const fileName = `${Date.now()}-${sanitizedName}`;
@@ -20,7 +21,7 @@ export const uploadImageToStorage = async (file: File) => {
   console.log("Sanitized file name:", fileName);
   
   const { data: uploadData, error: uploadError } = await supabase.storage
-    .from('avatars')
+    .from('pdfs')
     .upload(fileName, file);
 
   if (uploadError) {
@@ -31,15 +32,16 @@ export const uploadImageToStorage = async (file: File) => {
   return { fileName, uploadData };
 };
 
-type AvatarImage = {
+type Document = {
   name: string;
   file_path: string;
   file_size: number;
   content_type: string;
+  is_public: boolean;
 };
 
-export const saveImageToDatabase = async (name: string, filePath: string, file: File) => {
-  console.log("Saving image metadata to database:", {
+export const saveDocumentToDatabase = async (name: string, filePath: string, file: File) => {
+  console.log("Saving document metadata to database:", {
     name,
     filePath,
     size: file.size,
@@ -47,12 +49,13 @@ export const saveImageToDatabase = async (name: string, filePath: string, file: 
   });
 
   const { error: dbError } = await supabase
-    .from('avatar_images')
-    .insert<AvatarImage>({
+    .from('documents')
+    .insert<Document>({
       name: name,
       file_path: filePath,
       file_size: file.size,
-      content_type: file.type
+      content_type: file.type,
+      is_public: false
     });
 
   if (dbError) {
