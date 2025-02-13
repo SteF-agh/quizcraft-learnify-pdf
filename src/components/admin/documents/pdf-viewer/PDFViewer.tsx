@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -20,23 +21,37 @@ export const PDFViewer = ({ documentPath, documentName }: PDFViewerProps) => {
 
   const handleOpenPDF = async () => {
     try {
-      console.log('Opening PDF:', documentPath);
+      console.log('Attempting to open PDF with path:', documentPath);
+      
+      if (!documentPath) {
+        console.error('Document path is empty');
+        toast.error('Dokument-Pfad fehlt');
+        return;
+      }
+
       const { data, error } = await supabase.storage
         .from('pdfs')
         .createSignedUrl(documentPath, 60);
 
+      console.log('Storage response:', { data, error });
+
       if (error) {
         console.error('Error creating signed URL:', error);
+        toast.error('Fehler beim Laden des PDFs');
         return;
       }
 
       if (data?.signedUrl) {
-        console.log('Generated signed URL:', data.signedUrl);
+        console.log('Successfully generated signed URL:', data.signedUrl);
         setPdfUrl(data.signedUrl);
         setIsOpen(true);
+      } else {
+        console.error('No signed URL received');
+        toast.error('Keine PDF-URL erhalten');
       }
     } catch (error) {
-      console.error('Error getting PDF URL:', error);
+      console.error('Error in handleOpenPDF:', error);
+      toast.error('Fehler beim Öffnen des PDFs');
     }
   };
 
