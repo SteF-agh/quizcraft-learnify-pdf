@@ -2,13 +2,11 @@
 import { GeneratedQuestion } from './types.ts';
 
 const extractChapters = (content: string): string[] => {
-  // Teilt den Text bei Überschriften auf (z.B. "Kapitel X", "1.", "I.", etc.)
-  const chapters = content
-    .split(/(?=Kapitel|Abschnitt|\d+\.|[IVX]+\.)/g)
-    .filter(chapter => chapter.trim().length > 100)
-    .slice(0, 5); // Maximal 5 Kapitel zur Verarbeitung
-
-  console.log(`Found ${chapters.length} chapters in content`);
+  // Vereinfachte Kapitelextraktion
+  const paragraphs = content.split('\n\n').filter(p => p.trim().length > 50);
+  const chapters = paragraphs.slice(0, 3); // Reduziert auf maximal 3 Abschnitte
+  
+  console.log(`Extracted ${chapters.length} text sections`);
   return chapters;
 };
 
@@ -23,12 +21,14 @@ export const generateQuestions = async (
     const chapters = extractChapters(content);
     const allQuestions: GeneratedQuestion[] = [];
 
-    // Verarbeite jedes Kapitel einzeln
+    // Verarbeite jeden Abschnitt einzeln
     for (let i = 0; i < chapters.length; i++) {
       const chapter = chapters[i];
-      console.log(`Processing chapter ${i + 1} of ${chapters.length}, length: ${chapter.length}`);
+      console.log(`Processing section ${i + 1} of ${chapters.length}`);
 
       try {
+        const prompt = `Erstelle eine Multiple-Choice-Frage zu diesem Text: ${chapter.slice(0, 1000)}`;
+        
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -40,56 +40,45 @@ export const generateQuestions = async (
             messages: [
               {
                 role: 'system',
-                content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Erstelle EINE Multiple-Choice-Frage basierend auf dem folgenden Textabschnitt. Die Frage sollte das Verständnis des Hauptkonzepts testen. Formatiere die Antwort als JSON-Objekt mit dieser Struktur:
-{
-  "document_id": "${documentId}",
-  "course_name": "Aus dem Inhalt extrahiert",
-  "chapter": "Kapitel ${i + 1}",
-  "topic": "Hauptthema aus dem Text",
-  "difficulty": "easy",
-  "question_text": "Frage auf Deutsch",
-  "type": "multiple-choice",
-  "points": 10,
-  "answers": [
-    {"text": "Option 1", "isCorrect": false},
-    {"text": "Option 2", "isCorrect": true},
-    {"text": "Option 3", "isCorrect": false}
-  ],
-  "feedback": "Erklärung auf Deutsch, warum die Antwort korrekt ist"}`
+                content: 'Erstelle eine Multiple-Choice-Frage im folgenden JSON-Format: {"document_id": "ID", "course_name": "Name", "chapter": "Kapitel", "topic": "Thema", "difficulty": "easy", "question_text": "Frage", "type": "multiple-choice", "points": 10, "answers": [{"text": "A", "isCorrect": false}, {"text": "B", "isCorrect": true}, {"text": "C", "isCorrect": false}], "feedback": "Erklärung"}'
               },
               {
                 role: 'user',
-                content: chapter.slice(0, 1500) // Begrenzt die Textlänge pro Request
+                content: prompt
               }
             ],
-            max_tokens: 500, // Reduzierte Token-Anzahl
             temperature: 0.7,
+            max_tokens: 400
           }),
         });
 
         if (!response.ok) {
-          throw new Error(`OpenAI API error: ${response.statusText}`);
+          console.error(`OpenAI API error: ${response.statusText}`);
+          continue;
         }
 
         const data = await response.json();
-        console.log(`Successfully generated question for chapter ${i + 1}`);
-        
+        if (!data.choices?.[0]?.message?.content) {
+          console.error('Invalid response format from OpenAI');
+          continue;
+        }
+
         try {
           const question = JSON.parse(data.choices[0].message.content);
+          question.document_id = documentId; // Stelle sicher, dass die document_id korrekt ist
           allQuestions.push(question);
-        } catch (error) {
-          console.error(`Error parsing question for chapter ${i + 1}:`, error);
-          // Fahre mit dem nächsten Kapitel fort, auch wenn dieses fehlschlägt
+          console.log(`Successfully generated question ${i + 1}`);
+        } catch (parseError) {
+          console.error(`Error parsing question JSON:`, parseError);
+          continue;
         }
 
-        // Warte kurz zwischen den Anfragen, um Rate Limits zu vermeiden
-        if (i < chapters.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        // Kurze Pause zwischen den Anfragen
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
       } catch (error) {
-        console.error(`Error processing chapter ${i + 1}:`, error);
-        // Fahre mit dem nächsten Kapitel fort, auch wenn dieses fehlschlägt
+        console.error(`Error processing section ${i + 1}:`, error);
+        continue;
       }
     }
 
