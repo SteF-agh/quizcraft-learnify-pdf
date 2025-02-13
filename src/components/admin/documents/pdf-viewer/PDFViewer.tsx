@@ -20,11 +20,18 @@ export const PDFViewer = ({ documentPath, documentName }: PDFViewerProps) => {
 
   const handleOpenPDF = async () => {
     try {
-      const { data } = await supabase.storage
+      console.log('Opening PDF:', documentPath);
+      const { data, error } = await supabase.storage
         .from('pdfs')
-        .createSignedUrl(documentPath, 60); // URL valid for 60 seconds
+        .createSignedUrl(documentPath, 60);
+
+      if (error) {
+        console.error('Error creating signed URL:', error);
+        return;
+      }
 
       if (data?.signedUrl) {
+        console.log('Generated signed URL:', data.signedUrl);
         setPdfUrl(data.signedUrl);
         setIsOpen(true);
       }
@@ -39,6 +46,7 @@ export const PDFViewer = ({ documentPath, documentName }: PDFViewerProps) => {
         variant="outline" 
         size="sm" 
         onClick={handleOpenPDF}
+        className="inline-flex"
       >
         PDF anzeigen
       </Button>
