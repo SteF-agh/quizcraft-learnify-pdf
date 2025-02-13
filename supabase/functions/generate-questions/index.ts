@@ -56,58 +56,80 @@ serve(async (req) => {
 
     // Extract text from PDF
     const fullText = await extractTextFromPdf(await fileData.arrayBuffer());
-    const truncatedText = fullText.slice(0, 2000);
+    console.log('Extracted text length:', fullText.length);
 
-    // Generate questions using OpenAI
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `Generate ONE multiple choice question based on this text. Return it as a JSON object with this structure:
-              {
-                "document_id": "${documentId}",
-                "course_name": "Extracted from content",
-                "chapter": "Chapter 1",
-                "topic": "Main topic from text",
-                "difficulty": "easy",
-                "question_text": "Question in German",
-                "type": "multiple-choice",
-                "points": 10,
-                "answers": [
-                  {"text": "Option 1", "isCorrect": false},
-                  {"text": "Option 2", "isCorrect": true},
-                  {"text": "Option 3", "isCorrect": false}
-                ],
-                "feedback": "Feedback in German"
-              }`
-          },
-          {
-            role: 'user',
-            content: truncatedText
-          }
-        ],
-        max_tokens: 1000,
-        temperature: 0.7,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`OpenAI API error: ${errorText}`);
+    // Split text into chunks of approximately 2000 characters
+    const chunks = [];
+    const chunkSize = 2000;
+    for (let i = 0; i < fullText.length; i += chunkSize) {
+      chunks.push(fullText.slice(i, i + chunkSize));
     }
 
-    const data = await response.json();
-    const question = JSON.parse(data.choices[0].message.content);
+    // Generate questions for each chunk
+    const allQuestions = [];
+    for (let i = 0; i < Math.min(chunks.length, 3); i++) { // Limit to 3 chunks for now
+      const chunk = chunks[i];
+      console.log(`Processing chunk ${i + 1} of ${chunks.length}`);
+
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'system',
+                content: `Generate THREE multiple choice questions based on this text. Return them as a JSON array with this structure for each question:
+                {
+                  "document_id": "${documentId}",
+                  "course_name": "Extracted from content",
+                  "chapter": "Chapter ${i + 1}",
+                  "topic": "Main topic from text",
+                  "difficulty": "easy | medium | advanced",
+                  "question_text": "Question in German",
+                  "type": "multiple-choice",
+                  "points": 10,
+                  "answers": [
+                    {"text": "Option 1", "isCorrect": false},
+                    {"text": "Option 2", "isCorrect": true},
+                    {"text": "Option 3", "isCorrect": false},
+                    {"text": "Option 4", "isCorrect": false}
+                  ],
+                  "feedback": "Feedback in German explaining the correct answer"
+                }`
+              },
+              {
+                role: 'user',
+                content: chunk
+              }
+            ],
+            max_tokens: 2000,
+            temperature: 0.7,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`OpenAI API error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const questions = JSON.parse(data.choices[0].message.content);
+        allQuestions.push(...questions);
+
+      } catch (error) {
+        console.error(`Error processing chunk ${i}:`, error);
+        // Continue with next chunk even if this one fails
+      }
+    }
+
+    console.log(`Generated ${allQuestions.length} questions successfully`);
     
     return new Response(
-      JSON.stringify({ questions: [question] }),
+      JSON.stringify({ questions: allQuestions }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
