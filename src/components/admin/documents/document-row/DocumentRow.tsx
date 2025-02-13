@@ -6,7 +6,6 @@ import { de } from "date-fns/locale";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { PDFViewer } from "../pdf-viewer/PDFViewer";
-import { QuestionUpload } from "../question-upload/QuestionUpload";
 
 interface Document {
   id: string;
@@ -33,7 +32,7 @@ export const DocumentRow = ({
   isGenerating
 }: DocumentRowProps) => {
   return (
-    <TableRow key={document.id}>
+    <TableRow>
       <TableCell>{document.name}</TableCell>
       <TableCell>{formatFileSize(document.file_size || 0)}</TableCell>
       <TableCell>
@@ -48,7 +47,7 @@ export const DocumentRow = ({
           onCheckedChange={(checked) => onTogglePublic(document.id, checked)}
         />
       </TableCell>
-      <TableCell className="space-x-2">
+      <TableCell className="text-right space-x-2">
         <PDFViewer 
           documentPath={document.file_path} 
           documentName={document.name}

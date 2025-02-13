@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DocumentRow } from "../document-row/DocumentRow";
 import { Document } from "../types";
@@ -18,34 +19,30 @@ export const DocumentsTable = ({
   isGenerating
 }: DocumentsTableProps) => {
   return (
-    <div className="overflow-x-auto">
-      <div className="w-full">
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Größe</TableHead>
-                <TableHead>Datum</TableHead>
-                <TableHead>Öffentlich</TableHead>
-                <TableHead>Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {documents.map((doc) => (
-                <DocumentRow
-                  key={doc.id}
-                  document={doc}
-                  onTogglePublic={onTogglePublic}
-                  onGenerateQuiz={onGenerateQuiz}
-                  onViewQuestions={onViewQuestions}
-                  isGenerating={isGenerating}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Größe</TableHead>
+            <TableHead>Datum</TableHead>
+            <TableHead>Öffentlich</TableHead>
+            <TableHead className="text-right">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {documents.map((doc) => (
+            <DocumentRow
+              key={doc.id}
+              document={doc}
+              onTogglePublic={onTogglePublic}
+              onGenerateQuiz={onGenerateQuiz}
+              onViewQuestions={onViewQuestions}
+              isGenerating={isGenerating}
+            />
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
