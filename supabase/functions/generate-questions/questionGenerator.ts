@@ -55,8 +55,7 @@ export const generateQuestions = async (
     {"text": "Option 2", "isCorrect": true},
     {"text": "Option 3", "isCorrect": false}
   ],
-  "feedback": "Erklärung auf Deutsch, warum die Antwort korrekt ist"
-}`
+  "feedback": "Erklärung auf Deutsch, warum die Antwort korrekt ist"}`
               },
               {
                 role: 'user',
