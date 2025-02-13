@@ -1,6 +1,17 @@
 
 import { GeneratedQuestion } from './types.ts';
 
+const extractChapters = (content: string): string[] => {
+  // Teilt den Text bei Überschriften auf (z.B. "Kapitel X", "1.", "I.", etc.)
+  const chapters = content
+    .split(/(?=Kapitel|Abschnitt|\d+\.|[IVX]+\.)/g)
+    .filter(chapter => chapter.trim().length > 100)
+    .slice(0, 5); // Maximal 5 Kapitel zur Verarbeitung
+
+  console.log(`Found ${chapters.length} chapters in content`);
+  return chapters;
+};
+
 export const generateQuestions = async (
   content: string,
   documentId: string,
@@ -9,37 +20,34 @@ export const generateQuestions = async (
   console.log('Starting question generation with content length:', content.length);
   
   try {
-    // Teile den Text in kleinere Abschnitte
-    const sections = content
-      .split('\n\n')
-      .filter(section => section.trim().length > 50)
-      .slice(0, 3); // Maximal 3 Abschnitte
+    const chapters = extractChapters(content);
+    const allQuestions: GeneratedQuestion[] = [];
 
-    console.log(`Processing ${sections.length} content sections`);
+    // Verarbeite jedes Kapitel einzeln
+    for (let i = 0; i < chapters.length; i++) {
+      const chapter = chapters[i];
+      console.log(`Processing chapter ${i + 1} of ${chapters.length}, length: ${chapter.length}`);
 
-    // Generiere eine Frage pro Abschnitt
-    const questions = await Promise.all(sections.map(async (section, index) => {
-      console.log(`Generating question for section ${index + 1}`);
-      
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: `Generate ONE question based on this text section. Return it as a JSON object with this structure:
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'system',
+                content: `Du bist ein Experte für die Erstellung von Prüfungsfragen. Erstelle EINE Multiple-Choice-Frage basierend auf dem folgenden Textabschnitt. Die Frage sollte das Verständnis des Hauptkonzepts testen. Formatiere die Antwort als JSON-Objekt mit dieser Struktur:
 {
   "document_id": "${documentId}",
-  "course_name": "Extracted from content",
-  "chapter": "Section ${index + 1}",
-  "topic": "Main topic from section",
+  "course_name": "Aus dem Inhalt extrahiert",
+  "chapter": "Kapitel ${i + 1}",
+  "topic": "Hauptthema aus dem Text",
   "difficulty": "easy",
-  "question_text": "Question in German",
+  "question_text": "Frage auf Deutsch",
   "type": "multiple-choice",
   "points": 10,
   "answers": [
@@ -47,37 +55,47 @@ export const generateQuestions = async (
     {"text": "Option 2", "isCorrect": true},
     {"text": "Option 3", "isCorrect": false}
   ],
-  "feedback": "Feedback in German"
+  "feedback": "Erklärung auf Deutsch, warum die Antwort korrekt ist"
 }`
-            },
-            {
-              role: 'user',
-              content: section
-            }
-          ],
-          max_tokens: 500,
-          temperature: 0.7,
-        }),
-      });
+              },
+              {
+                role: 'user',
+                content: chapter.slice(0, 1500) // Begrenzt die Textlänge pro Request
+              }
+            ],
+            max_tokens: 500, // Reduzierte Token-Anzahl
+            temperature: 0.7,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.statusText}`);
-      }
+        if (!response.ok) {
+          throw new Error(`OpenAI API error: ${response.statusText}`);
+        }
 
-      const data = await response.json();
-      console.log(`Successfully generated question for section ${index + 1}`);
-      
-      try {
-        const question = JSON.parse(data.choices[0].message.content);
-        return question;
+        const data = await response.json();
+        console.log(`Successfully generated question for chapter ${i + 1}`);
+        
+        try {
+          const question = JSON.parse(data.choices[0].message.content);
+          allQuestions.push(question);
+        } catch (error) {
+          console.error(`Error parsing question for chapter ${i + 1}:`, error);
+          // Fahre mit dem nächsten Kapitel fort, auch wenn dieses fehlschlägt
+        }
+
+        // Warte kurz zwischen den Anfragen, um Rate Limits zu vermeiden
+        if (i < chapters.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
       } catch (error) {
-        console.error(`Error parsing question for section ${index + 1}:`, error);
-        throw new Error(`Failed to parse question: ${error.message}`);
+        console.error(`Error processing chapter ${i + 1}:`, error);
+        // Fahre mit dem nächsten Kapitel fort, auch wenn dieses fehlschlägt
       }
-    }));
+    }
 
-    console.log('Successfully generated all questions');
-    return questions;
+    console.log(`Successfully generated ${allQuestions.length} questions`);
+    return allQuestions;
   } catch (error) {
     console.error('Error in question generation:', error);
     throw error;
