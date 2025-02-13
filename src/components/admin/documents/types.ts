@@ -1,3 +1,4 @@
+
 export interface Answer {
   text: string;
   isCorrect: boolean;
@@ -25,6 +26,7 @@ export interface Document {
   file_size?: number;
   created_at: string;
   is_public?: boolean;
+  file_path: string;
 }
 
 export interface CsvQuestion {
