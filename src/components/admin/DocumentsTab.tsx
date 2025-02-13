@@ -1,14 +1,8 @@
+
 import { Card } from "@/components/ui/card";
 import { DocumentTable } from "./documents/DocumentTable";
 import { UploadSection } from "./documents/UploadSection";
-
-interface Document {
-  id: string;
-  name: string;
-  file_size?: number;
-  created_at: string;
-  is_public?: boolean;
-}
+import { Document } from "./documents/types";
 
 interface DocumentsTabProps {
   documents: Document[];
@@ -19,9 +13,8 @@ interface DocumentsTabProps {
 export const DocumentsTab = ({ documents, onUploadSuccess, onRefetch }: DocumentsTabProps) => {
   return (
     <div className="space-y-6">
-      <div className="bg-slate-50 p-6 rounded-lg border">
-        <h2 className="text-2xl font-semibold mb-2">Dokumente hochladen</h2>
-        <p className="text-slate-600 mb-4">Laden Sie Dokumente hoch und lassen Sie die KI automatisch Fragen generieren.</p>
+      <div className="bg-slate-50 p-6 rounded-lg">
+        <h2 className="text-2xl font-semibold mb-4">Neues Dokument hochladen</h2>
         <UploadSection onUploadSuccess={onUploadSuccess} />
       </div>
       <Card className="p-6">
