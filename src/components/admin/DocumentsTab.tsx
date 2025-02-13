@@ -16,12 +16,12 @@ export const DocumentsTab = ({
   onRefetch
 }: DocumentsTabProps) => {
   return <div className="space-y-6">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-xl shadow-sm border border-blue-100">
+      <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-8 rounded-xl shadow-sm border border-primary/10">
         <div className="max-w-2xl">
           <h2 className="text-2xl font-semibold text-secondary mb-2">Neues Dokument hochladen</h2>
           <p className="text-muted-foreground mb-6">
-            Laden Sie Ihr Kursskript hoch und lassen Sie automatisch Übungsfragen generieren.
-            Nach der Freigabe können Teilnehmer mit dem Material üben.
+            Lade dein Kursskript hoch und lasse automatisch Übungsfragen generieren.
+            Nach der Freigabe können deine Teilnehmer mit dem Material üben.
           </p>
           <UploadSection onUploadSuccess={onUploadSuccess} />
         </div>
