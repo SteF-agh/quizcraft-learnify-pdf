@@ -1,48 +1,35 @@
 
-import * as pdfjs from 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/legacy/build/pdf.js';
-import 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/legacy/build/pdf.worker.entry.js';
-
 export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<string> => {
-  console.log('Starting PDF text extraction');
-  
   try {
-    // Configure PDF.js for server environment
-    const pdfjsLib = pdfjs;
-    if (typeof window === 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/legacy/build/pdf.worker.entry.js';
-    }
+    // Konvertiere ArrayBuffer zu Base64
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
     
-    console.log('PDF.js configured for server environment');
+    // Nutze PDF.js CDN direkt
+    const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm');
+    
+    // Konfiguriere worker
+    const worker = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = worker;
 
-    // Load the PDF document
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    // Lade PDF
+    const loadingTask = pdfjsLib.getDocument({data: base64});
     const pdf = await loadingTask.promise;
-    console.log('PDF loaded successfully');
-    
-    // Get all pages
-    const numPages = pdf.numPages;
-    console.log(`PDF has ${numPages} pages`);
     
     let fullText = '';
     
-    // Extract text from all pages
-    for (let i = 1; i <= numPages; i++) {
+    // Extrahiere Text von allen Seiten
+    for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
-      console.log(`Processing page ${i}`);
-      
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items
+      const content = await page.getTextContent();
+      const pageText = content.items
         .map((item: any) => item.str)
-        .join(' ')
-        .replace(/\s+/g, ' ');
-      
-      fullText += pageText + ' ';
+        .join(' ');
+      fullText += pageText + '\n';
     }
-
-    console.log('Text extraction complete, length:', fullText.length);
+    
     return fullText.trim();
   } catch (error) {
-    console.error('Error extracting text from PDF:', error);
-    throw new Error(`PDF processing error: ${error.message}`);
+    console.error('PDF extraction error:', error);
+    throw new Error(`Failed to extract text from PDF: ${error.message}`);
   }
 };
