@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { extractTextFromPdf } from './pdfUtils.ts';
@@ -61,71 +62,76 @@ serve(async (req) => {
 
     console.log('PDF downloaded successfully');
 
-    // Extract text from PDF (first 2000 characters only)
-    const fullText = await extractTextFromPdf(await fileData.arrayBuffer());
-    const truncatedText = fullText.slice(0, 2000);
-
-    console.log('Text extracted, length:', truncatedText.length);
-
-    // Generate one question using OpenAI
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `Generate ONE multiple choice question based on this text. Return it as a JSON object with this structure:
-              {
-                "document_id": "${documentId}",
-                "course_name": "Extracted from content",
-                "chapter": "Chapter 1",
-                "topic": "Main topic from text",
-                "difficulty": "easy",
-                "question_text": "Question in German",
-                "type": "multiple-choice",
-                "points": 10,
-                "answers": [
-                  {"text": "Option 1", "isCorrect": false},
-                  {"text": "Option 2", "isCorrect": true},
-                  {"text": "Option 3", "isCorrect": false}
-                ],
-                "feedback": "Feedback in German"
-              }`
-          },
-          {
-            role: 'user',
-            content: truncatedText
-          }
-        ],
-        max_tokens: 1000,
-        temperature: 0.7,
-      }),
-    });
-
-    if (!response.ok) {
-      console.error('OpenAI API error:', await response.text());
-      throw new Error('OpenAI API error');
-    }
-
-    const data = await response.json();
-    console.log('OpenAI response received');
-
     try {
-      const question = JSON.parse(data.choices[0].message.content);
-      console.log('Question generated successfully');
-      
-      return new Response(
-        JSON.stringify({ questions: [question] }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      // Extract text from PDF (first 2000 characters only)
+      const fullText = await extractTextFromPdf(await fileData.arrayBuffer());
+      const truncatedText = fullText.slice(0, 2000);
+
+      console.log('Text extracted, length:', truncatedText.length);
+
+      // Generate questions using OpenAI
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: `Generate ONE multiple choice question based on this text. Return it as a JSON object with this structure:
+                {
+                  "document_id": "${documentId}",
+                  "course_name": "Extracted from content",
+                  "chapter": "Chapter 1",
+                  "topic": "Main topic from text",
+                  "difficulty": "easy",
+                  "question_text": "Question in German",
+                  "type": "multiple-choice",
+                  "points": 10,
+                  "answers": [
+                    {"text": "Option 1", "isCorrect": false},
+                    {"text": "Option 2", "isCorrect": true},
+                    {"text": "Option 3", "isCorrect": false}
+                  ],
+                  "feedback": "Feedback in German"
+                }`
+            },
+            {
+              role: 'user',
+              content: truncatedText
+            }
+          ],
+          max_tokens: 1000,
+          temperature: 0.7,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('OpenAI API error:', await response.text());
+        throw new Error('OpenAI API error');
+      }
+
+      const data = await response.json();
+      console.log('OpenAI response received');
+
+      try {
+        const question = JSON.parse(data.choices[0].message.content);
+        console.log('Question generated successfully');
+        
+        return new Response(
+          JSON.stringify({ questions: [question] }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error('Error parsing question:', error);
+        throw new Error('Failed to parse question from OpenAI response');
+      }
     } catch (error) {
-      console.error('Error parsing question:', error);
-      throw new Error('Failed to parse question from OpenAI response');
+      console.error('Error in text extraction or question generation:', error);
+      throw error;
     }
 
   } catch (error) {

@@ -1,13 +1,17 @@
+
 import * as pdfjs from 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.js';
 
 export const extractTextFromPdf = async (arrayBuffer: ArrayBuffer): Promise<string> => {
   console.log('Starting PDF text extraction');
   
   try {
-    const workerSrc = 'https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.worker.js';
-    if (!globalThis.pdfjsWorker) {
-      pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+    // Initialize PDF.js worker directly
+    const pdfjsWorker = await import('https://cdn.skypack.dev/pdfjs-dist@2.12.313/build/pdf.worker.js');
+    if (typeof globalThis.window === 'undefined') {
+      // @ts-ignore
+      globalThis.window = {};
     }
+    pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
     const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
     const pdf = await loadingTask.promise;
