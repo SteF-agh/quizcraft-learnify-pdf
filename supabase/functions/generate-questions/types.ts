@@ -1,3 +1,4 @@
+
 export interface GeneratedQuestion {
   document_id: string;
   course_name: string;
