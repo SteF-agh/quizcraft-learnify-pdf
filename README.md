@@ -1,8 +1,75 @@
+
 # Welcome to your Lovable project
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/3d4910f1-59fa-43ad-b499-6a55817ff9a7
+
+## Belohnungssystem und Fortschrittsanzeige für LeeonQuiz
+*Status: Januar 2025*
+
+### Systematische Aufteilung
+
+#### Punkte
+- **Zweck**: Bewertung der Fragegewichtung und Darstellung der Leistung.
+- **Vergabe**: 
+  - Leichte Fragen: 1 Punkt
+  - Mittlere Fragen: 2 Punkte
+  - Schwere Fragen: 3 Punkte
+- **Verwendung**: 
+  - Punkte fließen in die persönliche Statistik und das Leaderboard ein
+  - Keine direkte Verbindung zu Coins oder Abzeichen
+
+#### Coins
+- **Zweck**: Virtuelle Währung zur Freischaltung von Anpassungen
+- **Vergabe**: 
+  - Leichte Fragen: 1 Coin
+  - Mittlere Fragen: 2 Coins
+  - Schwere Fragen: 3 Coins
+  - Kapitel abgeschlossen: 10 Coins
+  - Kurs abgeschlossen: 50 Coins
+- **Verwendung**: 
+  - Freischaltung von Avataren und deren Anpassungen
+  - Personalisierung des Spielerprofils
+- **Visualisierung**: 
+  - Coins werden im Dashboard und Leaderboard prominent angezeigt
+
+#### Fortschrittsbalken
+- **Zweck**: Darstellung des prozentualen Fortschritts
+- **Anzeigen**: 
+  - Zentraler Fortschrittsbalken für den gesamten Kurs: Zeigt den Prozentsatz aller beantworteten Fragen
+  - Kapitel-Fortschrittsanzeigen: Zeigen den Fortschritt pro Kapitel
+- **Berechnung**: 
+  - Fortschritt = (Beantwortete Fragen / Gesamte Fragen) × 100%
+- **Unabhängigkeit**: 
+  - Der Fortschrittsbalken ist nicht an Punkte oder Coins gekoppelt
+
+#### Abzeichen (Kronen)
+- **Zweck**: Anerkennung von Meilensteinen
+- **Vergabe**: 
+  - Bronze-Krone: 50 richtig beantwortete Fragen
+  - Silber-Krone: 100 richtig beantwortete Fragen
+  - Gold-Krone: 200 richtig beantwortete Fragen
+  - Königskrone: 1000 Punkte erreicht
+- **Visualisierung**: 
+  - Abzeichen werden prominent im Dashboard und Leaderboard dargestellt
+
+### Zusammenfassung der Funktionen
+1. Unabhängige Belohnungssysteme: Punkte, Coins und Fortschrittsbalken sind klar voneinander getrennt
+2. Flexibilität: Coins können individuell eingesetzt werden, während Punkte und Fortschrittsbalken die Leistung widerspiegeln
+3. Motivation: Abzeichen und Coins schaffen langfristige Anreize, Kurse abzuschließen und sich zu verbessern
+4. Einfache Visualisierung: Fortschrittsbalken, Abzeichen und Coins sind leicht nachvollziehbar
+
+### Navigation und Darstellung
+- **Dashboard**: 
+  - Fortschrittsbalken für aktuelle Kurse und Kapitel
+  - Anzeige der gesammelten Coins und Abzeichen
+  - Punkteübersicht pro Kurs und insgesamt
+- **Leaderboards**: 
+  - Vergleich der Coins mit anderen Teilnehmern
+  - Darstellung der freigeschalteten Abzeichen
+- **Startseite**: 
+  - Kurzübersicht der Coins und Abzeichen zur Motivation
 
 ## How can I edit this code?
 
