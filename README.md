@@ -1,136 +1,144 @@
 
-# Welcome to your Lovable project
-
-## Project info
+# LeeonQuiz – Dokumentation & Projektübersicht
+*Stand: Januar 2025*
 
 **URL**: https://lovable.dev/projects/3d4910f1-59fa-43ad-b499-6a55817ff9a7
 
-## Belohnungssystem und Fortschrittsanzeige für LeeonQuiz
-*Status: Januar 2025*
+## Inhaltsverzeichnis
+1. [Einleitung und Projektübersicht](#1-einleitung-und-projektübersicht)
+2. [Technologische Grundlagen](#2-technologische-grundlagen)
+3. [Systemarchitektur und Seitenstruktur](#3-systemarchitektur-und-seitenstruktur)
+4. [Funktionen und Features im Detail](#4-funktionen-und-features-im-detail)
+5. [Gamification und Belohnungssystem](#5-gamification-und-belohnungssystem)
+6. [Prüfungsmodus und Zertifizierungen](#6-prüfungsmodus-und-zertifizierungen)
+7. [Entwicklungsumgebung und Tools](#7-entwicklungsumgebung-und-tools)
+8. [Offene Fragen und Ausblick](#8-offene-fragen-und-ausblick)
+9. [Fazit](#9-fazit)
 
-### Systematische Aufteilung
+## 1. Einleitung und Projektübersicht
+LeeonQuiz (intern auch „Leeon's Quest" genannt) ist eine Webanwendung zur spielerischen Wissensvermittlung mit einem klaren Fokus auf professionelle Prüfungsfunktionen.
 
-#### Punkte
-- **Zweck**: Bewertung der Fragegewichtung und Darstellung der Leistung.
-- **Vergabe**: 
-  - Leichte Fragen: 1 Punkt
-  - Mittlere Fragen: 2 Punkte
-  - Schwere Fragen: 3 Punkte
-- **Verwendung**: 
-  - Punkte fließen in die persönliche Statistik und das Leaderboard ein
-  - Keine direkte Verbindung zu Coins oder Abzeichen
+### Zielgruppen
+- Teilnehmende von A-Leecon-Schulungen
+- Interne Mitarbeitende von A-Leecon
+- Externe Unternehmen oder Partner, die ihre Prüfungen und Zertifizierungen über eine flexible und sichere Plattform abwickeln möchten
 
-#### Coins
-- **Zweck**: Virtuelle Währung zur Freischaltung von Anpassungen
-- **Vergabe**: 
-  - Leichte Fragen: 1 Coin
-  - Mittlere Fragen: 2 Coins
-  - Schwere Fragen: 3 Coins
-  - Kapitel abgeschlossen: 10 Coins
-  - Kurs abgeschlossen: 50 Coins
-- **Verwendung**: 
-  - Freischaltung von Avataren und deren Anpassungen
-  - Personalisierung des Spielerprofils
-- **Visualisierung**: 
-  - Coins werden im Dashboard und Leaderboard prominent angezeigt
+### Besonderheit
+Die Lernphase (KI-gestützte Fragegenerierung, Lernkarten, Gamification) wird nahtlos mit dem Prüfungsmodus (Zeitlimits, Proctoring, Zertifikatsdownload) verknüpft.
 
-#### Fortschrittsbalken
-- **Zweck**: Darstellung des prozentualen Fortschritts
-- **Anzeigen**: 
-  - Zentraler Fortschrittsbalken für den gesamten Kurs: Zeigt den Prozentsatz aller beantworteten Fragen
-  - Kapitel-Fortschrittsanzeigen: Zeigen den Fortschritt pro Kapitel
-- **Berechnung**: 
-  - Fortschritt = (Beantwortete Fragen / Gesamte Fragen) × 100%
-- **Unabhängigkeit**: 
-  - Der Fortschrittsbalken ist nicht an Punkte oder Coins gekoppelt
+### Ziele
+1. **Professionelles Prüfungssystem**: Verlässliche, sichere und flexible Prüfungsoptionen, die offizielle Zertifizierungen ermöglichen
+2. **Effektives Lerninstrument**: Kombination aus spielerischen Lernquizzes, automatischer Fragegenerierung und motivierendem Belohnungssystem
+3. **Zentrale Content-Anbindung**: Integration bereits existierender Kursskripte und Fragensets aus der Leecon ContentDB
 
-#### Abzeichen (Kronen)
-- **Zweck**: Anerkennung von Meilensteinen
-- **Vergabe**: 
-  - Bronze-Krone: 50 richtig beantwortete Fragen
-  - Silber-Krone: 100 richtig beantwortete Fragen
-  - Gold-Krone: 200 richtig beantwortete Fragen
-  - Königskrone: 1000 Punkte erreicht
-- **Visualisierung**: 
-  - Abzeichen werden prominent im Dashboard und Leaderboard dargestellt
+### Besondere Merkmale
+- KI-gestützte Fragegenerierung (OpenAI) aus PDF-/Textquellen der ContentDB
+- Gamification (Coins, Abzeichen, Leaderboards) zur Motivation
+- Sicherer Prüfungsmodus (Proctoring, Zeitlimit, Plagiatschutz)
+- Mobile-Optimierung (geplant in Phase 2)
 
-### Zusammenfassung der Funktionen
-1. Unabhängige Belohnungssysteme: Punkte, Coins und Fortschrittsbalken sind klar voneinander getrennt
-2. Flexibilität: Coins können individuell eingesetzt werden, während Punkte und Fortschrittsbalken die Leistung widerspiegeln
-3. Motivation: Abzeichen und Coins schaffen langfristige Anreize, Kurse abzuschließen und sich zu verbessern
-4. Einfache Visualisierung: Fortschrittsbalken, Abzeichen und Coins sind leicht nachvollziehbar
+## 2. Technologische Grundlagen
 
-### Navigation und Darstellung
-- **Dashboard**: 
-  - Fortschrittsbalken für aktuelle Kurse und Kapitel
-  - Anzeige der gesammelten Coins und Abzeichen
-  - Punkteübersicht pro Kurs und insgesamt
-- **Leaderboards**: 
-  - Vergleich der Coins mit anderen Teilnehmern
-  - Darstellung der freigeschalteten Abzeichen
-- **Startseite**: 
-  - Kurzübersicht der Coins und Abzeichen zur Motivation
+### 2.1 Technologien
+#### Frontend
+- React (entwickelt in Replit): Komponentengerüst, schnelle Iteration, Hot Reload
+- Tailwind CSS: Flexibles, einheitliches Styling
 
-## How can I edit this code?
+#### Backend / Cloud-Services
+- Firebase (Auth, Firestore, ggf. Storage, Cloud Functions): Zentrale Datenhaltung (NoSQL), Authentifizierung, serverseitige Funktionen
+- Node.js (falls benötigt): Server- oder Cloud Functions (OpenAI-Integration, verifizierte Prüfungslogik)
 
-There are several ways of editing your application.
+#### KI-Integration
+- OpenAI-APIs: Fragegenerierung, Textanalyse
 
-**Use Lovable**
+### 2.2 Nutzung von Firebase
+1. Authentifizierung (Email/Passwort, OAuth)
+2. Firestore (NoSQL-Datenbank) für Fragen, Prüfungen, Lernkarten, Nutzerfortschritt
+3. Storage (optional) für Uploads
+4. Cloud Functions für Backend-Logik
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3d4910f1-59fa-43ad-b499-6a55817ff9a7) and start prompting.
+### 2.3 Marktanalyse existierender Online-Prüfungstools
+1. CertiProf: Bekannte Marke, teils unflexibel, wenig KI-Fokus
+2. Pearson VUE: Hohe Sicherheit, starre Vorgaben, teuer
+3. ProProfs / exam.net: Einfache Bedienung, jedoch begrenzte Skalierbarkeit
 
-Changes made via Lovable will be committed automatically to this repo.
+## 3. Systemarchitektur und Seitenstruktur
 
-**Use your preferred IDE**
+### 3.1 Rollen und Zugriffsrechte
+- **Teilnehmer**: Zugriff auf Startseite, Dashboard, Quiz/Lernkarten, Leaderboards, Zertifizierungsmodus, Avatare, Shop
+- **Administrator**: Zugriff auf Admin-Dashboard (Kurs-/Fragenverwaltung, Prüfungsmanagement, Statistiken, Rollenverwaltung)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 3.2 Hauptseiten und Features
+- Öffentliche Bereiche (Startseite, Footer-Links)
+- Geschützter Bereich (nach Login)
+- Admin-Bereich (separate Navigation)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 4. Funktionen und Features im Detail
 
-Follow these steps:
+### 4.1 Kernfunktionen
+1. **Automatische Fragegenerierung (KI)**
+   - Aus PDFs / Text der ContentDB
+   - Anpassung nach Schwierigkeitsstufen
+2. **Lernkarten**
+   - Manuelle oder KI-gestützte Erstellung
+   - Personalisierte Wiederholung
+3. **Gamification**
+   - Coins (Belohnung für richtige Antworten)
+   - Abzeichen (Kronen) für Meilensteine
+   - Leaderboards (Woche / Gesamt)
+4. **Anpassbare Sessions**
+   - Themenwahl, Fragenanzahl, Zeitlimit
+   - Zwischenspeicherung im Firestore
+5. **Quizfragenformate**
+   - Multiple-Choice, Richtig/Falsch
+   - Optional: Lückentext, Zuordnung, offene Fragen
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 4.2 Erweiterte oder zukünftige Funktionen
+1. Live Games (Phase 2)
+2. Avatares (Phase 2)
+3. Mobile-Optimierung (Phase 2)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 5. Gamification und Belohnungssystem
+[... keep existing code (existing gamification section)]
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 6. Prüfungsmodus und Zertifizierungen
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### Professionelle Prüfungen für offizielle Zertifizierungen
+- Zeitlimit: je Prüfung konfigurierbar
+- Zufällige Fragen: aus großen Pools
+- Ergebnismanagement: (Teil-)automatische Auswertung
+- Proctoring-Optionen: Lockdown-Browser, Webcam, Logs
+- Zertifikatsdownload: nach bestandener Prüfung
 
-**Edit a file directly in GitHub**
+### 6.1 Schlüsselanforderungen
+1. Hohe Sicherheit
+2. Skalierbarkeit
+3. Proctoring
+4. Flexible Gestaltung
+5. Analyse & Reporting
+6. Benutzerfreundlichkeit
+7. Datenschutz & Compliance
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 7. Entwicklungsumgebung und Tools
 
-**Use GitHub Codespaces**
+### 7.1 Projektkonfiguration
+- package.json: Abhängigkeiten und Scripts
+- tailwind.config.js: Projektweite Styles
+- postcss.config.js: CSS-Optimierung
+- .env: API-Keys und Secrets
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 7.2 Einsatz von GitHub & Replit
+- GitHub: Privates Repository, Versionierung
+- Replit: Online-Dev-Tool, Kollaboration
 
-## What technologies are used for this project?
+## 8. Offene Fragen und Ausblick
+1. Proctoring: UI/UX für Live-Überwachung
+2. Integrationen: SSO, Payment-Lösungen
+3. Zertifizierungs-Akkreditierung
 
-This project is built with .
+## 9. Fazit
+LeeonQuiz kombiniert moderne Webentwicklung mit React & Tailwind, effiziente Entwicklung in Replit, zuverlässige Cloud-Infrastruktur und KI-Features zu einer ganzheitlichen Lösung für spielerisches Lernen und professionelle Prüfungen.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## How To Use This Project
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/3d4910f1-59fa-43ad-b499-6a55817ff9a7) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+[... keep existing code (how to use section)]
